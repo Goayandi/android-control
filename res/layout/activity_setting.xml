@@ -45,6 +45,8 @@
             android:layout_weight="4"
             android:src="@drawable/userheadimage" />
 
+        <!-- android:drawableRight="@drawable/toright" -->
+
         <TextView
             android:id="@+id/userid"
             android:layout_width="fill_parent"
@@ -52,7 +54,6 @@
             android:layout_marginRight="10dp"
             android:layout_weight="1"
             android:drawablePadding="10dp"
-            android:drawableRight="@drawable/toright"
             android:gravity="center_vertical|right"
             android:text="未登录"
             android:textColor="@color/black_deep"
@@ -106,35 +107,33 @@
             android:layout_width="fill_parent"
             android:layout_height="50dp"
             android:paddingLeft="15dip"
-            android:visibility="gone"
-             >
+            android:visibility="gone" >
 
             <TextView
                 style="@style/mag"
-                android:text="机器人名字"
-                />
-            <EditText 
+                android:text="机器人名字" />
+
+            <EditText
                 android:id="@+id/robotname"
                 android:layout_width="150dp"
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
-                android:text="小勇"
+                android:background="@null"
+                android:enabled="false"
                 android:gravity="center"
                 android:maxLength="15"
-                android:enabled="false"
-                android:background="@null"
-                />
-            <TextView 
+                android:text="小勇" />
+
+            <TextView
                 android:id="@+id/editname"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
-                android:text="编辑"
                 android:layout_centerVertical="true"
-                android:textSize="17sp"
                 android:layout_marginRight="10dp"
+                android:text="编辑"
                 android:textColor="@color/blue"
-                />
+                android:textSize="17sp" />
         </RelativeLayout>
 
         <!-- <RelativeLayout -->
@@ -185,6 +184,18 @@
                 android:layout_width="fill_parent"
                 android:text="关于我们" />
         </RelativeLayout>
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="50dip"
+            android:orientation="horizontal"
+            android:paddingLeft="15dip" >
+
+            <TextView
+                android:id="@+id/upgrade"
+                style="@style/mag"
+                android:layout_width="fill_parent"
+                android:text="Fota升级" />
+        </RelativeLayout>
 
         <RelativeLayout
             android:layout_width="wrap_content"
@@ -199,6 +210,7 @@
                 android:textColor="@color/black_deep" />
 
             <TextView
+                android:id="@+id/versionname"
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
                 android:layout_alignParentRight="true"
@@ -206,6 +218,20 @@
                 android:gravity="center_vertical"
                 android:text="1.0"
                 android:textColor="@color/black_deep" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="50dip"
+            android:orientation="horizontal"
+            android:paddingLeft="15dip" >
+
+            <TextView
+                android:id="@+id/contact"
+                style="@style/mag"
+                android:layout_width="fill_parent"
+                android:autoLink="email|phone|web"
+                android:text="联系电话" />
         </RelativeLayout>
     </LinearLayout>
 

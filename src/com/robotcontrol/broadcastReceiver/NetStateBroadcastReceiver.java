@@ -25,7 +25,7 @@ public class NetStateBroadcastReceiver extends BroadcastReceiver {
 		NetworkInfo wifi=connect.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
 		if (!mobile.isConnected()&&!wifi.isConnected()) {
 			back(context);
-			ToastUtil.showtomain(context, "无网络连接");
+//			ToastUtil.showtomain(context, "无网络连接");
 		} else if (!mobile.isAvailable()&&!wifi.isAvailable()) {
 			back(context);
 			ToastUtil.showtomain(context, "网络连接不可用");
@@ -37,9 +37,9 @@ public class NetStateBroadcastReceiver extends BroadcastReceiver {
 		if (DemoHXSDKHelper.getInstance().isLogined()) {
 			context.sendBroadcast(new Intent(Constants.Stop));
 			context.stopService(new Intent(context,SocketService.class));
-			context.startActivity(new Intent(context, ConnectActivity.class)
-					.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK).addFlags(
-							Intent.FLAG_ACTIVITY_CLEAR_TASK));
+//			context.startActivity(new Intent(context, ConnectActivity.class)
+//					.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK).addFlags(
+//							Intent.FLAG_ACTIVITY_CLEAR_TASK));
 		}
 
 	}

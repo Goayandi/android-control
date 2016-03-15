@@ -2,11 +2,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.robotcontrol.activity"
     android:versionCode="1"
-    android:versionName="1.0" >
+    android:versionName="1.2" >
 
     <uses-sdk
         android:minSdkVersion="16"
-        android:targetSdkVersion="8" />
+        android:targetSdkVersion="20" />
 
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -34,6 +34,7 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_LOGS" />
     <uses-permission android:name="android.permission.SEND_SMS" />
+    <uses-permission android:name="android.permission.CALL_PHONE"/>
     <!-- 阅读消息 -->
     <uses-permission android:name="android.permission.READ_SMS" />
     <!-- 写入消息 -->
@@ -93,8 +94,15 @@
                 <action android:name="android.intent.action.USER_PRESENT" />
             </intent-filter>
         </receiver>
-
-        <meta-data
+ <!--      <receiver android:name=".HeadsetPlugReceiver" >
+            <intent-filter>
+                <action
+                    android:name="android.intent.action.HEADSET_PLUG"
+                    android:enabled="true" >
+                </action>
+            </intent-filter>
+        </receiver>-->   
+<meta-data
             android:name="EASEMOB_APPKEY"
             android:value="robot8868#robot1" >
         </meta-data>
@@ -102,6 +110,10 @@
         <activity
             android:name="com.robotcontrol.activity.VideoCallActivity"
             android:label="@string/title_activity_video_call" >
+        </activity>
+         <activity
+            android:name="com.robotcontrol.activity.HeadSetPlugActivity"
+            android:label="@string/title_activity_head_set_plug" >
         </activity>
         <activity
             android:name="com.robotcontrol.activity.ShowBigImage"
@@ -200,10 +212,6 @@
             android:screenOrientation="portrait" >
         </activity>
         <activity
-            android:name="com.robotcontrol.activity.ShowbigimageActivity"
-            android:label="@string/title_activity_showbigimage" >
-        </activity>
-        <activity
             android:name="com.robotcontrol.activity.BindRobotActivity"
             android:label="@string/title_activity_bind_robot"
             android:screenOrientation="portrait" >
@@ -217,6 +225,11 @@
 
         <service android:name="com.robotcontrol.service.UpdateService" >
         </service>
+
+        <activity
+            android:name="com.robotcontrol.activity.BigImageActivity"
+            android:label="@string/title_activity_big_image" >
+        </activity>
     </application>
 
 </manifest>
