@@ -16,8 +16,6 @@
 
 package com.android.datetimepicker.date;
 
-import com.robotcontrol.activity.R;
-
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Canvas;
@@ -26,6 +24,8 @@ import android.graphics.Paint.Align;
 import android.graphics.Paint.Style;
 import android.util.AttributeSet;
 import android.widget.TextView;
+
+import com.yongyida.robot.R;
 
 
 /**

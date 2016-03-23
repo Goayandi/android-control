@@ -38,7 +38,7 @@ import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.FrameLayout;
 
 import com.android.datetimepicker.HapticFeedbackController;
-import com.robotcontrol.activity.R;
+import com.yongyida.robot.R;
 
 
 /**

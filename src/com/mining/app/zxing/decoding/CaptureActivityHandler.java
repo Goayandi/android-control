@@ -31,8 +31,8 @@ import com.google.zxing.BarcodeFormat;
 import com.google.zxing.Result;
 import com.mining.app.zxing.camera.CameraManager;
 import com.mining.app.zxing.view.ViewfinderResultPointCallback;
-import com.robotcontrol.activity.BindRobotActivity;
-import com.robotcontrol.activity.R;
+import com.yongyida.robot.R;
+import com.yongyida.robot.activity.BindRobotActivity;
 
 /**
  * This class handles all the messaging which comprises the state machine for capture.

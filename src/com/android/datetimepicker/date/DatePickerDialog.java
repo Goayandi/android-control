@@ -16,6 +16,12 @@
 
 package com.android.datetimepicker.date;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Locale;
+
 import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.app.DialogFragment;
@@ -38,13 +44,7 @@ import android.widget.TextView;
 import com.android.datetimepicker.HapticFeedbackController;
 import com.android.datetimepicker.Utils;
 import com.android.datetimepicker.date.MonthAdapter.CalendarDay;
-import com.robotcontrol.activity.R;
-
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Locale;
+import com.yongyida.robot.R;
 
 /**
  * Dialog allowing users to select a date.

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.robotcontrol.activity"
+    package="com.yongyida.robot"
     android:versionCode="1"
-    android:versionName="1.2" >
+    android:versionName="1.3" >
 
     <uses-sdk
         android:minSdkVersion="16"
@@ -50,29 +50,30 @@
     <uses-feature android:name="android.hardware.camera.autofocus" />
 
     <application
-        android:name="com.robotcontrol.huanxin.DemoApplication"
+        android:name="com.yongyida.robot.huanxin.DemoApplication"
         android:allowBackup="true"
         android:icon="@drawable/app_icon"
         android:label="@string/app_name"
         android:theme="@android:style/Theme.NoTitleBar" >
         <activity
-            android:name="com.robotcontrol.activity.MainActivity"
+            android:name="com.yongyida.robot.activity.MainActivity"
             android:label="@string/app_name" >
         </activity>
         <activity
-            android:name="com.robotcontrol.activity.LoginActivity"
+            android:name="com.yongyida.robot.activity.LoginActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustPan" >
         </activity>
         <activity
-            android:name="com.robotcontrol.activity.ControlActivity"
+            android:name="com.yongyida.robot.activity.ControlActivity"
             android:label="@string/title_activity_control"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
             android:launchMode="singleTop"
             android:screenOrientation="landscape" >
         </activity>
 
-        <service android:name="com.robotcontrol.service.SocketService" >
+        <service android:name="com.yongyida.robot.service.SocketService" >
         </service>
         <!-- 开机自启动服务 -->
         <receiver android:name="com.easemob.chat.StartServiceReceiver" >
@@ -108,91 +109,91 @@
         </meta-data>
 
         <activity
-            android:name="com.robotcontrol.activity.VideoCallActivity"
+            android:name="com.yongyida.robot.activity.VideoCallActivity"
             android:label="@string/title_activity_video_call" >
         </activity>
          <activity
-            android:name="com.robotcontrol.activity.HeadSetPlugActivity"
+            android:name="com.yongyida.robot.activity.HeadSetPlugActivity"
             android:label="@string/title_activity_head_set_plug" >
         </activity>
         <activity
-            android:name="com.robotcontrol.activity.ShowBigImage"
+            android:name="com.yongyida.robot.activity.ShowBigImage"
             android:label="@string/title_activity_show_big_image" >
         </activity>
         <activity
-            android:name="com.robotcontrol.activity.ContextMenu"
+            android:name="com.yongyida.robot.activity.ContextMenu"
             android:label="@string/title_activity_context_menu" >
         </activity>
         <activity
-            android:name="com.robotcontrol.activity.UserProfileActivity"
+            android:name="com.yongyida.robot.activity.UserProfileActivity"
             android:label="@string/title_activity_user_profile" >
         </activity>
         <activity
-            android:name="com.robotcontrol.activity.ShowNormalFileActivity"
+            android:name="com.yongyida.robot.activity.ShowNormalFileActivity"
             android:label="@string/title_activity_show_normal_file" >
         </activity>
         <activity
-            android:name="com.robotcontrol.activity.ShowVideoActivity"
+            android:name="com.yongyida.robot.activity.ShowVideoActivity"
             android:label="@string/title_activity_show_video" >
         </activity>
         <activity
-            android:name="com.robotcontrol.activity.GroupDetailsActivity"
+            android:name="com.yongyida.robot.activity.GroupDetailsActivity"
             android:label="@string/title_activity_group_details" >
         </activity>
         <activity
-            android:name="com.robotcontrol.activity.ExitGroupDialog"
+            android:name="com.yongyida.robot.activity.ExitGroupDialog"
             android:label="@string/title_activity_exit_group_dialog" >
         </activity>
         <activity
-            android:name="com.robotcontrol.activity.SettingActivity"
+            android:name="com.yongyida.robot.activity.SettingActivity"
             android:label="@string/title_activity_setting"
             android:screenOrientation="portrait" >
         </activity>
         <activity
-            android:name="com.robotcontrol.activity.ChatActivity"
+            android:name="com.yongyida.robot.activity.ChatActivity"
             android:label="@string/title_activity_chat"
             android:screenOrientation="portrait" >
         </activity>
         <activity
-            android:name="com.robotcontrol.activity.ForwardMessageActivity"
+            android:name="com.yongyida.robot.activity.ForwardMessageActivity"
             android:label="@string/title_activity_forward_message" >
         </activity>
         <activity
-            android:name="com.robotcontrol.activity.ChatRoomDetailsActivity"
+            android:name="com.yongyida.robot.activity.ChatRoomDetailsActivity"
             android:label="@string/title_activity_chat_room_details" >
         </activity>
         <activity
-            android:name="com.robotcontrol.activity.ConnectActivity"
+            android:name="com.yongyida.robot.activity.ConnectActivity"
             android:label="@string/title_activity_connect"
             android:screenOrientation="portrait" >
         </activity>
         <activity
-            android:name="com.robotcontrol.activity.TaskRemindActivity"
+            android:name="com.yongyida.robot.activity.TaskRemindActivity"
             android:label="@string/title_activity_task_remind"
             android:screenOrientation="portrait" >
         </activity>
         <activity
-            android:name="com.robotcontrol.activity.PowerListActivity"
+            android:name="com.yongyida.robot.activity.PowerListActivity"
             android:label="@string/title_activity_power_list"
             android:screenOrientation="portrait" >
         </activity>
         <activity
-            android:name="com.robotcontrol.activity.AddTaskActivity"
+            android:name="com.yongyida.robot.activity.AddTaskActivity"
             android:label="@string/title_activity_add_task"
             android:screenOrientation="portrait" >
         </activity>
         <activity
-            android:name="com.robotcontrol.activity.AddressBook"
+            android:name="com.yongyida.robot.activity.AddressBook"
             android:label="@string/title_activity_address_book"
             android:screenOrientation="portrait" >
         </activity>
         <activity
-            android:name="com.robotcontrol.activity.PhotoActivity"
+            android:name="com.yongyida.robot.activity.PhotoActivity"
             android:label="@string/title_activity_photo"
             android:screenOrientation="portrait" >
         </activity>
         <activity
-            android:name="com.robotcontrol.activity.WelComeActivity"
+            android:name="com.yongyida.robot.activity.WelComeActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait" >
             <intent-filter>
@@ -202,32 +203,32 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.robotcontrol.activity.GuideActivity"
+            android:name="com.yongyida.robot.activity.GuideActivity"
             android:label="@string/title_activity_guide"
             android:screenOrientation="portrait" >
         </activity>
         <activity
-            android:name="com.robotcontrol.activity.AboutActivity"
+            android:name="com.yongyida.robot.activity.AboutActivity"
             android:label="@string/title_activity_about"
             android:screenOrientation="portrait" >
         </activity>
         <activity
-            android:name="com.robotcontrol.activity.BindRobotActivity"
+            android:name="com.yongyida.robot.activity.BindRobotActivity"
             android:label="@string/title_activity_bind_robot"
             android:screenOrientation="portrait" >
         </activity>
 
-        <receiver android:name="com.robotcontrol.broadcastReceiver.SocketErrorReceiver" >
+        <receiver android:name="com.yongyida.robot.broadcastReceiver.SocketErrorReceiver" >
             <intent-filter>
                 <action android:name="socket_error" />
             </intent-filter>
         </receiver>
 
-        <service android:name="com.robotcontrol.service.UpdateService" >
+        <service android:name="com.yongyida.robot.service.UpdateService" >
         </service>
 
         <activity
-            android:name="com.robotcontrol.activity.BigImageActivity"
+            android:name="com.yongyida.robot.activity.BigImageActivity"
             android:label="@string/title_activity_big_image" >
         </activity>
     </application>

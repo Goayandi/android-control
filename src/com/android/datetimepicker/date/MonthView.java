@@ -16,6 +16,13 @@
 
 package com.android.datetimepicker.date;
 
+import java.security.InvalidParameterException;
+import java.util.Calendar;
+import java.util.Formatter;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Canvas;
@@ -39,14 +46,7 @@ import android.view.accessibility.AccessibilityNodeInfo;
 
 import com.android.datetimepicker.Utils;
 import com.android.datetimepicker.date.MonthAdapter.CalendarDay;
-import com.robotcontrol.activity.R;
-
-import java.security.InvalidParameterException;
-import java.util.Calendar;
-import java.util.Formatter;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
+import com.yongyida.robot.R;
 
 /**
  * A calendar-like view displaying a specified month and the appropriate selectable day numbers

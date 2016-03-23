@@ -16,6 +16,10 @@
 
 package com.android.datetimepicker.time;
 
+import java.text.DateFormatSymbols;
+import java.util.ArrayList;
+import java.util.Locale;
+
 import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.app.ActionBar.LayoutParams;
@@ -39,11 +43,7 @@ import android.widget.TextView;
 import com.android.datetimepicker.HapticFeedbackController;
 import com.android.datetimepicker.Utils;
 import com.android.datetimepicker.time.RadialPickerLayout.OnValueSelectedListener;
-import com.robotcontrol.activity.R;
-
-import java.text.DateFormatSymbols;
-import java.util.ArrayList;
-import java.util.Locale;
+import com.yongyida.robot.R;
 
 /**
  * Dialog to set a time.

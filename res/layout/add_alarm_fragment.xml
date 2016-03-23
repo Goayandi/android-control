@@ -136,7 +136,7 @@
         android:text="是否重复:"
         android:textColor="@android:color/black" />
 
-    <com.robotcontrol.widget.SwitchButton
+    <com.yongyida.robot.widget.SwitchButton
         android:id="@+id/isaways_setting"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

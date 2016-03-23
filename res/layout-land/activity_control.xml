@@ -3,13 +3,15 @@
     android:id="@+id/root_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/black_deep"
     android:animateLayoutChanges="true"
     >
 
     <SurfaceView
         android:id="@+id/opposite_surface"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent" />
+        android:layout_height="fill_parent"
+        android:visibility="gone"/>
 
     <SurfaceView
         android:id="@+id/local_surface"

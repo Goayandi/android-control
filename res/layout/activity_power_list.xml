@@ -3,261 +3,197 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/white"
+    android:background="@drawable/background2"
     tools:context=".PowerListActivity" >
 
     <TextView
         android:id="@+id/power_title"
-        android:layout_width="fill_parent"
+        android:layout_width="wrap_content"
         android:layout_height="0dp"
-        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
         app:layout_heightPercent="10%"
-        android:background="@color/blue"
+        app:layout_marginLeftPercent="3%"
+        app:layout_textSizePercent="4%"
         android:gravity="center"
-        android:text="功能"
-        android:textColor="@color/white"
-        app:layout_textSizePercent="3%" />
+        android:text=" 断开连接"
+        android:drawableLeft="@drawable/back"
+        android:textColor="@color/white" />
+
+    <com.layout.utils.PercentRelativeLayout
+        android:id="@+id/rl"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_below="@+id/power_title"
+        app:layout_heightPercent="35%"
+        app:layout_marginLeftPercent="2%"
+        app:layout_marginRightPercent="2%"
+        app:layout_marginBottomPercent="3%"
+        app:layout_widthPercent="96%" >
+
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:background="@drawable/surround1" />
+
+        <ImageView
+            android:id="@+id/iv_ball"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:background="@drawable/ball1" />
+        
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:background="@drawable/robot1" />
+
+    </com.layout.utils.PercentRelativeLayout>
 
     <com.layout.utils.PercentRelativeLayout
         android:id="@+id/video_chat"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_heightPercent="20%"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@id/rl"
         app:layout_marginLeftPercent="2%"
-        app:layout_marginTopPercent="12%"
-        app:layout_widthPercent="96%"
-        android:background="@drawable/chat_shape" >
+        style="@style/style_rl_control" >
 
         <Button
             android:id="@+id/video_chat_img"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_centerHorizontal="true"
-            app:layout_heightPercent="40%"
-            app:layout_marginTopPercent="25%"
-            app:layout_widthPercent="15%"
-            android:background="@drawable/videochat"
-            android:clickable="false"
-            android:textColor="@android:color/white" />
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/style_bt_control"
+            android:background="@drawable/videochat1"
+            />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             android:layout_below="@id/video_chat_img"
-            android:layout_centerHorizontal="true"
-            app:layout_heightPercent="40%"
-            app:layout_marginTopPercent="10%"
-            app:layout_textSizePercent="14%"
-            android:clickable="false"
+            style="@style/style_tv_control"
             android:text="视频"
-            android:textColor="@color/white" />
+             />
     </com.layout.utils.PercentRelativeLayout>
-
-<!--     <com.layout.utils.PercentRelativeLayout -->
-<!--         android:id="@+id/power_address_book" -->
-<!--         android:layout_width="0dp" -->
-<!--         android:layout_height="0dp" -->
-<!--         app:layout_heightPercent="20%" -->
-<!--         app:layout_marginLeftPercent="51%" -->
-<!--         app:layout_marginTopPercent="12%" -->
-<!--         app:layout_widthPercent="47%" -->
-<!--         android:background="@drawable/address_shape" > -->
-
-<!--         <Button -->
-<!--             android:id="@+id/power_address_book_img" -->
-<!--             android:layout_width="0dp" -->
-<!--             android:layout_height="0dp" -->
-<!--             android:layout_centerHorizontal="true" -->
-<!--             app:layout_heightPercent="40%" -->
-<!--             app:layout_marginTopPercent="25%" -->
-<!--             app:layout_widthPercent="30%" -->
-<!--             android:background="@drawable/address" -->
-<!--             android:textColor="@android:color/white" /> -->
-
-<!--         <TextView -->
-<!--             android:layout_width="wrap_content" -->
-<!--             android:layout_height="0dp" -->
-<!--             android:layout_below="@+id/power_address_book_img" -->
-<!--             android:layout_centerHorizontal="true" -->
-<!--             android:layout_marginTop="15dp" -->
-<!--             app:layout_heightPercent="40%" -->
-<!--             app:layout_marginTopPercent="10%" -->
-<!--             app:layout_textSizePercent="17%" -->
-<!--             android:text="通讯录" -->
-<!--             android:textColor="@color/white" /> -->
-<!--     </com.layout.utils.PercentRelativeLayout> -->
 
     <com.layout.utils.PercentRelativeLayout
         android:id="@+id/power_photo"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_heightPercent="20%"
-        app:layout_marginLeftPercent="2%"
-        app:layout_marginTopPercent="33%"
-        app:layout_widthPercent="47%"
-        android:background="@drawable/taskremind_shape" >
+        android:layout_below="@id/rl"
+        android:layout_toRightOf="@id/video_chat"
+        style="@style/style_rl_control">
 
         <Button
             android:id="@+id/power_photo_img"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_centerHorizontal="true"
-            app:layout_heightPercent="40%"
-            app:layout_marginTopPercent="25%"
-            app:layout_widthPercent="30%"
-            android:clickable="false"
-            android:background="@drawable/photo"
-            android:textColor="@android:color/white" />
+            style="@style/style_bt_control"
+            android:background="@drawable/photo1"
+            />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             android:layout_below="@id/power_photo_img"
-            android:layout_centerHorizontal="true"
-            app:layout_heightPercent="40%"
-            app:layout_marginTopPercent="10%"
-            app:layout_textSizePercent="14%"
             android:text="相册"
-            android:textColor="@color/white" />
+            style="@style/style_tv_control" />
     </com.layout.utils.PercentRelativeLayout>
 
     <com.layout.utils.PercentRelativeLayout
         android:id="@+id/video_monitor"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_heightPercent="20%"
-        app:layout_marginLeftPercent="51%"
-        app:layout_marginTopPercent="33%"
-        app:layout_widthPercent="47%"
-        android:background="@drawable/monitor_shape" >
+        android:layout_alignParentRight="true"
+        android:layout_below="@id/rl"
+        style="@style/style_rl_control" >
 
         <Button
             android:id="@+id/video_monitor_img"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_centerHorizontal="true"
-            app:layout_heightPercent="40%"
-            app:layout_marginTopPercent="25%"
-            app:layout_widthPercent="30%"
-            android:background="@drawable/monitor_plus"
-            android:clickable="false"
-            android:textColor="@android:color/white" />
+            android:background="@drawable/monitor_plus1"
+            style="@style/style_bt_control" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             android:layout_below="@id/video_monitor_img"
-            android:layout_centerHorizontal="true"
-            app:layout_heightPercent="40%"
-            app:layout_marginTopPercent="10%"
-            app:layout_textSizePercent="14%"
-            android:clickable="false"
             android:text="监控"
-            android:textColor="@color/white" />
+            style="@style/style_tv_control" />
     </com.layout.utils.PercentRelativeLayout>
-
-<!--     <com.layout.utils.PercentRelativeLayout -->
-<!--         android:id="@+id/power_chat" -->
-<!--         android:layout_width="0dp" -->
-<!--         android:layout_height="0dp" -->
-<!--         app:layout_heightPercent="20%" -->
-<!--         app:layout_marginLeftPercent="2%" -->
-<!--         app:layout_marginTopPercent="54%" -->
-<!--         app:layout_widthPercent="47%" -->
-<!--         android:background="@drawable/chat_shape" > -->
-
-<!--         <Button -->
-<!--             android:id="@+id/power_chat_img" -->
-<!--             android:layout_width="0dp" -->
-<!--             android:layout_height="0dp" -->
-<!--             android:layout_centerHorizontal="true" -->
-<!--             app:layout_heightPercent="40%" -->
-<!--             app:layout_marginTopPercent="25%" -->
-<!--             app:layout_widthPercent="30%" -->
-<!--             android:background="@drawable/chat" -->
-<!--             android:textColor="@android:color/white" /> -->
-
-<!--         <TextView -->
-<!--             android:layout_width="wrap_content" -->
-<!--             android:layout_height="0dp" -->
-<!--             android:layout_below="@id/power_chat_img" -->
-<!--             android:layout_centerHorizontal="true" -->
-<!--             app:layout_heightPercent="40%" -->
-<!--             app:layout_marginTopPercent="10%" -->
-<!--             app:layout_textSizePercent="17%" -->
-<!--             android:text="聊天" -->
-<!--             android:textColor="@color/white" /> -->
-<!--     </com.layout.utils.PercentRelativeLayout> -->
 
     <com.layout.utils.PercentRelativeLayout
         android:id="@+id/power_task"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_heightPercent="20%"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@id/video_monitor"
         app:layout_marginLeftPercent="2%"
-        app:layout_marginTopPercent="54%"
-        app:layout_widthPercent="96%"
-        android:background="@drawable/photo_shape" >
+        style="@style/style_rl_control" >
 
         <Button
             android:id="@+id/power_task_img"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_centerHorizontal="true"
-            app:layout_heightPercent="40%"
-            app:layout_marginTopPercent="25%"
-            app:layout_widthPercent="15%"
-            android:background="@drawable/taskremind_plus"
-            android:clickable="false"
-            android:textColor="@android:color/white" />
+            android:background="@drawable/taskremind_plus1"
+            style="@style/style_bt_control" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             android:layout_below="@id/power_task_img"
-            android:layout_centerHorizontal="true"
-            app:layout_heightPercent="40%"
-            app:layout_marginTopPercent="10%"
-            app:layout_textSizePercent="14%"
-            android:clickable="false"
-            android:text="事项提醒"
-            android:textColor="@color/white" />
+            android:text="提醒"
+            style="@style/style_tv_control" />
     </com.layout.utils.PercentRelativeLayout>
 
     <com.layout.utils.PercentRelativeLayout
         android:id="@+id/power_setting"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_heightPercent="20%"
-        app:layout_marginLeftPercent="2%"
-        app:layout_marginRightPercent="2%"
-        app:layout_marginTopPercent="75%"
-        app:layout_widthPercent="100%"
-        android:background="@drawable/setting_shape" >
+        android:layout_below="@id/video_monitor"
+        android:layout_toRightOf="@id/power_task"
+        style="@style/style_rl_control" >
 
         <Button
             android:id="@+id/power_setting_img"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_centerHorizontal="true"
-            app:layout_heightPercent="40%"
-            app:layout_marginTopPercent="25%"
-            app:layout_widthPercent="15%"
-            android:background="@drawable/setting"
-            android:clickable="false"
-            android:textColor="@android:color/white" />
+            android:background="@drawable/setting1"
+            style="@style/style_bt_control" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             android:layout_below="@id/power_setting_img"
-            android:layout_centerHorizontal="true"
-            app:layout_heightPercent="40%"
-            app:layout_marginTopPercent="10%"
-            app:layout_textSizePercent="14%"
-            android:clickable="false"
             android:text="设置"
-            android:textColor="@color/white" />
+            style="@style/style_tv_control"/>
     </com.layout.utils.PercentRelativeLayout>
 
+    <com.layout.utils.PercentRelativeLayout
+        android:id="@+id/more"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_alignParentRight="true"
+        app:layout_marginRightPercent="2%"
+        android:layout_below="@id/video_monitor"
+        style="@style/style_rl_control" >
+
+        <Button
+            android:id="@+id/bt_more"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@drawable/more1"
+            style="@style/style_bt_control" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_below="@id/bt_more"
+            android:text="更多"
+            style="@style/style_tv_control" />
+    </com.layout.utils.PercentRelativeLayout>
+    
 </com.layout.utils.PercentRelativeLayout>

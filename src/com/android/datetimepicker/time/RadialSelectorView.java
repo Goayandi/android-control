@@ -29,7 +29,7 @@ import android.util.Log;
 import android.view.View;
 
 import com.android.datetimepicker.Utils;
-import com.robotcontrol.activity.R;
+import com.yongyida.robot.R;
 
 /**
  * View to show what number is selected. This will draw a blue circle over the number, with a blue

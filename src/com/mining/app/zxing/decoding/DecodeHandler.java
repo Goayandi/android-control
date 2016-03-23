@@ -31,8 +31,8 @@ import com.google.zxing.Result;
 import com.google.zxing.common.HybridBinarizer;
 import com.mining.app.zxing.camera.CameraManager;
 import com.mining.app.zxing.camera.PlanarYUVLuminanceSource;
-import com.robotcontrol.activity.BindRobotActivity;
-import com.robotcontrol.activity.R;
+import com.yongyida.robot.R;
+import com.yongyida.robot.activity.BindRobotActivity;
 
 final class DecodeHandler extends Handler {
 

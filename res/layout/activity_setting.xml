@@ -1,15 +1,16 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:btn="http://schemas.android.com/apk/res/com.yongyida.robot"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/white"
+    android:background="@drawable/background2"
     tools:context=".SettingActivity" >
 
     <RelativeLayout
         android:id="@+id/setting_top"
         android:layout_width="wrap_content"
         android:layout_height="50dip"
-        android:background="@color/blue" >
+        android:background="@android:color/transparent" >
 
         <Button
             android:id="@+id/setting_back"
@@ -56,7 +57,7 @@
             android:drawablePadding="10dp"
             android:gravity="center_vertical|right"
             android:text="未登录"
-            android:textColor="@color/black_deep"
+            android:textColor="@color/white"
             android:textSize="13dip" />
     </LinearLayout>
 
@@ -78,6 +79,7 @@
             <TextView
                 style="@style/mag"
                 android:layout_width="fill_parent"
+                android:textColor="@color/red"
                 android:text="通用" />
         </LinearLayout>
 
@@ -92,13 +94,14 @@
                 style="@style/mag"
                 android:text="仅在WiFi下视频" />
 
-            <com.robotcontrol.widget.SwitchButton
+            <com.yongyida.robot.widget.SwitchButton
                 android:id="@+id/wifisetting"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
                 android:layout_centerVertical="true"
                 android:layout_marginRight="10dp"
+                btn:kswBackColor="@color/red"
                 android:checked="true" />
         </RelativeLayout>
 
@@ -111,14 +114,15 @@
 
             <TextView
                 style="@style/mag"
-                android:text="机器人名字" />
+                android:text="机器人名字"
+                 />
 
             <EditText
                 android:id="@+id/robotname"
                 android:layout_width="150dp"
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
-                android:background="@null"
+                android:background="@color/white"
                 android:enabled="false"
                 android:gravity="center"
                 android:maxLength="15"
@@ -132,7 +136,7 @@
                 android:layout_centerVertical="true"
                 android:layout_marginRight="10dp"
                 android:text="编辑"
-                android:textColor="@color/blue"
+                android:textColor="@color/white"
                 android:textSize="17sp" />
         </RelativeLayout>
 
@@ -169,6 +173,7 @@
             <TextView
                 style="@style/mag"
                 android:layout_width="fill_parent"
+                android:textColor="@color/red"
                 android:text="关于" />
         </LinearLayout>
 
@@ -207,7 +212,7 @@
                 android:layout_height="fill_parent"
                 android:gravity="center_vertical"
                 android:text="版本信息"
-                android:textColor="@color/black_deep" />
+                android:textColor="@color/white" />
 
             <TextView
                 android:id="@+id/versionname"
@@ -217,7 +222,7 @@
                 android:layout_marginRight="5dip"
                 android:gravity="center_vertical"
                 android:text="1.0"
-                android:textColor="@color/black_deep" />
+                android:textColor="@color/white" />
         </RelativeLayout>
 
         <RelativeLayout

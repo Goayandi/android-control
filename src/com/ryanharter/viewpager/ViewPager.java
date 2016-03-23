@@ -16,6 +16,11 @@
 
 package com.ryanharter.viewpager;
 
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+
 import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
@@ -56,12 +61,7 @@ import android.view.accessibility.AccessibilityEvent;
 import android.view.animation.Interpolator;
 import android.widget.Scroller;
 
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-
-import com.robotcontrol.activity.R;
+import com.yongyida.robot.R;
 
 /**
  * Layout manager that allows the user to flip left and right

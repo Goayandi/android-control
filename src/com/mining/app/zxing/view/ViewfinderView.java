@@ -33,7 +33,7 @@ import android.view.View;
 
 import com.google.zxing.ResultPoint;
 import com.mining.app.zxing.camera.CameraManager;
-import com.robotcontrol.activity.R;
+import com.yongyida.robot.R;
 
 /**
  * This view is overlaid on top of the camera preview. It adds the viewfinder
