@@ -1,12 +1,10 @@
 package com.yongyida.robot.fragment;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-
 import android.annotation.SuppressLint;
 import android.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +18,9 @@ import com.yongyida.robot.bean.Remind;
 import com.yongyida.robot.utils.Constants;
 import com.yongyida.robot.utils.ToastUtil;
 import com.yongyida.robot.widget.RobotDialog;
+
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 public class AddremindFragment extends Fragment implements onChooseListener {
 
@@ -60,23 +61,23 @@ public class AddremindFragment extends Fragment implements onChooseListener {
 			edit_title.setText(task.getTitle());
 			if (settime.get(Calendar.MONTH)>= 9
 					&& settime.get(Calendar.DATE) >= 10) {
-				date.setText(settime.get(Calendar.YEAR) + "年"
-						+ (settime.get(Calendar.MONTH) + 1) + "月"
-						+ settime.get(Calendar.DATE) + "日");
+				date.setText(settime.get(Calendar.YEAR) + getActivity().getString(R.string.year)
+						+ (settime.get(Calendar.MONTH) + 1) + getActivity().getString(R.string.month)
+						+ settime.get(Calendar.DATE) + getActivity().getString(R.string.day));
 			} else if (settime.get(Calendar.MONTH)>= 9
 					&& settime.get(Calendar.DATE) < 10) {
-				date.setText(settime.get(Calendar.YEAR) + "年"
-						+ (settime.get(Calendar.MONTH) + 1) + "月" + "0"
-						+ settime.get(Calendar.DATE) + "日");
+				date.setText(settime.get(Calendar.YEAR) + getActivity().getString(R.string.year)
+						+ (settime.get(Calendar.MONTH) + 1) + getActivity().getString(R.string.month) + "0"
+						+ settime.get(Calendar.DATE) + getActivity().getString(R.string.day));
 			} else if (settime.get(Calendar.MONTH) < 9
 					&& settime.get(Calendar.DATE) >= 10) {
-				date.setText(settime.get(Calendar.YEAR) + "年" + "0"
-						+ (settime.get(Calendar.MONTH) + 1) + "月"
-						+ settime.get(Calendar.DATE) + "日");
+				date.setText(settime.get(Calendar.YEAR) + getActivity().getString(R.string.year) + "0"
+						+ (settime.get(Calendar.MONTH) + 1) + getActivity().getString(R.string.month)
+						+ settime.get(Calendar.DATE) + getActivity().getString(R.string.day));
 			} else {
-				date.setText(settime.get(Calendar.YEAR) + "年" + "0"
-						+ (settime.get(Calendar.MONTH) + 1) + "月" + "0"
-						+ settime.get(Calendar.DATE) + "日");
+				date.setText(settime.get(Calendar.YEAR) + getActivity().getString(R.string.year) + "0"
+						+ (settime.get(Calendar.MONTH) + 1) + getActivity().getString(R.string.month) + "0"
+						+ settime.get(Calendar.DATE) + getActivity().getString(R.string.day));
 			}
 			if (settime.get(Calendar.HOUR_OF_DAY) >= 10
 					&& settime.get(Calendar.MINUTE) >= 10) {
@@ -123,7 +124,7 @@ public class AddremindFragment extends Fragment implements onChooseListener {
 		} else {
 			day = "" + dayOfMonth;
 		}
-		date.setText(year + "年" + month + "月" + day + "日");
+		date.setText(year + getActivity().getString(R.string.year) + month + getActivity().getString(R.string.month) + day + getActivity().getString(R.string.day));
 
 	}
 
@@ -159,22 +160,22 @@ public class AddremindFragment extends Fragment implements onChooseListener {
 	public void onOver() {
 		String content = taskcontent.getText().toString().trim();
 		String title = edit_title.getText().toString().trim();
-		if (content == null || content.equals("")) {
-			ToastUtil.showtomain(getActivity(), "请输入提醒内容");
-			return;
-		}
-		if (title == null || content.equals("")) {
-			ToastUtil.showtomain(getActivity(), "请输入标题");
+		if (TextUtils.isEmpty(content) && TextUtils.isEmpty(title)){
+			if(TextUtils.isEmpty(content)){
+				ToastUtil.showtomain(getActivity(), getActivity().getString(R.string.input_remind_content));
+			}else{
+				ToastUtil.showtomain(getActivity(), getActivity().getString(R.string.input_title));
+			}
 			return;
 		}
 		if (state.equals(Constants.Add)) {
 			if (dateflag == false && timeflag == false) {
-				ToastUtil.showtomain(getActivity(), "请选择时间");
+				ToastUtil.showtomain(getActivity(), getActivity().getString(R.string.choose_time));
 				return;
 			}
 		}
 		if (settime.getTimeInMillis() < System.currentTimeMillis()) {
-			ToastUtil.showtomain(getActivity(), "设置的时间不能小于当前时间");
+			ToastUtil.showtomain(getActivity(), getActivity().getString(R.string.time_illegal));
 			return;
 		}
 		SimpleDateFormat dateFormat = new SimpleDateFormat(

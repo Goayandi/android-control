@@ -34,7 +34,7 @@
         app:layout_widthPercent="30%"
         android:gravity="center"
         android:singleLine="true"
-        android:text="机器人列表"
+        android:text="@string/list_of_robot"
         android:textColor="@color/light_blue" />
 
     <ImageView

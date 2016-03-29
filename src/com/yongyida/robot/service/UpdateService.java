@@ -1,13 +1,5 @@
 package com.yongyida.robot.service;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-
-import org.apache.http.client.ClientProtocolException;
-import org.json.JSONObject;
-
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -18,12 +10,19 @@ import android.os.Handler;
 import android.os.IBinder;
 
 import com.yongyida.robot.R;
-import com.yongyida.robot.utils.HandlerUtil;
 import com.yongyida.robot.utils.NetUtil;
 import com.yongyida.robot.utils.NetUtil.callback;
 import com.yongyida.robot.utils.ThreadPool;
 import com.yongyida.robot.utils.ToastUtil;
 import com.yongyida.robot.utils.XmlUtil;
+
+import org.apache.http.client.ClientProtocolException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 public class UpdateService extends Service {
 
@@ -34,6 +33,7 @@ public class UpdateService extends Service {
 	private Intent updateintent = null;
 	private PendingIntent updatependingintent = null;
 	private File newapk = null;
+	private Handler handler;
 
 	@Override
 	public IBinder onBind(Intent arg0) {
@@ -43,8 +43,9 @@ public class UpdateService extends Service {
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
+		handler = new Handler();
 		updatemanager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-		updatenotfication = new Notification(R.drawable.app_icon, "下载中",
+		updatenotfication = new Notification(R.drawable.app_icon, getString(R.string.downloading),
 				System.currentTimeMillis());
 		updatenotfication.flags = Notification.FLAG_ONGOING_EVENT;
 
@@ -55,7 +56,7 @@ public class UpdateService extends Service {
 		updatependingintent = PendingIntent.getActivity(this, 0, updateintent,
 				0);
 
-		updatenotfication.setLatestEventInfo(this, "下载", "下载中",
+		updatenotfication.setLatestEventInfo(this, getString(R.string.download), getString(R.string.downloading),
 				updatependingintent);
 		// updatenotfication.contentView = contentview;
 		updatemanager.notify(0, updatenotfication);
@@ -79,8 +80,7 @@ public class UpdateService extends Service {
 
 										@Override
 										public void error(String errorresult) {
-											HandlerUtil.sendmsg(handler,
-													errorresult, 1);
+											handler.post(new ToastRunnable(errorresult));
 										}
 									}), "download");
 					InputStream i = NetUtil.getinstance().downloadfile(
@@ -93,8 +93,7 @@ public class UpdateService extends Service {
 
 								@Override
 								public void error(String errorresult) {
-									HandlerUtil
-											.sendmsg(handler, errorresult, 1);
+									handler.post(new ToastRunnable(errorresult));
 								}
 							});
 					FileOutputStream fos = new FileOutputStream(newapk);
@@ -112,10 +111,12 @@ public class UpdateService extends Service {
 					install.setDataAndType(Uri.fromFile(newapk),
 							"application/vnd.android.package-archive");
 					startActivity(install);
-					updatemanager.cancel(0);
+					stopSelf();
 				} catch (ClientProtocolException e) {
+					handler.post(new ToastRunnable(e.getMessage()));;
 					e.printStackTrace();
 				} catch (IOException e) {
+					handler.post(new ToastRunnable(e.getMessage()));
 					e.printStackTrace();
 				}
 
@@ -124,13 +125,16 @@ public class UpdateService extends Service {
 		return super.onStartCommand(intent, flags, startId);
 	}
 
-	Handler handler = new Handler() {
-		public void dispatchMessage(android.os.Message msg) {
-			if (msg.what == 1) {
-				ToastUtil.showtomain(UpdateService.this, msg.getData()
-						.getString("result"));
-			}
-		};
+	public class ToastRunnable implements Runnable {
+		private String mText;
+		public ToastRunnable(String text){
+			this.mText = text;
+		}
+		@Override
+		public void run() {
+			ToastUtil.showtomain(UpdateService.this, mText);
+			stopSelf();
+		}
 	};
 
 	@Override

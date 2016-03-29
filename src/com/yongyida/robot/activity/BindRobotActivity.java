@@ -1,16 +1,5 @@
 package com.yongyida.robot.activity;
 
-import java.io.IOException;
-import java.net.SocketTimeoutException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.Vector;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.content.res.AssetFileDescriptor;
@@ -45,6 +34,17 @@ import com.yongyida.robot.utils.NetUtil.callback;
 import com.yongyida.robot.utils.StartUtil;
 import com.yongyida.robot.utils.ThreadPool;
 import com.yongyida.robot.utils.ToastUtil;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.net.SocketTimeoutException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.Vector;
 
 /**
  * Initial the camera
@@ -90,11 +90,11 @@ public class BindRobotActivity extends Activity implements Callback {
 			String id = edit_robot_id.getText().toString().trim();
 			String robot_serial = edit_robot_serial.getText().toString().trim();
 			if (id == null || id.equals("")) {
-				ToastUtil.showtomain(BindRobotActivity.this, "id不能为空");
+				ToastUtil.showtomain(BindRobotActivity.this, getString(R.string.cant_null));
 				return;
 			}
 			if (robot_serial == null || robot_serial.equals("")) {
-				ToastUtil.showtomain(BindRobotActivity.this, "序列码不能为空");
+				ToastUtil.showtomain(BindRobotActivity.this, getString(R.string.cant_null_2));
 				return;
 			}
 			bindrobot(id, robot_serial);
@@ -160,7 +160,7 @@ public class BindRobotActivity extends Activity implements Callback {
 							}, BindRobotActivity.this);
 				} catch (SocketTimeoutException e) {
 					Log.i("connection", "Timeout");
-					HandlerUtil.sendmsg(handletoast, "请求超时", 5);
+					HandlerUtil.sendmsg(handletoast, getString(R.string.request_timeout), 5);
 					e.printStackTrace();
 				}
 
@@ -184,23 +184,23 @@ public class BindRobotActivity extends Activity implements Callback {
 				}
 				break;
 			case 1:
-				ToastUtil.showtomain(BindRobotActivity.this, "机器人不存在");
+				ToastUtil.showtomain(BindRobotActivity.this, getString(R.string.robot_not_exist));
 				break;
 			case 5:
 				ToastUtil.showtomain(BindRobotActivity.this, msg.getData()
 						.getString("result"));
 				break;
 			case 10:
-				ToastUtil.showtomain(BindRobotActivity.this, "机器人已被绑定！");
+				ToastUtil.showtomain(BindRobotActivity.this, getString(R.string.robot_already_binded));
 				break;
 			case 11:
-				ToastUtil.showtomain(BindRobotActivity.this, "已超过绑定数量！");
+				ToastUtil.showtomain(BindRobotActivity.this, getString(R.string.pass_mount));
 				break;
 			case 12:
-				ToastUtil.showtomain(BindRobotActivity.this, "绑定参数不正确！");
+				ToastUtil.showtomain(BindRobotActivity.this, getString(R.string.argu_fail));
 				break;
 			case 13:
-				backlogin("用户登录过期，请重新登录！");
+				backlogin(getString(R.string.expire_relogin));
 				break;
 			default:
 				break;
@@ -269,7 +269,7 @@ public class BindRobotActivity extends Activity implements Callback {
 				bindrobot(robotinfo[0], robotinfo[1]);
 			} catch (Exception e) {
 				e.printStackTrace();
-				ToastUtil.showtomain(this, "请扫描正确的二维码！");
+				ToastUtil.showtomain(this, getString(R.string.scan_true));
 			}
 
 			timer.schedule(new TimerTask() {

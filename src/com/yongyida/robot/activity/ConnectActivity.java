@@ -1,15 +1,5 @@
 package com.yongyida.robot.activity;
 
-import java.net.SocketTimeoutException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Timer;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
@@ -58,6 +48,16 @@ import com.yongyida.robot.utils.ThreadPool;
 import com.yongyida.robot.utils.ToastUtil;
 import com.yongyida.robot.widget.RobotDialog;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.net.SocketTimeoutException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Timer;
+
 public class ConnectActivity extends BaseActivity implements
 		View.OnClickListener {
 
@@ -104,7 +104,7 @@ public class ConnectActivity extends BaseActivity implements
 	@Override
 	public void onRefresh() {
 		if (System.currentTimeMillis() - time < 1000) {
-			ToastUtil.showtomain(ConnectActivity.this, "不要刷新得这么频繁嘛！(ˉ▽ˉ；)...");
+			ToastUtil.showtomain(ConnectActivity.this, getString(R.string.dont_so_fast));
 			refreshableView.setRefreshing(false);
 		} else {
 			getrobotinfo();
@@ -194,7 +194,7 @@ public class ConnectActivity extends BaseActivity implements
 							if (refreshableView.isRefreshing()) {
 								refreshableView.setRefreshing(false);
 							}
-							HandlerUtil.sendmsg(handler, "请求超时", 5);
+							HandlerUtil.sendmsg(handler, getString(R.string.request_timeout), 5);
 							e.printStackTrace();
 						}
 
@@ -209,7 +209,7 @@ public class ConnectActivity extends BaseActivity implements
 	public void onHandlerMessage(Message msg) {
 		switch (msg.what) {
 		case 1:
-			ToastUtil.showtomain(ConnectActivity.this, "机器人不存在");
+			ToastUtil.showtomain(ConnectActivity.this, getString(R.string.robot_not_exist));
 			break;
 		case 2:
 			refreshableView.setRefreshing(false);
@@ -217,7 +217,7 @@ public class ConnectActivity extends BaseActivity implements
 			refreshableView.setEnabled(true);
 			break;
 		case 4:
-			ToastUtil.showtomain(ConnectActivity.this, "连接失败");
+			ToastUtil.showtomain(ConnectActivity.this, getString(R.string.connect_fail));
 			break;
 		case 5:
 			if (refreshableView.isRefreshing()) {
@@ -231,25 +231,25 @@ public class ConnectActivity extends BaseActivity implements
 					msg.getData().getString("result"));
 			break;
 		case 6:
-			ToastUtil.showtomain(ConnectActivity.this, "该机器人不在线！");
+			ToastUtil.showtomain(ConnectActivity.this, getString(R.string.robot_not_online));
 			break;
 		case 7:
-			backlogin("用户登录过期，请重新登录！");
+			backlogin(getString(R.string.expire_relogin));
 			break;
 		case 8:
-			backlogin("用户登录错误，请重新登录！");
+			backlogin(getString(R.string.fail_relogin));
 			break;
 		case 9:
-			ToastUtil.showtomain(ConnectActivity.this, "机器人已被控制");
+			ToastUtil.showtomain(ConnectActivity.this, getString(R.string.already_controlled));
 			break;
 		case 10:
-			ToastUtil.showtomain(ConnectActivity.this, "机器人已被绑定！");
+			ToastUtil.showtomain(ConnectActivity.this, getString(R.string.already_binded));
 			break;
 		case 11:
-			ToastUtil.showtomain(ConnectActivity.this, "已超过绑定数量！");
+			ToastUtil.showtomain(ConnectActivity.this, getString(R.string.pass_mount));
 			break;
 		case 12:
-			ToastUtil.showtomain(ConnectActivity.this, "绑定参数不正确！");
+			ToastUtil.showtomain(ConnectActivity.this, getString(R.string.argu_fail));
 			break;
 		default:
 			break;
@@ -292,10 +292,10 @@ public class ConnectActivity extends BaseActivity implements
 		public void onItemClick(AdapterView<?> parent, final View view,
 				int position, long id) {
 			if (!list_robots.get(position).isOnline()) {
-				ToastUtil.showtomain(ConnectActivity.this, "机器人处于离线状态");
+				ToastUtil.showtomain(ConnectActivity.this, getString(R.string.robot_not_online));
 				return;
 			} else if (list_robots.get(position).getController() != 0) {
-				ToastUtil.showtomain(ConnectActivity.this, "机器人已被控制");
+				ToastUtil.showtomain(ConnectActivity.this, getString(R.string.already_controlled));
 				return;
 			}
 			String username = list_robots.get(position).getId();
@@ -311,7 +311,7 @@ public class ConnectActivity extends BaseActivity implements
 			BroadcastReceiverRegister.reg(ConnectActivity.this,
 					new String[] { "online" }, bro);
 			pro = new ProgressDialog(ConnectActivity.this);
-			pro.setMessage("正在连接机器人......");
+			pro.setMessage(getString(R.string.connecting));
 			pro.show();
 		}
 	};
@@ -484,7 +484,7 @@ public class ConnectActivity extends BaseActivity implements
 												}
 											}, ConnectActivity.this);
 								} catch (SocketTimeoutException e) {
-									HandlerUtil.sendmsg(handler, "请求超时", 5);
+									HandlerUtil.sendmsg(handler, getString(R.string.request_timeout), 5);
 									e.printStackTrace();
 
 								}

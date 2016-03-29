@@ -1,9 +1,5 @@
 package com.yongyida.robot.activity;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
-
 import android.app.Fragment;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -26,24 +22,32 @@ import com.yongyida.robot.fragment.AddalarmFragment;
 import com.yongyida.robot.fragment.AddremindFragment;
 import com.yongyida.robot.widget.RobotDialog;
 
-public class AddTaskActivity extends FragmentActivity {
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+
+public class AddTaskActivity extends FragmentActivity{
 
 	private RobotDialog alert;
 	private onChooseListener onChooseListener;
 	private Calendar calendar;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_add_task);
+		TextView mTitle = (TextView) findViewById(R.id.add_task_tile);
 		calendar = Calendar.getInstance();
 		if (getIntent().getStringExtra("mode").equals("remind")) {
 			getFragmentManager().beginTransaction()
 					.replace(R.id.content_task, new AddremindFragment())
 					.commit();
+			mTitle.setText(R.string.remind);
 		} else if (getIntent().getStringExtra("mode").equals("alarm")) {
 			getFragmentManager().beginTransaction()
 					.replace(R.id.content_task, new AddalarmFragment())
 					.commit();
+			mTitle.setText(R.string.alert);
 		}
 
 	}
@@ -74,15 +78,15 @@ public class AddTaskActivity extends FragmentActivity {
 
 	public void choose(View view) {
 		List<String> types = new ArrayList<String>();
-		types.add("用药");
-		types.add("上班");
-		types.add("做饭");
-		types.add("休息");
-		types.add("追剧");
-		types.add("接人/送人");
-		types.add("运动健身");
-		types.add("吃饭");
-		types.add("起床");
+		types.add(getString(R.string.medicine));
+		types.add(getString(R.string.work));
+		types.add(getString(R.string.make_dinner));
+		types.add(getString(R.string.have_rest));
+		types.add(getString(R.string.watch_tv));
+		types.add(getString(R.string.meet_people));
+		types.add(getString(R.string.take_exercise));
+		types.add(getString(R.string.eat));
+		types.add(getString(R.string.get_up));
 		alert = new RobotDialog(this);
 		View v = LayoutInflater.from(this).inflate(R.layout.tasktype_dialog,
 				null);
@@ -156,6 +160,7 @@ public class AddTaskActivity extends FragmentActivity {
 	public void over(View view) {
 		onChooseListener.onOver();
 	}
+
 
 	public interface onChooseListener {
 		public void onChoose(String text);

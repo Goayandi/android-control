@@ -1,16 +1,16 @@
 package com.yongyida.robot.broadcastReceiver;
 
-import com.yongyida.robot.activity.ConnectActivity;
-import com.yongyida.robot.huanxin.DemoHXSDKHelper;
-import com.yongyida.robot.service.SocketService;
-import com.yongyida.robot.utils.Constants;
-import com.yongyida.robot.utils.ToastUtil;
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+
+import com.yongyida.robot.R;
+import com.yongyida.robot.huanxin.DemoHXSDKHelper;
+import com.yongyida.robot.service.SocketService;
+import com.yongyida.robot.utils.Constants;
+import com.yongyida.robot.utils.ToastUtil;
 
 /**
  * Created by Administrator on 2015/10/12 0012.
@@ -23,14 +23,20 @@ public class NetStateBroadcastReceiver extends BroadcastReceiver {
 
 		NetworkInfo mobile= connect.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
 		NetworkInfo wifi=connect.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-		if (!mobile.isConnected()&&!wifi.isConnected()) {
-			back(context);
-//			ToastUtil.showtomain(context, "无网络连接");
-		} else if (!mobile.isAvailable()&&!wifi.isAvailable()) {
-			back(context);
-			ToastUtil.showtomain(context, "网络连接不可用");
+		if(mobile != null){
+			if (!mobile.isConnected()&&!wifi.isConnected()) {
+				back(context);
+				ToastUtil.showtomain(context, context.getString(R.string.please_connect_net));
+			} else if (!mobile.isAvailable()&&!wifi.isAvailable()) {
+				back(context);
+				ToastUtil.showtomain(context, context.getString(R.string.please_connect_net));
+			}
+		} else {
+			if(!wifi.isConnected()){
+				back(context);
+				ToastUtil.showtomain(context, context.getString(R.string.please_connect_net));
+			}
 		}
-
 	}
 
 	public void back(Context context) {

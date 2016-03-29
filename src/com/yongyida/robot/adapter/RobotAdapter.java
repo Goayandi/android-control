@@ -1,7 +1,5 @@
 package com.yongyida.robot.adapter;
 
-import java.util.List;
-
 import android.content.Context;
 import android.graphics.Color;
 import android.view.LayoutInflater;
@@ -12,6 +10,8 @@ import android.widget.TextView;
 
 import com.yongyida.robot.R;
 import com.yongyida.robot.bean.Robot;
+
+import java.util.List;
 
 public class RobotAdapter extends BaseAdapter {
 
@@ -65,7 +65,7 @@ public class RobotAdapter extends BaseAdapter {
 						.setText(robots.get(index).getRname() + "");
 				robotholder.rid.setText(robots.get(index).getId() + "");
 				if (robots.get(index).getController() == 0) {
-					robotholder.control.setText("无");
+					robotholder.control.setText(R.string.dont_have);
 					robotholder.control.setTextColor(Color.GREEN);
 				} else {
 					robotholder.control.setText(robots.get(index).getController() + "");
@@ -73,10 +73,10 @@ public class RobotAdapter extends BaseAdapter {
 				}
 				if (robots.get(index).isOnline()) {
 					robotholder.online.setTextColor(context.getResources().getColor(R.color.online));
-					robotholder.online.setText("在线");
+					robotholder.online.setText(R.string.online);
 				} else {
 					robotholder.online.setTextColor(context.getResources().getColor(R.color.offline));
-					robotholder.online.setText("离线");
+					robotholder.online.setText(R.string.not_online);
 				}
 				if (robots.get(index).getAir().equals(Robot.air.bind)) {
 

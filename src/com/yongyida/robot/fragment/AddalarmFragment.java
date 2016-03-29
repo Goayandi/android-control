@@ -1,9 +1,5 @@
 package com.yongyida.robot.fragment;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-
 import android.app.Fragment;
 import android.content.Intent;
 import android.graphics.Color;
@@ -25,6 +21,10 @@ import com.yongyida.robot.bean.Alarm;
 import com.yongyida.robot.utils.Constants;
 import com.yongyida.robot.utils.ToastUtil;
 import com.yongyida.robot.widget.SwitchButton;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 public class AddalarmFragment extends Fragment implements OnClickListener,
 		onChooseListener {
@@ -209,7 +209,7 @@ public class AddalarmFragment extends Fragment implements OnClickListener,
 		}
 		
 		if(!isChooseWeek){
-			ToastUtil.showtomain(getActivity(), "请选择星期");
+			ToastUtil.showtomain(getActivity(), getActivity().getString(R.string.choose_week));
 			return;
 		}
 
@@ -219,12 +219,12 @@ public class AddalarmFragment extends Fragment implements OnClickListener,
 		Log.i("settime", settime.get(Calendar.WEEK_OF_MONTH) + "WEEK_OF_MONTH");
 
 		if (!timeflag) {
-			ToastUtil.showtomain(getActivity(), "请选择时间");
+			ToastUtil.showtomain(getActivity(), getActivity().getString(R.string.choose_time));
 			return;
 		}
 		if(alarm.getIsaways() == 0){
 			if(!fg){        //如果星期都是
-				ToastUtil.showtomain(getActivity(), "当前选择时间中存在已过期时间，请改为重复或者更改星期。");
+				ToastUtil.showtomain(getActivity(), getActivity().getString(R.string.exist_time_expire));
 				return;
 			}
 		}
@@ -368,5 +368,6 @@ public class AddalarmFragment extends Fragment implements OnClickListener,
 			v.setBackgroundColor(Color.parseColor("#00C5CD"));
 		}
 	}
+
 
 }

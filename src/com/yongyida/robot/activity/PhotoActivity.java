@@ -1,9 +1,5 @@
 package com.yongyida.robot.activity;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
@@ -27,11 +23,16 @@ import com.yongyida.robot.adapter.PhotoAdapter;
 import com.yongyida.robot.adapter.PhotoAdapter.callback;
 import com.yongyida.robot.utils.BroadcastReceiverRegister;
 import com.yongyida.robot.utils.Constants;
+import com.yongyida.robot.utils.FileUtil;
 import com.yongyida.robot.utils.ImageLoader;
 import com.yongyida.robot.utils.ImageLoader.Type;
 import com.yongyida.robot.utils.StartUtil;
 import com.yongyida.robot.utils.ThreadPool;
 import com.yongyida.robot.utils.ToastUtil;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 public class PhotoActivity extends Activity implements OnClickListener {
 
@@ -43,10 +44,12 @@ public class PhotoActivity extends Activity implements OnClickListener {
 	private GridView photo_grid;
 	private PhotoAdapter simpleAdapter;
 	private Button delete;
-	private String[] localphotos;
+	private String[] localphotos;         //存放的是.robot的名字
 	private boolean choosestate = false;
-	private ArrayList<String> delete_list = new ArrayList<String>();
+	private ArrayList<String> delete_list = new ArrayList<String>();  //存放的是.jpg的名字
 	private ProgressDialog progressDialog;
+
+
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -109,15 +112,15 @@ public class PhotoActivity extends Activity implements OnClickListener {
 	public void onClick(View v) {
 		switch (v.getId()) {
 		case R.id.photo_refersh:
-			if (refersh.getText().toString().equals("刷新")) {
+			if (refersh.getText().toString().equals(getString(R.string.refresh))) {
 				if (names.size() != 0) {
-					progressDialog.setMessage("获取图片中......");
+					progressDialog.setMessage(getString(R.string.get_picture_ing));
 					progressDialog.show();
 					progressDialog.setCanceledOnTouchOutside(false);
 					query_photo();
 					refersh.setEnabled(false);
 				} else {
-					ToastUtil.showtomain(this, "没有照片了！");
+					ToastUtil.showtomain(this, getString(R.string.no_more));
 				}
 			} else {
 				back();
@@ -127,7 +130,7 @@ public class PhotoActivity extends Activity implements OnClickListener {
 		case R.id.photo_delete:
 			if (delete_list.size() > 0) {
 				progressDialog = new ProgressDialog(this);
-				progressDialog.setMessage("删除中......");
+				progressDialog.setMessage(getString(R.string.delete_ing));
 				progressDialog.show();
 				progressDialog.setCanceledOnTouchOutside(false);
 				sendBroadcast(new Intent(Constants.Photo_Delete).putExtra(
@@ -138,8 +141,9 @@ public class PhotoActivity extends Activity implements OnClickListener {
 					@Override
 					public void run() {
 						for (int i = 0; i < delete_list.size(); i++) {
+							String real_name = FileUtil.confusePhotoName(delete_list.get(i));
 							File f = new File(file.getAbsolutePath() + "/"
-									+ delete_list.get(i));
+									+ real_name);
 							f.delete();
 						}
 						handler.sendEmptyMessage(0);
@@ -148,7 +152,7 @@ public class PhotoActivity extends Activity implements OnClickListener {
 
 			} else {
 			
-				ToastUtil.showtomain(this, "请选择图片");
+				ToastUtil.showtomain(this, getString(R.string.choose_picture));
 			}
 			break;
 		default:
@@ -169,9 +173,11 @@ public class PhotoActivity extends Activity implements OnClickListener {
 
 	public void back() {
 		choosestate = false;
+		delete_list.clear();
+		simpleAdapter.setAllUnCheck();
 		simpleAdapter.notifyDataSetChanged();
 		delete.setVisibility(View.GONE);
-		refersh.setText("刷新");
+		refersh.setText(getString(R.string.refresh));
 	}
 
 	BroadcastReceiver names_reply = new BroadcastReceiver() {
@@ -196,7 +202,8 @@ public class PhotoActivity extends Activity implements OnClickListener {
 					localphotos = file.list();*/
 					for (int i = 0; i < names.size(); i++) {
 						for (int j = 0; j < localphotos.length; j++) {
-							if (names.get(i).equals(localphotos[j])) {
+							String trueLocalPhotoName = FileUtil.restorePhotoName(localphotos[j]);
+							if (names.get(i).equals(trueLocalPhotoName)) {
 								names.remove(i);
 							}
 						}
@@ -278,17 +285,19 @@ public class PhotoActivity extends Activity implements OnClickListener {
 			}
 			simpleAdapter.notifyDataSetChanged();
 			delete.setVisibility(View.VISIBLE);
-			refersh.setText("取消");
+			refersh.setText(getString(R.string.cancel));
 			return false;
 		}
 	};
 
 	public void checked(String name) {
-		delete_list.add(name);
+		String s = FileUtil.restorePhotoName(name);
+		delete_list.add(s);
 	}
 
 	public void notcheck(String name) {
-		delete_list.remove(name);
+		String s = FileUtil.restorePhotoName(name);
+		delete_list.remove(s);
 	}
 
 	private int index = 0;

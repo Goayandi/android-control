@@ -170,10 +170,11 @@ public class ImageLoader {
 					String path = holder.path;
 					// 将path与getTag存储路径进行比较
 					if (imageview.getTag().toString().equals(path)) {
-						Matrix m = new Matrix();
-						m.setRotate(-90);
-						imageview.setImageBitmap(bm.createBitmap(bm, 0, 0,
-								bm.getWidth(), bm.getHeight(), m, true));
+				//		Matrix m = new Matrix();
+				//		m.setRotate(-90);
+				//		imageview.setImageBitmap(bm.createBitmap(bm, 0, 0,
+				//				bm.getWidth(), bm.getHeight(), m, true));
+						imageview.setImageBitmap(bm);
 					}
 				};
 			};

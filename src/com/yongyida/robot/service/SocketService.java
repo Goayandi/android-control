@@ -1,31 +1,19 @@
 package com.yongyida.robot.service;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
-
-import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.ChannelStateEvent;
-import org.jboss.netty.channel.Channels;
-import org.jboss.netty.channel.MessageEvent;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningAppProcessInfo;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.net.ConnectivityManager;
 import android.os.IBinder;
 import android.util.Log;
 
+import com.yongyida.robot.R;
 import com.yongyida.robot.bean.Result;
 import com.yongyida.robot.broadcastReceiver.NetStateBroadcastReceiver;
 import com.yongyida.robot.broadcastReceiver.SocketErrorReceiver;
@@ -37,6 +25,23 @@ import com.yongyida.robot.utils.Constants;
 import com.yongyida.robot.utils.FileUtil;
 import com.yongyida.robot.utils.NetUtil;
 import com.yongyida.robot.utils.ThreadPool;
+
+import org.jboss.netty.channel.ChannelHandlerContext;
+import org.jboss.netty.channel.ChannelStateEvent;
+import org.jboss.netty.channel.Channels;
+import org.jboss.netty.channel.MessageEvent;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class SocketService extends Service {
 
@@ -149,7 +154,7 @@ public class SocketService extends Service {
 								return;
 							} else if (callback.equals("/robot/uncontroll")) {
 								Intent socketErrorIntent = new Intent(Constants.Socket_Error);
-								socketErrorIntent.putExtra("content", "机器人离线");
+								socketErrorIntent.putExtra("content", getString(R.string.robot_offline));
 								sendBroadcast(socketErrorIntent);
 								return;
 							} else if (callback.equals("/robot/flush")) {
@@ -254,6 +259,7 @@ public class SocketService extends Service {
 								if (!file.exists()) {
 									file.mkdir();
 								}
+								name = FileUtil.confusePhotoName(name);
 								FileUtil.writefile(
 										getApplication().getExternalFilesDir(
 												null).getAbsolutePath()
@@ -263,6 +269,22 @@ public class SocketService extends Service {
 														.getString("username",
 																null) + size,
 										res.datas, name);
+								/* 照片先转成bitmap 旋转90度再存起来 */
+								File picture = new File(file.getAbsolutePath() + "/" + name);
+								Bitmap b = BitmapFactory.decodeFile(picture.getAbsolutePath());
+								Matrix matrix = new Matrix();
+								matrix.setRotate(-90);
+								Bitmap bm = b.createBitmap(b, 0, 0, b.getWidth(),
+										b.getHeight(), matrix, true);
+								b.recycle();
+								FileOutputStream fos = null;
+								try {
+									fos = new FileOutputStream(picture);
+								} catch (FileNotFoundException e1) {
+									e1.printStackTrace();
+								}
+								bm.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+
 								Intent reply = new Intent(Constants.Photo_Reply);
 								sendBroadcast(reply);
 							}
@@ -311,7 +333,7 @@ public class SocketService extends Service {
 										return;
 									} else if (callback.equals("/robot/uncontroll")) {
 										Intent socketErrorIntent = new Intent(Constants.Socket_Error);
-										socketErrorIntent.putExtra("content", "机器人离线");
+										socketErrorIntent.putExtra("content", getString(R.string.robot_offline));
 										sendBroadcast(socketErrorIntent);
 										return;
 									} else if (callback.equals("/robot/flush")) {
@@ -416,6 +438,7 @@ public class SocketService extends Service {
 										if (!file.exists()) {
 											file.mkdir();
 										}
+										name = FileUtil.confusePhotoName(name);
 										FileUtil.writefile(
 												getApplication().getExternalFilesDir(
 														null).getAbsolutePath()
@@ -425,6 +448,23 @@ public class SocketService extends Service {
 																.getString("username",
 																		null) + size,
 												res.datas, name);
+
+										/* 照片先转成bitmap 旋转90度再存起来 */
+										File picture = new File(file.getAbsolutePath() + "/" + name);
+										Bitmap b = BitmapFactory.decodeFile(picture.getAbsolutePath());
+										Matrix matrix = new Matrix();
+										matrix.setRotate(-90);
+										Bitmap bm = b.createBitmap(b, 0, 0, b.getWidth(),
+												b.getHeight(), matrix, true);
+										b.recycle();
+										FileOutputStream fos = null;
+										try {
+											fos = new FileOutputStream(picture);
+										} catch (FileNotFoundException e1) {
+											e1.printStackTrace();
+										}
+										bm.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+
 										Intent reply = new Intent(Constants.Photo_Reply);
 										sendBroadcast(reply);
 									}
@@ -452,7 +492,7 @@ public class SocketService extends Service {
 				public void connectClose(ChannelHandlerContext ctx,
 						ChannelStateEvent e) {
 					Intent connectCloseIntent = new Intent(Constants.Socket_Error);
-					connectCloseIntent.putExtra("content", "连接已断开");
+					connectCloseIntent.putExtra("content", getString(R.string.connection_off));
 					sendBroadcast(connectCloseIntent);
 					Log.i("Connect", "connectClose");
 				}

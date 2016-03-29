@@ -9,9 +9,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
+        android:layout_marginTop="10dp"
         android:background="@drawable/button"
         android:onClick="ontime"
-        android:text="选择时间" />
+        android:text="@string/choose_time1" />
 
     <TextView
         android:id="@+id/chooseweek"
@@ -19,7 +20,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/alarm_time"
         android:layout_marginLeft="5dp"
-        android:text="请选择星期："
+        android:text="@string/choose_week1"
         android:textColor="@android:color/black" />
 
     <LinearLayout
@@ -36,49 +37,49 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/button"
-            android:text="周一" />
+            android:text="@string/monday" />
 
         <Button
             android:id="@+id/zhou2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/button"
-            android:text="周二" />
+            android:text="@string/tuesday" />
 
         <Button
             android:id="@+id/zhou3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/button"
-            android:text="周三" />
+            android:text="@string/wednesday" />
 
         <Button
             android:id="@+id/zhou4"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/button"
-            android:text="周四" />
+            android:text="@string/thursday" />
 
         <Button
             android:id="@+id/zhou5"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/button"
-            android:text="周五" />
+            android:text="@string/friday" />
 
         <Button
             android:id="@+id/zhou6"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/button"
-            android:text="周六" />
+            android:text="@string/saturday" />
 
         <Button
             android:id="@+id/zhou7"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/button"
-            android:text="周日" />
+            android:text="@string/sunday" />
     </LinearLayout>
 
     <EditText
@@ -90,50 +91,46 @@
         android:layout_marginBottom="36dp"
         android:background="@drawable/button"
         android:ems="10"
-        android:hint="请输入提醒内容"
+        android:hint="@string/intput_remind_content"
         android:textColorHint="@color/white" />
 
-    <Button
-        android:id="@+id/button1"
-        android:layout_width="100dp"
-        android:layout_height="50dp"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="57dp"
-        android:background="@drawable/button"
-        android:onClick="over"
-        android:text="完成" />
-
-    <EditText
-        android:id="@+id/task_title_alarm"
-        android:layout_width="wrap_content"
+    <RelativeLayout
+        android:id="@+id/rl_title"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/week"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="50dp"
-        android:layout_marginTop="10dp"
-        android:background="@drawable/button"
-        android:ems="10"
-        android:hint="请输入标题"
-        android:textColorHint="@color/white" />
+        android:layout_marginBottom="20dp"
+        android:layout_marginTop="20dp">
+        <EditText
+            android:id="@+id/task_title_alarm"
+            android:layout_width="wrap_content"
+            android:layout_height="60dp"
+            android:layout_centerHorizontal="true"
+            android:background="@drawable/button"
+            android:ems="10"
+            android:hint="@string/input_title_please"
+            android:textColorHint="@color/white" />
 
-    <Button
-        android:id="@+id/button2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/task_title_alarm"
-        android:layout_alignBottom="@+id/task_title_alarm"
-        android:layout_alignRight="@+id/task_title_alarm"
-        android:background="@drawable/about"
-        android:onClick="choose" />
+        <Button
+            android:id="@+id/button2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_alignBaseline="@+id/task_title_alarm"
+            android:layout_alignRight="@+id/task_title_alarm"
+            android:background="@drawable/about"
+            android:onClick="choose" />
+    </RelativeLayout>
+
 
     <TextView
         android:id="@+id/alarm_isaways"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/task_title_alarm"
+        android:layout_below="@id/rl_title"
+        android:layout_above="@+id/task_content_alarm"
         android:layout_marginLeft="10dp"
-        android:text="是否重复:"
+        android:text="@string/if_repeat"
         android:textColor="@android:color/black" />
 
     <com.yongyida.robot.widget.SwitchButton
@@ -146,4 +143,14 @@
         android:layout_toRightOf="@+id/chooseweek"
         android:checked="true" />
 
+    <Button
+        android:id="@+id/button1"
+        android:layout_width="100dp"
+        android:layout_height="50dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="57dp"
+        android:background="@drawable/button"
+        android:onClick="over"
+        android:text="@string/complete" />
 </RelativeLayout>

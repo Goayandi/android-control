@@ -13,14 +13,6 @@
  */
 package com.yongyida.robot.activity;
 
-import java.util.Date;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.UUID;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -68,6 +60,14 @@ import com.yongyida.robot.utils.Constants;
 import com.yongyida.robot.utils.HandlerUtil;
 import com.yongyida.robot.utils.StartUtil;
 import com.yongyida.robot.utils.ToastUtil;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.Date;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.UUID;
 
 public class ControlActivity extends CallActivity implements OnClickListener,
 		OnTouchListener {
@@ -323,7 +323,7 @@ public class ControlActivity extends CallActivity implements OnClickListener,
 		public void dispatchMessage(android.os.Message msg) {
 			if (msg.what == 0) {
 			} else if (msg.what == 2) {
-				ToastUtil.showtomain(ControlActivity.this, "连接超时");
+				ToastUtil.showtomain(ControlActivity.this, getString(R.string.request_timeout));
 			} else if (msg.what == 3) {
 				play.setEnabled(true);
 			} else if (msg.what == 4) {
@@ -452,7 +452,6 @@ public class ControlActivity extends CallActivity implements OnClickListener,
 		@SuppressWarnings("deprecation")
 		@Override
 		public void surfaceCreated(SurfaceHolder holder) {
-			Log.i("holder", "surfaceCreated");
 			holder.setType(SurfaceHolder.SURFACE_TYPE_GPU);
 
 		}
@@ -460,13 +459,11 @@ public class ControlActivity extends CallActivity implements OnClickListener,
 		@Override
 		public void surfaceChanged(SurfaceHolder holder, int format, int width,
 				int height) {
-			Log.i("holder", "surfaceChanged");
 			callHelper.onWindowResize(width, height, format);
 		}
 
 		@Override
 		public void surfaceDestroyed(SurfaceHolder holder) {
-			Log.i("holder", "surfaceDestroyed");
 			holder.removeCallback(this);
 		}
 
@@ -512,7 +509,7 @@ public class ControlActivity extends CallActivity implements OnClickListener,
 							&& EMVideoCallHelper.getInstance().getVideoWidth() == 240) {
 						EMChatManager.getInstance().endCall();
 						saveCallRecord(1);
-						ToastUtil.showtomain(ControlActivity.this, "连接错误！请重试！");
+						ToastUtil.showtomain(ControlActivity.this, getString(R.string.connect_error_retry));
 						cameraHelper.stopCapture(oppositeSurfaceHolder);
 					}
 
@@ -547,7 +544,7 @@ public class ControlActivity extends CallActivity implements OnClickListener,
 							} else if (fError == CallError.ERROR_INAVAILABLE) {
 								saveCallRecord(1);
 								ToastUtil.showtomain(ControlActivity.this,
-										"连接错误！请重启机器人！");
+										getString(R.string.connect_error_restart_robot));
 								EMChatManager.getInstance().endCall();
 								callingState = CallingState.OFFLINE;
 							} else {
@@ -620,13 +617,13 @@ public class ControlActivity extends CallActivity implements OnClickListener,
 					localSurface.setVisibility(View.VISIBLE);
 				}
 				if (index > 0) {
-					ToastUtil.showtomain(this, "不要点的那么频繁嘛！╮(╯▽╰)╭");
+					ToastUtil.showtomain(this, getString(R.string.dont_so_fast2));
 					return;
 				}
 				boolean wificheck = getSharedPreferences("setting",
 						MODE_PRIVATE).getBoolean("wificheck", true);
 				if (wificheck && !checknetwork()) {
-					ToastUtil.showtomain(this, "非wifi网络，请在设置中修改!");
+					ToastUtil.showtomain(this, getString(R.string.not_wifi));
 					return;
 				}
 				try {
@@ -662,7 +659,7 @@ public class ControlActivity extends CallActivity implements OnClickListener,
 				}
 			} else {
 				progress = new ProgressDialog(this);
-				progress.setMessage("挂断中........");
+				progress.setMessage(getString(R.string.hang_uping));
 				progress.show();
 				play.setBackgroundResource(R.drawable.bofang);
 				localSurface.setVisibility(View.INVISIBLE);
@@ -710,7 +707,7 @@ public class ControlActivity extends CallActivity implements OnClickListener,
 		case R.id.speak:
 			if (!getIntent().getExtras().getString("mode").equals("control")
 					&& audioManager.isMicrophoneMute()) {
-				ToastUtil.showtomain(this, "请先开启麦克风");
+				ToastUtil.showtomain(this, getString(R.string.please_open_microphone));
 				return;
 			} else {
 				audioManager
@@ -879,7 +876,7 @@ public class ControlActivity extends CallActivity implements OnClickListener,
 	@Override
 	public void onBackPressed() {
 		if (isconnected) {
-			ToastUtil.showtomain(this, "请先挂断视频！");
+			ToastUtil.showtomain(this, getString(R.string.hang_up_video_first));
 			return;
 		}
 		cameraHelper.stopCapture(oppositeSurfaceHolder);

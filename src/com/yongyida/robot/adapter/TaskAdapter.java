@@ -82,13 +82,9 @@
 
 package com.yongyida.robot.adapter;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.List;
-
 import android.content.Context;
 import android.graphics.Color;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -98,6 +94,11 @@ import android.widget.TextView;
 import com.yongyida.robot.R;
 import com.yongyida.robot.bean.Alarm;
 import com.yongyida.robot.bean.Remind;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.List;
 
 public class TaskAdapter extends BaseAdapter {
 
@@ -150,7 +151,7 @@ public class TaskAdapter extends BaseAdapter {
 			tasks = (List<Remind>) tasks;
 			String date = ((Remind) tasks.get(index)).getSettime();
 			finishtime.setTimeInMillis(Long.parseLong(date));
-			holder.textView_istoday.setText("当天");
+			holder.textView_istoday.setText(R.string.that_day);
 			holder.textview_settime.setText(finishtime.get(Calendar.YEAR) + "."
 					+ (finishtime.get(Calendar.MONTH) + 1) + "."
 					+ finishtime.get(Calendar.DATE) + " "
@@ -197,9 +198,23 @@ public class TaskAdapter extends BaseAdapter {
 //			}
 			holder.textview_settime.setText(year + "." + month + "." + day
 					+ " " + hour + ":" + min);// + ":" + scn);
-			holder.textView_content.setText("["
-					+ ((Remind) tasks.get(index)).getTitle() + "] "
-					+ ((Remind) tasks.get(index)).getContent());
+			if(!TextUtils.isEmpty(((Remind) tasks.get(index)).getTitle())){
+				String titleContent = "["
+						+ ((Remind) tasks.get(index)).getTitle() + "] "
+						+ ((Remind) tasks.get(index)).getContent();
+				if(titleContent.length() > 15){
+					holder.textView_content.setText(titleContent.substring(0,13) + "...");
+				} else {
+					holder.textView_content.setText(titleContent);
+				}
+			}else{
+				String titleContent = ((Remind) tasks.get(index)).getContent();
+				if(titleContent.length() > 15){
+					holder.textView_content.setText(titleContent.substring(0,13) + "...");
+				} else {
+					holder.textView_content.setText(titleContent);
+				}
+			}
 		} else if (tasks.get(index) instanceof Alarm) {
 			if (v == null){
 				v = layout.inflate(R.layout.alarmitem, null);
@@ -229,9 +244,9 @@ public class TaskAdapter extends BaseAdapter {
 				e.printStackTrace();
 			}
 			if (alarm.getIsaways() == 0) {
-				alarmholder.textView_istoday.setText("本周");
+				alarmholder.textView_istoday.setText(R.string.this_week);
 			} else {
-				alarmholder.textView_istoday.setText("每周");
+				alarmholder.textView_istoday.setText(R.string.every_day);
 			}
 					
 			for(int n = 1; n <= 7; n++){
@@ -315,8 +330,22 @@ public class TaskAdapter extends BaseAdapter {
 			}
 
 			alarmholder.textview_settime.setText(hour + ":" + min + ":" + scn);
-			alarmholder.textView_content.setText("[" + alarm.getTitle() + "]"
-					+ alarm.getContent());
+			if(!TextUtils.isEmpty(alarm.getTitle())) {
+				String titleContent = "[" + alarm.getTitle() + "]"
+						+ alarm.getContent();
+				if(titleContent.length() > 15){
+					alarmholder.textView_content.setText(titleContent.substring(0,13) + "...");
+				} else {
+					alarmholder.textView_content.setText(titleContent);
+				}
+			}else{
+				String titleContent = alarm.getContent();
+				if(titleContent.length() > 15){
+					alarmholder.textView_content.setText(titleContent.substring(0,13) + "...");
+				} else {
+					alarmholder.textView_content.setText(titleContent);
+				}
+			}
 
 		}
 		if (holder != null) {

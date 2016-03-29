@@ -33,7 +33,7 @@
             android:id="@+id/robot_id"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:hint="请输入机器人id"
+            android:hint="@string/input_robot_id"
             android:textColor="@color/white"
             android:textColorHint="@color/white"
             android:background="@drawable/edit_shape_login" />
@@ -42,7 +42,7 @@
             android:id="@+id/robot_serial"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:hint="请输入机器人序列号"
+            android:hint="@string/input_robot_serial_number"
             android:textColor="@color/white"
             android:textColorHint="@color/white"
             android:background="@drawable/edit_shape_login" />
@@ -54,7 +54,7 @@
             android:layout_gravity="center"
             android:background="@drawable/title_shape"
             android:textColor="@color/white"
-            android:text="绑定" />
+            android:text="@string/bind" />
     </LinearLayout>
 
 </FrameLayout>

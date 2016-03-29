@@ -35,6 +35,12 @@ public class PhotoAdapter extends BaseAdapter {
 		checks = new boolean[paths.length];
 	}
 
+	public void setAllUnCheck(){
+		for(int i = 0; i < checks.length; i++){
+			checks[i] = false;
+		}
+	}
+
 	@Override
 	public int getCount() {
 		return paths.length;
@@ -82,10 +88,9 @@ public class PhotoAdapter extends BaseAdapter {
 
 			@Override
 			public void onCheckedChanged(CompoundButton arg0, boolean ischecked) {
+				checks[pos] = ischecked;
 				if (ischecked) {
 					activity.checked(name);
-					checks[pos] = ischecked;
-					
 				} else {
 					activity.notcheck(name);
 				}

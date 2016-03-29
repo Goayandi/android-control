@@ -15,7 +15,7 @@
         app:layout_marginLeftPercent="3%"
         app:layout_textSizePercent="4%"
         android:gravity="center"
-        android:text=" 断开连接"
+        android:text="@string/disconnect"
         android:drawableLeft="@drawable/back"
         android:textColor="@color/white" />
 
@@ -74,7 +74,7 @@
             android:layout_height="0dp"
             android:layout_below="@id/video_chat_img"
             style="@style/style_tv_control"
-            android:text="视频"
+            android:text="@string/video1"
              />
     </com.layout.utils.PercentRelativeLayout>
 
@@ -98,7 +98,7 @@
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             android:layout_below="@id/power_photo_img"
-            android:text="相册"
+            android:text="@string/album"
             style="@style/style_tv_control" />
     </com.layout.utils.PercentRelativeLayout>
 
@@ -121,7 +121,7 @@
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             android:layout_below="@id/video_monitor_img"
-            android:text="监控"
+            android:text="@string/monitoring"
             style="@style/style_tv_control" />
     </com.layout.utils.PercentRelativeLayout>
 
@@ -145,7 +145,7 @@
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             android:layout_below="@id/power_task_img"
-            android:text="提醒"
+            android:text="@string/remind"
             style="@style/style_tv_control" />
     </com.layout.utils.PercentRelativeLayout>
 
@@ -168,7 +168,7 @@
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             android:layout_below="@id/power_setting_img"
-            android:text="设置"
+            android:text="@string/setting"
             style="@style/style_tv_control"/>
     </com.layout.utils.PercentRelativeLayout>
 
@@ -192,7 +192,7 @@
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             android:layout_below="@id/bt_more"
-            android:text="更多"
+            android:text="@string/more"
             style="@style/style_tv_control" />
     </com.layout.utils.PercentRelativeLayout>
     

@@ -1,11 +1,5 @@
 package com.yongyida.robot.activity;
 
-import java.net.SocketTimeoutException;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.json.JSONObject;
-
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -17,6 +11,12 @@ import com.yongyida.robot.R;
 import com.yongyida.robot.utils.NetUtil;
 import com.yongyida.robot.utils.NetUtil.callback;
 import com.yongyida.robot.utils.ThreadPool;
+
+import org.json.JSONObject;
+
+import java.net.SocketTimeoutException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class AddressBook extends Activity {
 
@@ -36,11 +36,11 @@ public class AddressBook extends Activity {
 		String fathernumber = editfather.getText().toString().trim();
 		String mothernumber = editmother.getText().toString().trim();
 		if (fathernumber == null || fathernumber.equals("")) {
-			Toast.makeText(this, "请输入父亲电话", Toast.LENGTH_SHORT).show();
+			Toast.makeText(this, R.string.get_fathers_phone, Toast.LENGTH_SHORT).show();
 			return;
 		}
 		if (mothernumber == null || mothernumber.equals("")) {
-			Toast.makeText(this, "请输入母亲电话", Toast.LENGTH_SHORT).show();
+			Toast.makeText(this, R.string.get_mothers_phone, Toast.LENGTH_SHORT).show();
 			return;
 		}
 		ThreadPool.execute(new Runnable() {

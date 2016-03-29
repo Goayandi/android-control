@@ -16,20 +16,11 @@
     <style name="AppTheme" parent="AppBaseTheme">
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
     </style>
- <style name="AppBaseTheme" parent="android:Theme.Light">
-        <!--
-            Theme customizations available in newer API levels can go in
-            res/values-vXX/styles.xml, while customizations related to
-            backward-compatibility can go here.
-        -->
-    </style>
 
     <!-- Application theme. -->
     <style name="AppTheme1" parent="AppBaseTheme">
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
     </style>
-
-    <style name="AppTheme" parent="android:Theme.Light" />
 
 
     <style name="chat_content_date_style">
@@ -256,5 +247,10 @@
         <item name="com.yongyida.robot:layout_heightPercent">40%</item>
         <item name="com.yongyida.robot:layout_marginTopPercent">10%</item>
         <item name="com.yongyida.robot:layout_widthPercent">35%</item>
+    </style>
+    <style name="rb">
+        <item name="com.yongyida.robot:layout_marginTopPercent">1%</item>
+        <item name="com.yongyida.robot:layout_marginBottomPercent">1%</item>
+        <item name="android:gravity">center</item>
     </style>
 </resources>

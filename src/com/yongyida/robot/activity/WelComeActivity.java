@@ -1,8 +1,6 @@
 package com.yongyida.robot.activity;
 
 
-import org.json.JSONObject;
-
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.content.DialogInterface;
@@ -25,12 +23,13 @@ import com.yongyida.robot.utils.ThreadPool;
 import com.yongyida.robot.utils.ToastUtil;
 import com.yongyida.robot.utils.XmlUtil;
 
+import org.json.JSONObject;
+
 public class WelComeActivity extends BaseActivity {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
 	}
 
 	private AlertDialog alert;
@@ -39,9 +38,9 @@ public class WelComeActivity extends BaseActivity {
 	public void onHandlerMessage(Message msg) {
 		if (msg.what == 0) {
 			AlertDialog.Builder builder = new Builder(WelComeActivity.this);
-			builder.setMessage("发现新版本,是否更新？");
-			builder.setTitle("版本更新");
-			builder.setPositiveButton("是",
+			builder.setMessage(R.string.have_new_version_if_update);
+			builder.setTitle(R.string.version_update);
+			builder.setPositiveButton(getString(R.string.yes),
 					new DialogInterface.OnClickListener() {
 
 						@Override
@@ -53,7 +52,7 @@ public class WelComeActivity extends BaseActivity {
 
 						}
 					});
-			builder.setNegativeButton("否",
+			builder.setNegativeButton(getString(R.string.no),
 					new DialogInterface.OnClickListener() {
 
 						@Override

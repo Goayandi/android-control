@@ -16,7 +16,7 @@
 	        android:textColor="@color/light_blue"
 	        android:textSize="18sp"
 	        android:layout_gravity="center_vertical"
-            android:text="名    字:"/>
+            android:text="@string/name"/>
         <TextView
 	        android:id="@+id/robot_item"
 	        android:layout_width="wrap_content"
@@ -25,7 +25,7 @@
 	        android:textSize="18sp"
 	        android:layout_gravity="center_vertical"
 	        android:layout_marginLeft="5dp"
-	        android:text="未找到机器人"
+	        android:text="@string/cant_find_robot"
         />
     </LinearLayout>
    <LinearLayout 
@@ -37,7 +37,7 @@
     <TextView 
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="控制者:"
+        android:text="@string/controller"
         android:textSize="18sp"
         android:textColor="@color/light_blue"
         />
@@ -45,7 +45,7 @@
         android:id="@+id/robot_control"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="未被控制"
+        android:text="@string/not_controlled"
         android:layout_marginLeft="5dp"
         android:textSize="18sp"
         android:textColor="@android:color/white"
@@ -62,7 +62,7 @@
         android:id="@+id/online"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="离线"
+        android:text="@string/offline"
         android:textColor="@color/red"
         android:layout_alignParentRight="true"
         android:layout_marginRight="10dp"

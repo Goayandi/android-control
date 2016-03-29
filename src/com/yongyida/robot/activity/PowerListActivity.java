@@ -1,15 +1,11 @@
 package com.yongyida.robot.activity;
 
 import android.animation.ObjectAnimator;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
@@ -23,7 +19,6 @@ import com.easemob.chat.CmdMessageBody;
 import com.easemob.chat.EMChatManager;
 import com.easemob.chat.EMMessage;
 import com.easemob.chat.EMMessage.Type;
-import com.easemob.exceptions.EaseMobException;
 import com.yongyida.robot.R;
 import com.yongyida.robot.utils.Constants;
 import com.yongyida.robot.utils.StartUtil;
@@ -41,7 +36,7 @@ public class PowerListActivity extends BaseActivity implements OnClickListener {
 	private RelativeLayout more;
 	private TextView power_title;
 	private String mMode;
-	
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		setContentView(R.layout.activity_power_list);
@@ -137,7 +132,7 @@ public class PowerListActivity extends BaseActivity implements OnClickListener {
 		
 		@Override
 		public void onError(int arg0, String arg1) {
-			ToastUtil.showtomain(PowerListActivity.this, "初始化失败，请重试");
+			ToastUtil.showtomain(PowerListActivity.this, getString(R.string.initialize_fail));
 		}
 	};
 	
@@ -147,28 +142,20 @@ public class PowerListActivity extends BaseActivity implements OnClickListener {
 
 		switch (v.getId()) {
 		case R.id.more:
-			ToastUtil.showtomain(this, "敬请期待");
+			ToastUtil.showtomain(this, getString(R.string.waitting));
 			break;
 		case R.id.power_title:
 			onBackPressed();
 			break;
 		case R.id.video_chat:
-			if(mMode != "chat"){
-				mMode = "chat";
-				sendmsg(mMode,getSharedPreferences("Receipt", MODE_PRIVATE).getString(
+			mMode = "chat";
+			sendmsg(mMode,getSharedPreferences("Receipt", MODE_PRIVATE).getString(
 						"username", null));
-			}else{
-				startActivityByMode();
-			}
 			break;
 		case R.id.video_monitor:
-			if(mMode != "control"){
-				mMode = "control";
-				sendmsg(mMode,getSharedPreferences("Receipt", MODE_PRIVATE).getString(
+			mMode = "control";
+			sendmsg(mMode,getSharedPreferences("Receipt", MODE_PRIVATE).getString(
 						"username", null));
-			}else{
-				startActivityByMode();
-			}
 			break;
 		// case R.id.power_address_book:
 		// // StartUtil.startintent(this, AddressBook.class, "no");
@@ -196,12 +183,7 @@ public class PowerListActivity extends BaseActivity implements OnClickListener {
 		}
 	}
 	
-	private void startActivityByMode(){
-		Bundle params = new Bundle();
-		params.putString("mode", mMode);
-		StartUtil.startintent(PowerListActivity.this, ControlActivity.class, "no", params);
-	}
-	
+
 	@Override
 	public void onBackPressed() {
 		sendBroadcast(new Intent(Constants.Stop));

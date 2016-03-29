@@ -1,17 +1,5 @@
 package com.yongyida.robot.activity;
 
-import java.net.SocketTimeoutException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.SharedPreferences;
@@ -47,6 +35,18 @@ import com.yongyida.robot.utils.StartUtil;
 import com.yongyida.robot.utils.ThreadPool;
 import com.yongyida.robot.utils.ToastUtil;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.net.SocketTimeoutException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
+
 @SuppressLint("NewApi")
 public class LoginActivity extends BaseActivity implements OnClickListener {
 
@@ -69,17 +69,18 @@ public class LoginActivity extends BaseActivity implements OnClickListener {
 			// 手机号验证
 			if (edit_phonenum.getText() == null
 					|| edit_phonenum.getText().toString().equals("")) {
-				ToastUtil.showtomain(LoginActivity.this, "请输入手机号");
+				ToastUtil.showtomain(LoginActivity.this, getString(R.string.input_phone_number));
 				return;
 			}
 			if (edit_vaildcode.getText() == null
 					|| edit_vaildcode.getText().toString().equals("")) {
-				ToastUtil.showtomain(LoginActivity.this, "请输入验证码");
+				ToastUtil.showtomain(LoginActivity.this, getString(R.string.input_verification_code));
 				return;
 			}
 			progress = new ProgressDialog(this);
-			progress.setMessage("正在登录.......");
+			progress.setMessage(getString(R.string.logining));
 			progress.show();
+         //   handler.sendEmptyMessage(1);
 			ThreadPool.execute(new Runnable() {
 				@Override
 				public void run() {
@@ -111,6 +112,7 @@ public class LoginActivity extends BaseActivity implements OnClickListener {
 												if (timer != null) {
 													timer.cancel();
 												}
+												handler.sendEmptyMessage(1);
 											} else if (json.getInt("ret") == 1) {
 												progress.dismiss();
 												HandlerUtil
@@ -134,13 +136,22 @@ public class LoginActivity extends BaseActivity implements OnClickListener {
 
 									@Override
 									public void error(String errorresult) {
+                                        if(progress != null){
+                                            progress.dismiss();
+                                        }
+										if (timer != null) {
+											timer.cancel();
+										}
 										HandlerUtil.sendmsg(handler,
-												errorresult, 2);
+												errorresult, 6);
 									}
 								}, LoginActivity.this);
 					} catch (SocketTimeoutException e) {
+                        if(progress != null){
+                            progress.dismiss();
+                        }
 						HandlerUtil.sendmsg(handler,
-								getString(R.string.time_out), 2);
+								getString(R.string.time_out), 6);
 						e.printStackTrace();
 					}
 				}
@@ -150,15 +161,15 @@ public class LoginActivity extends BaseActivity implements OnClickListener {
 			// 账号过滤
 			if (TextUtils.isEmpty(edit_phonenum.getText())
 					|| edit_phonenum.getText().equals("")) {
-				ToastUtil.showtomain(this, "请输入手机号");
+				ToastUtil.showtomain(this, getString(R.string.input_phone_number));
 				return;
 			}
 			if (edit_phonenum.getText().toString().length() < 11) {
-				ToastUtil.showtomain(this, "手机号长度不对");
+				ToastUtil.showtomain(this, getString(R.string.phone_number_length_error));
 				return;
 			}
 			if (!edit_phonenum.getText().toString().substring(0, 1).equals("1")) {
-				ToastUtil.showtomain(this, "请输入正确的手机号");
+				ToastUtil.showtomain(this, getString(R.string.input_correct_phone_number_please));
 				return;
 			}
 			getvaild.setEnabled(false);
@@ -192,11 +203,11 @@ public class LoginActivity extends BaseActivity implements OnClickListener {
 									@Override
 									public void error(String errorresult) {
 										HandlerUtil.sendmsg(handler,
-												errorresult, 2);
+												errorresult, 6);
 									}
 								}, LoginActivity.this);
 					} catch (SocketTimeoutException e) {
-						HandlerUtil.sendmsg(handler, "请求超时", 2);
+						HandlerUtil.sendmsg(handler, getString(R.string.request_timeout), 6);
 						e.printStackTrace();
 					}
 				}
@@ -208,21 +219,24 @@ public class LoginActivity extends BaseActivity implements OnClickListener {
 
 	Timer timer = null;
 
-	private void huanxinlogin(final String currentUsername,
+	private void  huanxinlogin(final String currentUsername,
 			final String currentPassword) {
 		if (!CommonUtils.isNetWorkConnected(this)) {
 			Toast.makeText(this, R.string.network_isnot_available,
 					Toast.LENGTH_SHORT).show();
+            progress.dismiss();
 			return;
 		}
 		if (TextUtils.isEmpty(currentUsername)) {
 			Toast.makeText(this, R.string.User_name_cannot_be_empty,
 					Toast.LENGTH_SHORT).show();
+            progress.dismiss();
 			return;
 		}
 		if (TextUtils.isEmpty(currentPassword)) {
 			Toast.makeText(this, R.string.Password_cannot_be_empty,
 					Toast.LENGTH_SHORT).show();
+            progress.dismiss();
 			return;
 		}
 		// 调用sdk登陆方法登陆聊天服务器
@@ -248,7 +262,7 @@ public class LoginActivity extends BaseActivity implements OnClickListener {
 
 					@Override
 					public void onSuccess() {
-
+                        Log.i("LoginActivity","onSuccess");
 						// 登陆成功，保存用户名密码
 						DemoApplication.getInstance().setUserName(
 								currentUsername);
@@ -300,14 +314,20 @@ public class LoginActivity extends BaseActivity implements OnClickListener {
 					@Override
 					public void onError(final int code, final String message) {
 						runOnUiThread(new Runnable() {
-							public void run() {
-								Toast.makeText(
-										getApplicationContext(),
-										getString(R.string.Login_failed)
-												+ message, Toast.LENGTH_SHORT)
-										.show();
-							}
-						});
+                            public void run() {
+                                progress.dismiss();
+                                if(timer != null){
+                                    timer.cancel();
+                                }
+                                handler.sendEmptyMessage(1);
+                                Toast.makeText(
+                                        getApplicationContext(),
+                                        getString(R.string.Login_failed)
+                                                + message, Toast.LENGTH_SHORT)
+                                        .show();
+                            }
+                        });
+
 					}
 				});
 	}
@@ -362,22 +382,21 @@ public class LoginActivity extends BaseActivity implements OnClickListener {
 
 	int flag = 0;
 
-	//TODO
 	// 设置按钮内容
 	@Override
 	public void onHandlerMessage(Message msg) {
 		if (msg.what == 0) {
-			getvaild.setText("剩余" + index + "秒");
+			getvaild.setText(getString(R.string.only) + index + getString(R.string.second));
 		} else if (msg.what == 1) {
 			getvaild.getBackground().setAlpha(255);
-			getvaild.setText("重新获取");
+			getvaild.setText(R.string.re_get);
 			getvaild.setEnabled(true);
 			index = 60;
 		} else if (msg.what == 2) {
 			ToastUtil.showtomain(LoginActivity.this,
 					msg.getData().getString("result"));
-			getvaild.getBackground().setAlpha(255);
-			getvaild.setEnabled(true);
+		//	getvaild.getBackground().setAlpha(255);
+		//	getvaild.setEnabled(true);
 		} else if (msg.what == 3) {
 			edit_vaildcode.requestFocus();
 			// 开启timer任务
@@ -412,7 +431,16 @@ public class LoginActivity extends BaseActivity implements OnClickListener {
 		} else if (msg.what == 5) {
 			getvaild.getBackground().setAlpha(255);
 			getvaild.setEnabled(true);
-			ToastUtil.showtomain(LoginActivity.this, "太频繁啦！请稍后再试试！");
+			ToastUtil.showtomain(LoginActivity.this, getString(R.string.so_fast_wait));
+		}else if (msg.what == 6) {
+			if(timer != null){
+				timer.cancel();
+			}
+			index = 60;
+			ToastUtil.showtomain(LoginActivity.this,
+					msg.getData().getString("result"));
+			getvaild.getBackground().setAlpha(255);
+			getvaild.setEnabled(true);
 		}
 		super.onHandlerMessage(msg);
 	}
@@ -438,13 +466,13 @@ public class LoginActivity extends BaseActivity implements OnClickListener {
 
 		if (getSharedPreferences("net_state", MODE_PRIVATE).getString("state",
 				null).equals("official")) {
-			mode = "测试服";
+			mode = getString(R.string.test_server);
 			Constants.address = getString(R.string.test_url);
 			Constants.ip = getString(R.string.test_ip);
 			getSharedPreferences("net_state", MODE_PRIVATE).edit()
 					.putString("state", "test").commit();
 		} else {
-			mode = "正式服";
+			mode = getString(R.string.official_server);
 			Constants.address = getString(R.string.url);
 			Constants.ip = getString(R.string.ip);
 			getSharedPreferences("net_state", MODE_PRIVATE).edit()
@@ -453,7 +481,7 @@ public class LoginActivity extends BaseActivity implements OnClickListener {
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				ToastUtil.showtomain(LoginActivity.this, "已切换为" + mode);
+				ToastUtil.showtomain(LoginActivity.this, getString(R.string.already_switch_to) + mode);
 			}
 		});
 	}

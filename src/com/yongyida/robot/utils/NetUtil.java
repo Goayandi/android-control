@@ -1,5 +1,24 @@
 package com.yongyida.robot.utils;
 
+import android.content.Context;
+import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.util.Log;
+
+import com.yongyida.robot.R;
+import com.yongyida.robot.bean.Alarm;
+import com.yongyida.robot.bean.Remind;
+
+import org.jboss.netty.buffer.ChannelBuffer;
+import org.jboss.netty.buffer.DynamicChannelBuffer;
+import org.jboss.netty.channel.Channel;
+import org.jboss.netty.channel.ChannelHandlerContext;
+import org.jboss.netty.channel.Channels;
+import org.jboss.netty.channel.MessageEvent;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
@@ -11,24 +30,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Map;
-
-import org.jboss.netty.buffer.ChannelBuffer;
-import org.jboss.netty.buffer.DynamicChannelBuffer;
-import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.Channels;
-import org.jboss.netty.channel.MessageEvent;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import com.yongyida.robot.bean.Alarm;
-import com.yongyida.robot.bean.Remind;
-
-import android.content.Context;
-import android.content.Intent;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.util.Log;
 
 public class NetUtil {
 
@@ -57,7 +58,7 @@ public class NetUtil {
 			JSONObject json = new JSONObject(params);
 			String result = http.post(json.toString());
 			if (result.equals("404")) {
-				call.error("服务器维护中.......");
+				call.error(context.getString(R.string.server_maintain));
 				return false;
 			} else {
 				call.success(new JSONObject(result));
@@ -66,9 +67,9 @@ public class NetUtil {
 
 		} catch (Exception e) {
 			if (isConnect(context)) {
-				call.error("网络连接超时！");
+				call.error(context.getString(R.string.net_connection_timeout));
 			} else {
-				call.error("无网络连接！");
+				call.error(context.getString(R.string.net_connection_invisible));
 			}
 			e.printStackTrace();
 			return false;
@@ -89,12 +90,12 @@ public class NetUtil {
 
 		} catch (Exception e) {
 			if (e instanceof SocketTimeoutException) {
-				call.error("网络连接超时！");
+				call.error(context.getString(R.string.net_connection_timeout));
 			}
 			if (isConnect(context)) {
-				call.error("网络连接失败！");
+				call.error(context.getString(R.string.connection_fail));
 			} else {
-				call.error("无网络连接！");
+				call.error(context.getString(R.string.net_connection_invisible));
 			}
 		}
 		return inputstream;

@@ -10,7 +10,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:hint="请输入父亲电话" >
+        android:hint="@string/get_fathers_phone" >
 
         <requestFocus />
     </EditText>
@@ -21,7 +21,7 @@
         android:layout_height="wrap_content"
         android:layout_alignLeft="@id/father"
         android:layout_below="@id/father"
-        android:hint="请输入母亲电话" >
+        android:hint="@string/get_mothers_phone" >
 
         <requestFocus />
     </EditText>
@@ -30,7 +30,6 @@
         android:id="@+id/OK"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/editText2"
         android:layout_centerHorizontal="true"
         android:onClick="ok"
         android:text="上传" />

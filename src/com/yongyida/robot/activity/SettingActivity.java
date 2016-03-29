@@ -122,16 +122,16 @@ public class SettingActivity<AndroidLearn> extends BaseActivity implements
 		case R.id.contact:
 			AlertDialog.Builder dialog = new AlertDialog.Builder(SettingActivity.this);  
 //          dialog.setIcon(R.drawable.ic_launcher);//窗口头图标  
-            dialog.setTitle("提示");//窗口名           
-            dialog.setMessage("是否拨打客服电话:400-9696488 ");  
-            dialog.setPositiveButton("确定",new DialogInterface.OnClickListener() {  
+            dialog.setTitle(R.string.reminder);//窗口名
+            dialog.setMessage(R.string.service_number);
+            dialog.setPositiveButton(R.string.confirm,new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int which) {  
                     // TODO Auto-generated method stub  
                 	Intent intent = new Intent(Intent.ACTION_CALL,Uri.parse("tel:400-9696488"));  
                     startActivity(intent); 
                 }  
             });  
-            dialog.setNegativeButton("取消",new DialogInterface.OnClickListener() {  
+            dialog.setNegativeButton(getString(R.string.cancel),new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int which) {  
                     // TODO Auto-generated method stub  
                       
@@ -140,21 +140,21 @@ public class SettingActivity<AndroidLearn> extends BaseActivity implements
             dialog.show();
 			break;
 		case R.id.editname:
-			if (edit.getText().toString().equals("编辑")) {
-				edit.setText("完成");
+			if (edit.getText().toString().equals(getString(R.string.edit))) {
+				edit.setText(R.string.complete);
 				robotname.setEnabled(true);
 				robotname.requestFocus();
-			} else if (edit.getText().toString().equals("完成")) {
+			} else if (edit.getText().toString().equals(getString(R.string.complete))) {
 				String name = robotname.getText().toString().trim();
 				if (name.equals("")) {
-					ToastUtil.showtomain(this, "名字不能为空");
+					ToastUtil.showtomain(this, getString(R.string.name_cant_null));
 					return;
 				}
 				getSharedPreferences("robotname", MODE_PRIVATE).edit()
 						.putString("name", name).commit();
 				sendBroadcast(new Intent(Constants.Robot_Info_Update).putExtra(
 						"name", name));
-				edit.setText("编辑");
+				edit.setText(getString(R.string.edit));
 				robotname.setEnabled(false);
 			}
 
@@ -166,7 +166,7 @@ public class SettingActivity<AndroidLearn> extends BaseActivity implements
 		@Override
 		public void onReceive(Context arg0, Intent intent) {
 			if (intent.getStringExtra("result").equals("success")) {
-				ToastUtil.showtomain(SettingActivity.this, "修改成功");
+				ToastUtil.showtomain(SettingActivity.this, getString(R.string.modify_success));
 			}
 		}
 	};
