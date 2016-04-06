@@ -25,6 +25,7 @@ import com.yongyida.robot.R;
 import com.yongyida.robot.service.SocketService;
 import com.yongyida.robot.utils.Constants;
 import com.yongyida.robot.utils.LogHelper;
+import com.yongyida.robot.utils.MyCrashHandler;
 import com.yongyida.robot.utils.NetUtil;
 
 public class DemoApplication extends Application {
@@ -46,6 +47,8 @@ public class DemoApplication extends Application {
 	@Override
 	public void onCreate() {
 		super.onCreate();
+		MyCrashHandler myCrashHandler = MyCrashHandler.getInstance();
+		Thread.setDefaultUncaughtExceptionHandler(myCrashHandler);
 		applicationContext = this;
 		instance = this;
 		new NetUtil();

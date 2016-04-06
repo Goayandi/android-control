@@ -112,28 +112,6 @@ public class ConnectActivity extends BaseActivity implements
 		super.onRefresh();
 	}
 
-	// private void SendMSearchMessage() {
-	// SSDPSearchMsg searchProduct = new SSDPSearchMsg(SSDPConstants.Root);
-	// SSDPSocket sock = null;
-	// try {
-	// sock = new SSDPSocket();
-	// for (int i = 0; i < 2; i++) {
-	// sock.send(searchProduct.toString());
-	// Log.i("-------------", "要发送的消息为：" + searchProduct.toString());
-	// }
-	// while (true) {
-	// DatagramPacket dp = sock.receive(); // Here, I only receive the
-	// // same packets I initially
-	// // sent above
-	// String c = new String(dp.getData()).trim();
-	// String ip = new String(dp.getAddress().toString()).trim();
-	// Log.i("------------", "接收到的消息为：" + c + "来源IP地址：" + ip);
-	// }
-	// } catch (IOException e) {
-	// Log.e("M-SEARCH", e.getMessage());
-	// }
-	// }
-
 	@Override
 	protected void onResume() {
 		if (Constants.flag) {
@@ -307,7 +285,14 @@ public class ConnectActivity extends BaseActivity implements
 			getSharedPreferences("robotname", MODE_PRIVATE).edit()
 					.putString("name", list_robots.get(position).getRname())
 					.commit();
-			sendBroadcast(new Intent(Constants.Start_Socket));
+			Intent intent = new Intent();
+			intent.setAction(Constants.Start_Socket);
+			if (username.startsWith(Constants.Y20)){
+				intent.putExtra( Constants.TYPE, Constants.Y20);
+			} else {
+				intent.putExtra( Constants.TYPE, Constants.Y50);
+			}
+			sendBroadcast(intent);
 			BroadcastReceiverRegister.reg(ConnectActivity.this,
 					new String[] { "online" }, bro);
 			pro = new ProgressDialog(ConnectActivity.this);
@@ -321,12 +306,14 @@ public class ConnectActivity extends BaseActivity implements
 		@Override
 		public void onReceive(Context arg0, Intent intent) {
 			if (intent.getAction().equals("online")) {
+				String type = intent.getStringExtra(Constants.TYPE);
 				pro.dismiss();
+				unregisterReceiver(bro);
 				switch (intent.getIntExtra("ret", 0)) {
-				case 0:
-					StartUtil.startintent(ConnectActivity.this,
-							PowerListActivity.class, "no");
-					unregisterReceiver(bro);
+					case 0:
+					Bundle bundle = new Bundle();
+					bundle.putString(Constants.TYPE,type);
+					StartUtil.startintent(ConnectActivity.this, PowerListActivity.class, "no", bundle);
 					break;
 				case -1:
 					handler.sendEmptyMessage(4);
@@ -360,6 +347,36 @@ public class ConnectActivity extends BaseActivity implements
 	};
 	private static RobotAdapter robot;
 
+	/**
+	 * 按型号排序
+	 * @param list
+	 * @return
+	 */
+	public List<Robot> sortAllType(List<Robot> list){
+		List<Robot> tmpList = new ArrayList<Robot>();
+		List<Robot> returnList = new ArrayList<Robot>();
+		for (int i = 0; i < list.size(); i++) {
+			if (list.get(i).getId().startsWith("Y50")){
+				tmpList.add(list.get(i));
+			}
+		}
+		returnList.addAll(sort(tmpList));
+		tmpList.clear();
+		for (int i = 0; i < list.size(); i++) {
+			if (list.get(i).getId().startsWith("Y20")){
+				tmpList.add(list.get(i));
+			}
+		}
+		returnList.addAll(sort(tmpList));
+		tmpList.clear();
+		for (int i = 0; i < list.size(); i++) {
+			if (!returnList.contains(list.get(i))){
+				returnList.add(list.get(i));
+			}
+		}
+		return returnList;
+	}
+
 	public List<Robot> sort(List<Robot> list) {
 		List<Robot> rs = new ArrayList<Robot>();
 		for (int i = 0; i < list.size(); i++) {
@@ -388,7 +405,7 @@ public class ConnectActivity extends BaseActivity implements
 
 	// 适配listview
 	public void setadapter() {
-		list_robots = sort(list_robots);
+		list_robots = sortAllType(list_robots);
 		robot = new RobotAdapter(this, list_robots);
 
 		SwipeMenuCreator creator = new SwipeMenuCreator() {
@@ -536,4 +553,5 @@ public class ConnectActivity extends BaseActivity implements
 
 		return super.onOptionsItemSelected(item);
 	}
+
 }

@@ -1,7 +1,10 @@
 package com.yongyida.robot.utils;
 
+import android.content.Context;
+
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Locale;
 
 public class Utils {
     public static void CopyStream(InputStream is, OutputStream os)
@@ -19,5 +22,20 @@ public class Utils {
             }
         }
         catch(Exception ex){}
+    }
+
+    public enum SystemLanguage{
+        CHINA,
+        ENGLISH
+    }
+    public static SystemLanguage getLanguage(Context context){
+        Locale locale = context.getResources().getConfiguration().locale;
+        String language = locale.getLanguage();
+        if (language.endsWith("zh")){
+            return SystemLanguage.CHINA;
+        } else if (language.endsWith("en")) {
+            return SystemLanguage.ENGLISH;
+        }
+        return SystemLanguage.CHINA;
     }
 }

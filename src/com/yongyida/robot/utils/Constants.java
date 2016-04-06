@@ -1,19 +1,26 @@
 package com.yongyida.robot.utils;
 
 import com.yongyida.robot.bean.Alarm;
-import com.yongyida.robot.bean.Result;
 import com.yongyida.robot.bean.Task;
 
 public class Constants {
 
 	// 请求地址
 	public static String address = "http://server.yydrobot.com";
+	public static String address_hk = "http://hk.server.yydrobot.com:180";
 
 	// socket ip地址
 	public static String ip = "server.yydrobot.com";
+	public static String ip_hk = "hk.server.yydrobot.com";
 
 	// socket 端口号
 	public static String port = "8002";
+	public static String port_hk = "18002";
+
+	// 下载地址
+	public static String download_address = "http://resource.yydrobot.com/app/app.version";
+	public static String download_address_hk = "http://hk.resource.yydrobot.com/app/app.version";
+
 	// 任务添加操作请求码
 	public static int add_RequestCode = 888;
 
@@ -102,4 +109,35 @@ public class Constants {
 	
 	public static String Start_Socket="start_socket";
 
+	public final static String TYPE = "type";
+
+	public final static String Y50 = "Y50";
+
+	public final static String Y20 = "Y20";
+
+	public final static String HK_CODE = "+852";
+
+	public final static String CN_CODE = "+86";
+
+	public final static String ADD_ROBOT_FRIEND = "/friends/user/addRobot";
+
+	public final static String DELETE_ROBOT_FRIEND = "/friends/user/delRobot";
+
+	public final static String FIND_ROBOT_FRIEND = "/friends/user/findRobot";
+
+	public static final String RESPONSE_VIDEO_REQUEST = "response_video_request";
+
+	public static final String CMD_MEDIA_INVITE = "/media/invite/response";
+
+	public static final String CMD_MEDIA_CANCEL = "/media/cancel/response";
+
+	public static final String CMD_MEDIA_REPLY = "/media/reply/response";
+
+	public static final String CMD_MEDIA_LOGIN = "/media/room/login/response";
+
+	public static final String CMD_MEDIA_LOGOUT = "/media/room/login/response";
+
+	public static final String CMD_MEDIA_JOIN = "/media/room/join";
+
+	public static final String CMD_MEDIA_CALLBACK = "/media/callback";
 }

@@ -77,6 +77,7 @@
     </content>
     <orderEntry type="jdk" jdkName="Android API 20 Platform" jdkType="Android SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" exported="" name="Native_Libs2" level="project" />
     <orderEntry type="library" exported="" name="locSDK_3.3" level="project" />
     <orderEntry type="library" exported="" name="easemobchat_2.2.4" level="project" />
     <orderEntry type="library" exported="" name="netty-3.5.10.Final" level="project" />

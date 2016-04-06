@@ -15,18 +15,18 @@ import android.view.Menu;
 
 import com.yongyida.robot.R;
 import com.yongyida.robot.service.UpdateService;
+import com.yongyida.robot.utils.Constants;
 import com.yongyida.robot.utils.HandlerUtil;
 import com.yongyida.robot.utils.NetUtil;
 import com.yongyida.robot.utils.NetUtil.callback;
 import com.yongyida.robot.utils.StartUtil;
 import com.yongyida.robot.utils.ThreadPool;
-import com.yongyida.robot.utils.ToastUtil;
 import com.yongyida.robot.utils.XmlUtil;
 
 import org.json.JSONObject;
 
 public class WelComeActivity extends BaseActivity {
-
+	private String address;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -65,8 +65,7 @@ public class WelComeActivity extends BaseActivity {
 			alert = builder.create();
 			alert.show();
 		} else if (msg.what == 1) {
-			ToastUtil.showtomain(WelComeActivity.this,
-					msg.getData().getString("result"));
+		//	ToastUtil.showtomain(WelComeActivity.this,msg.getData().getString("result"));
 			StartUtil.startintent(WelComeActivity.this, GuideActivity.class,
 					"finish");
 		}
@@ -83,6 +82,12 @@ public class WelComeActivity extends BaseActivity {
 	@Override
 	public void initlayout(OnRefreshListener onRefreshListener) {
 		setContentView(R.layout.activity_wel_come);
+		String stateCode = getSharedPreferences("Receipt", MODE_PRIVATE).getString("state_code", null);
+		if (Constants.HK_CODE.equals(stateCode)) {
+			address = Constants.download_address_hk;
+		} else {
+			address = Constants.download_address;
+		}
 		ThreadPool.execute(new Runnable() {
 
 			@Override
@@ -93,7 +98,7 @@ public class WelComeActivity extends BaseActivity {
 					String version = XmlUtil.xml(
 							NetUtil.getinstance().downloadfile(
 									WelComeActivity.this,
-									getString(R.string.version_url),
+									address,
 									new callback() {
 
 										@Override

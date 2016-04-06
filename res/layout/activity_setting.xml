@@ -1,5 +1,5 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:btn="http://schemas.android.com/apk/res/com.yongyida.robot"
+	xmlns:btn="http://schemas.android.com/apk/com.yongyida.robot"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"

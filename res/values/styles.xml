@@ -253,4 +253,17 @@
         <item name="com.yongyida.robot:layout_marginBottomPercent">1%</item>
         <item name="android:gravity">center</item>
     </style>
+    <style name="style_bt_meeting_control">
+        <item name="com.yongyida.robot:layout_heightPercent">10%</item>
+        <item name="com.yongyida.robot:layout_widthPercent">15%</item>
+        <item name="com.yongyida.robot:layout_marginLeftPercent">3%</item>
+        <item name="com.yongyida.robot:layout_marginTopPercent">2%</item>
+        <item name="com.yongyida.robot:layout_textSizePercent">3.5%</item>
+    </style>
+    <style name="style_bt_meeting_control2">
+        <item name="com.yongyida.robot:layout_heightPercent">14%</item>
+        <item name="com.yongyida.robot:layout_widthPercent">80%</item>
+        <item name="com.yongyida.robot:layout_marginTopPercent">7%</item>
+        <item name="android:layout_centerHorizontal">true</item>
+    </style>
 </resources>

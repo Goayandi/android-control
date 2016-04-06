@@ -1,14 +1,14 @@
 package com.yongyida.robot.utils;
 
+import android.content.Context;
+import android.os.Environment;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-
-import android.content.Context;
-import android.os.Environment;
 
 public class LogHelper {
 
@@ -92,7 +92,8 @@ public class LogHelper {
 			// cmds = "logcat *:e *:w | grep \"(" + mPID + ")\"";
 			// cmds = "logcat  | grep \"(" + mPID + ")\"";//打印所有日志信息
 			// cmds = "logcat -s way";//打印标签过滤信息
-			cmds = "logcat *:e *:w | grep \"(" + mPID + ")\"";
+		//	cmds = "logcat *:e *:w | grep \"(" + mPID + ")\"";
+			cmds = "logcat *:e | grep \"(" + mPID + ")\"";
 
 		}
 

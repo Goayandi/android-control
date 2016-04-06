@@ -36,6 +36,7 @@ import android.widget.ImageView;
 import com.easemob.EMCallBack;
 import com.easemob.chat.CmdMessageBody;
 import com.easemob.chat.EMCallStateChangeListener;
+import com.easemob.chat.EMChat;
 import com.easemob.chat.EMChatManager;
 import com.easemob.chat.EMMessage;
 import com.easemob.chat.EMMessage.Type;
@@ -60,6 +61,7 @@ import com.yongyida.robot.utils.Constants;
 import com.yongyida.robot.utils.HandlerUtil;
 import com.yongyida.robot.utils.StartUtil;
 import com.yongyida.robot.utils.ToastUtil;
+import com.yongyida.robot.utils.Utils;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -168,6 +170,7 @@ public class ControlActivity extends CallActivity implements OnClickListener,
 			// 打开扬声器
 			openSpeakerOn();
 		}
+		Log.e("EM", EMChat.getInstance().getVersion());
 	}
 
 	private void registerHeadsetPlugReceiver() {
@@ -188,6 +191,7 @@ public class ControlActivity extends CallActivity implements OnClickListener,
 		try {
 			EMChatManager.getInstance().sendMessage(msg);
 		} catch (EaseMobException e) {
+			Log.e("ControlActivity",e.getMessage());
 			e.printStackTrace();
 		}
 	}
@@ -452,6 +456,7 @@ public class ControlActivity extends CallActivity implements OnClickListener,
 		@SuppressWarnings("deprecation")
 		@Override
 		public void surfaceCreated(SurfaceHolder holder) {
+	//		callHelper.setRenderFlag(true);
 			holder.setType(SurfaceHolder.SURFACE_TYPE_GPU);
 
 		}
@@ -464,6 +469,7 @@ public class ControlActivity extends CallActivity implements OnClickListener,
 
 		@Override
 		public void surfaceDestroyed(SurfaceHolder holder) {
+	//		callHelper.setRenderFlag(false);
 			holder.removeCallback(this);
 		}
 
@@ -578,7 +584,9 @@ public class ControlActivity extends CallActivity implements OnClickListener,
 				default:
 					break;
 				}
-
+				if(!error.equals(CallError.ERROR_NONE)){
+					Log.e("EMCall",error.toString());
+				}
 			}
 		};
 		EMChatManager.getInstance().addVoiceCallStateChangeListener(
@@ -628,34 +636,21 @@ public class ControlActivity extends CallActivity implements OnClickListener,
 				}
 				try {
 					// 拨打视频通话
-					EMChatManager.getInstance().makeVideoCall(username);
-					play.setBackgroundResource(R.drawable.zanting);
-					cameraHelper.setStartFlag(true);
-					if (!runningMode.equals("control")) {
-						// 通知cameraHelper可以写入数据
-						cameraHelper.startCapture();
+					if (EMChatManager.getInstance().isConnected()) {
+						EMChatManager.getInstance().makeVideoCall(username);
+						play.setBackgroundResource(R.drawable.zanting);
+						cameraHelper.setStartFlag(true);
+						if (!runningMode.equals("control")) {
+							// 通知cameraHelper可以写入数据
+							cameraHelper.startCapture();
+						}
+						Log.e("username", username);
+					} else {
+						huanxinLogin();
 					}
-					Log.e("username", username);
 				} catch (EMServiceNotReadyException e) {
-					EMChatManager.getInstance().login(
-							getSharedPreferences("huanxin", MODE_PRIVATE)
-									.getString("username", null),
-							getSharedPreferences("huanxin", MODE_PRIVATE)
-									.getString("password", null),
-							new EMCallBack() {
-
-								@Override
-								public void onSuccess() {
-								}
-
-								@Override
-								public void onProgress(int arg0, String arg1) {
-								}
-
-								@Override
-								public void onError(int arg0, String arg1) {
-								}
-							});
+					Log.i("EMChatManager", "exception:"+e.getMessage());
+					huanxinLogin();
 				}
 			} else {
 				progress = new ProgressDialog(this);
@@ -718,12 +713,20 @@ public class ControlActivity extends CallActivity implements OnClickListener,
 			SpeechUtility.createUtility(this, "appid="
 					+ getString(R.string.app_id));
 			EMChatManager.getInstance().pauseVoiceTransfer();
-			mDialog = new RecognizerDialog(ControlActivity.this, init);
-			mDialog.setParameter(SpeechConstant.LANGUAGE, "zh_cn");
-			mDialog.setParameter(SpeechConstant.ACCENT, "vinn");
-			mDialog.setParameter("asr_sch", "1");
-			mDialog.setParameter("nlp_version", "2.0");
-			mDialog.setParameter("dot", "0");
+			if (mDialog == null) {
+				mDialog = new RecognizerDialog(ControlActivity.this, init);
+
+				Utils.SystemLanguage language = Utils.getLanguage(ControlActivity.this);
+				if (Utils.SystemLanguage.CHINA.equals(language)) {
+					mDialog.setParameter(SpeechConstant.LANGUAGE, "zh_cn");
+				} else if (Utils.SystemLanguage.ENGLISH.equals(language)) {
+					mDialog.setParameter(SpeechConstant.LANGUAGE, "en_us");
+				}
+			//	mDialog.setParameter(SpeechConstant.ACCENT, "vinn");
+				mDialog.setParameter("asr_sch", "1");
+				mDialog.setParameter("nlp_version", "2.0");
+				mDialog.setParameter("dot", "0");
+			}
 			Timer timer = new Timer();
 			timer.schedule(new TimerTask() {
 
@@ -783,6 +786,33 @@ public class ControlActivity extends CallActivity implements OnClickListener,
 			break;
 		}
 
+	}
+
+	private void huanxinLogin() {
+		Log.e("ControlActivity","huanxinLogin");
+		EMChatManager.getInstance().login(
+				getSharedPreferences("huanxin", MODE_PRIVATE)
+						.getString("username", null),
+				getSharedPreferences("huanxin", MODE_PRIVATE)
+						.getString("password", null),
+				new EMCallBack() {
+
+					@Override
+					public void onSuccess() {
+						ToastUtil.showtomain(ControlActivity.this, getString(R.string.connect_error));
+						finish();
+					}
+
+					@Override
+					public void onProgress(int arg0, String arg1) {
+					}
+
+					@Override
+					public void onError(int arg0, String arg1) {
+						ToastUtil.showtomain(ControlActivity.this, getString(R.string.connect_error));
+						finish();
+					}
+				});
 	}
 
 	private void toggle() {

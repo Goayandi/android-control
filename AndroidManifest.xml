@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.yongyida.robot"
     android:versionCode="1"
-    android:versionName="1.3" >
+    android:versionName="1.32" >
 
     <uses-sdk
         android:minSdkVersion="16"
@@ -68,6 +68,14 @@
         <activity
             android:name="com.yongyida.robot.activity.ControlActivity"
             android:label="@string/title_activity_control"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
+            android:launchMode="singleTop"
+            android:screenOrientation="landscape" >
+        </activity>
+
+        <activity
+            android:name="com.yongyida.robot.activity.MeetingActivity"
+            android:label="@string/title_activity_meeting"
             android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
             android:launchMode="singleTop"
             android:screenOrientation="landscape" >
@@ -205,6 +213,11 @@
         <activity
             android:name="com.yongyida.robot.activity.GuideActivity"
             android:label="@string/title_activity_guide"
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity
+            android:name="com.yongyida.robot.activity.StateActivity"
+            android:label="@string/title_activity_state"
             android:screenOrientation="portrait" >
         </activity>
         <activity
