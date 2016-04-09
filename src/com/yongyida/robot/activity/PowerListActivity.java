@@ -42,7 +42,8 @@ public class PowerListActivity extends BaseActivity implements OnClickListener {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		mType = getIntent().getStringExtra("type");
+	//	mType = getIntent().getStringExtra("type");
+		//TODO
 		setContentView(R.layout.activity_power_list);
 		initBase();
 	}
@@ -187,9 +188,6 @@ public class PowerListActivity extends BaseActivity implements OnClickListener {
 				mMode = "chat";
 				sendmsg(mMode,getSharedPreferences("Receipt", MODE_PRIVATE).getString(
 						"username", null));
-				if (!"Y50".equals(mType)){
-					Log.e("PowerListActivity","video_chat");
-				}
 			}
 			break;
 		case R.id.video_monitor:
@@ -199,9 +197,6 @@ public class PowerListActivity extends BaseActivity implements OnClickListener {
 				mMode = "control";
 				sendmsg(mMode, getSharedPreferences("Receipt", MODE_PRIVATE).getString(
 						"username", null));
-				if (!"Y50".equals(mType)){
-					Log.e("PowerListActivity","video_monitor");
-				}
 			}
 			break;
 		case R.id.power_photo:

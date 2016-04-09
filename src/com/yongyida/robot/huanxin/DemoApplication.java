@@ -137,4 +137,5 @@ public class DemoApplication extends Application {
 		// 先调用sdk logout，在清理app中自己的数据
 		hxSDKHelper.logout(isGCM, emCallBack);
 	}
+
 }

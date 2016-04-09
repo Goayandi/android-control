@@ -106,7 +106,7 @@
         android:id="@+id/video_monitor"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_alignParentRight="true"
+        android:layout_toRightOf="@id/power_photo"
         android:layout_below="@id/rl"
         style="@style/style_rl_control" >
 

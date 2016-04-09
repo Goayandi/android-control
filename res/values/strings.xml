@@ -565,7 +565,7 @@
     <string name="net_connection_timeout">网络连接超时！</string>
     <string name="net_connection_invisible">无网络连接！</string>
     <string name="connection_fail">网络连接失败！</string>
-    <string name="robot_offline">机器人离线</string>
+    <string name="robot_offline">控制已断开</string>
     <string name="connection_off">连接已断开</string>
     <string name="downloading">下载中</string>
     <string name="download">下载</string>

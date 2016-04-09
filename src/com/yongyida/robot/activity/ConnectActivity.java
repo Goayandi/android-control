@@ -72,6 +72,7 @@ public class ConnectActivity extends BaseActivity implements
 	protected void onCreate(Bundle savedInstanceState) {
 		setContentView(R.layout.activity_connect);
 		super.onCreate(savedInstanceState);
+		startService(new Intent(this, SocketService.class));
 	}
 
 	@Override
@@ -116,7 +117,7 @@ public class ConnectActivity extends BaseActivity implements
 	protected void onResume() {
 		if (Constants.flag) {
 			sendBroadcast(new Intent(Constants.Stop));
-			stopService(new Intent(this, SocketService.class));
+		//	stopService(new Intent(this, SocketService.class));
 		}
 		getrobotinfo();
 		time = 0;
@@ -183,6 +184,7 @@ public class ConnectActivity extends BaseActivity implements
 		}
 	}
 
+	//TODO
 	@Override
 	public void onHandlerMessage(Message msg) {
 		switch (msg.what) {
@@ -286,12 +288,7 @@ public class ConnectActivity extends BaseActivity implements
 					.putString("name", list_robots.get(position).getRname())
 					.commit();
 			Intent intent = new Intent();
-			intent.setAction(Constants.Start_Socket);
-			if (username.startsWith(Constants.Y20)){
-				intent.putExtra( Constants.TYPE, Constants.Y20);
-			} else {
-				intent.putExtra( Constants.TYPE, Constants.Y50);
-			}
+			intent.setAction(Constants.Robot_Connection);
 			sendBroadcast(intent);
 			BroadcastReceiverRegister.reg(ConnectActivity.this,
 					new String[] { "online" }, bro);
@@ -306,14 +303,12 @@ public class ConnectActivity extends BaseActivity implements
 		@Override
 		public void onReceive(Context arg0, Intent intent) {
 			if (intent.getAction().equals("online")) {
-				String type = intent.getStringExtra(Constants.TYPE);
+			//	String type = intent.getStringExtra(Constants.TYPE);
 				pro.dismiss();
 				unregisterReceiver(bro);
 				switch (intent.getIntExtra("ret", 0)) {
 					case 0:
-					Bundle bundle = new Bundle();
-					bundle.putString(Constants.TYPE,type);
-					StartUtil.startintent(ConnectActivity.this, PowerListActivity.class, "no", bundle);
+					StartUtil.startintent(ConnectActivity.this, PowerListActivity.class, "no");
 					break;
 				case -1:
 					handler.sendEmptyMessage(4);
@@ -537,9 +532,9 @@ public class ConnectActivity extends BaseActivity implements
 
 	@Override
 	public void onBackPressed() {
+		stopService(new Intent(this, SocketService.class));
 		if (Constants.flag) {
 			sendBroadcast(new Intent(Constants.Stop));
-			stopService(new Intent(this, SocketService.class));
 		}
 		super.onBackPressed();
 	}

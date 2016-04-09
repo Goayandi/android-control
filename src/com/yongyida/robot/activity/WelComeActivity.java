@@ -14,6 +14,7 @@ import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.view.Menu;
 
 import com.yongyida.robot.R;
+import com.yongyida.robot.service.SocketService;
 import com.yongyida.robot.service.UpdateService;
 import com.yongyida.robot.utils.Constants;
 import com.yongyida.robot.utils.HandlerUtil;
@@ -30,6 +31,7 @@ public class WelComeActivity extends BaseActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		startService(new Intent(this, SocketService.class));
 	}
 
 	private AlertDialog alert;
@@ -138,4 +140,9 @@ public class WelComeActivity extends BaseActivity {
 		});
 	}
 
+	@Override
+	public void onBackPressed() {
+		super.onBackPressed();
+		stopService(new Intent(this, SocketService.class));
+	}
 }

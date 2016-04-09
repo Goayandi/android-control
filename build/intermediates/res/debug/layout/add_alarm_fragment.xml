@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@color/white" >
+
+    <Button
+        android:id="@+id/alarm_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/button"
+        android:onClick="ontime"
+        android:text="@string/choose_time1" />
+
+    <TextView
+        android:id="@+id/chooseweek"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/alarm_time"
+        android:layout_marginLeft="5dp"
+        android:text="@string/choose_week1"
+        android:textColor="@android:color/black" />
+
+    <LinearLayout
+        android:id="@+id/week"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/chooseweek"
+        android:layout_marginTop="10dp"
+        android:gravity="center"
+        android:orientation="horizontal" >
+
+        <Button
+            android:id="@+id/zhou1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/button"
+            android:text="@string/monday" />
+
+        <Button
+            android:id="@+id/zhou2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/button"
+            android:text="@string/tuesday" />
+
+        <Button
+            android:id="@+id/zhou3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/button"
+            android:text="@string/wednesday" />
+
+        <Button
+            android:id="@+id/zhou4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/button"
+            android:text="@string/thursday" />
+
+        <Button
+            android:id="@+id/zhou5"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/button"
+            android:text="@string/friday" />
+
+        <Button
+            android:id="@+id/zhou6"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/button"
+            android:text="@string/saturday" />
+
+        <Button
+            android:id="@+id/zhou7"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/button"
+            android:text="@string/sunday" />
+    </LinearLayout>
+
+    <EditText
+        android:id="@+id/task_content_alarm"
+        android:layout_width="fill_parent"
+        android:layout_height="120dp"
+        android:layout_above="@+id/button1"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="36dp"
+        android:background="@drawable/button"
+        android:ems="10"
+        android:hint="@string/intput_remind_content"
+        android:textColorHint="@color/white" />
+
+    <RelativeLayout
+        android:id="@+id/rl_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/week"
+        android:layout_marginBottom="20dp"
+        android:layout_marginTop="20dp">
+        <EditText
+            android:id="@+id/task_title_alarm"
+            android:layout_width="wrap_content"
+            android:layout_height="60dp"
+            android:layout_centerHorizontal="true"
+            android:background="@drawable/button"
+            android:ems="10"
+            android:hint="@string/input_title_please"
+            android:textColorHint="@color/white" />
+
+        <Button
+            android:id="@+id/button2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_alignBaseline="@+id/task_title_alarm"
+            android:layout_alignRight="@+id/task_title_alarm"
+            android:background="@drawable/about"
+            android:onClick="choose" />
+    </RelativeLayout>
+
+
+    <TextView
+        android:id="@+id/alarm_isaways"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/rl_title"
+        android:layout_above="@+id/task_content_alarm"
+        android:layout_marginLeft="10dp"
+        android:text="@string/if_repeat"
+        android:textColor="@android:color/black" />
+
+    <com.yongyida.robot.widget.SwitchButton
+        android:id="@+id/isaways_setting"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        
+        android:layout_alignTop="@+id/alarm_isaways"
+        android:layout_marginLeft="50dp"
+        android:layout_toRightOf="@+id/chooseweek"
+        android:checked="true" />
+
+    <Button
+        android:id="@+id/button1"
+        android:layout_width="100dp"
+        android:layout_height="50dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="57dp"
+        android:background="@drawable/button"
+        android:onClick="over"
+        android:text="@string/complete" />
+</RelativeLayout><!-- From: file:/E:/ll_workspace/res/layout/add_alarm_fragment.xml -->

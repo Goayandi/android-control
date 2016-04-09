@@ -1,9 +1,11 @@
 package com.yongyida.robot.utils;
 
+import android.app.ActivityManager;
 import android.content.Context;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.List;
 import java.util.Locale;
 
 public class Utils {
@@ -37,5 +39,29 @@ public class Utils {
             return SystemLanguage.ENGLISH;
         }
         return SystemLanguage.CHINA;
+    }
+
+    /**
+     * 判断服务是否开启
+     * @param mServiceList
+     * @param className
+     * @return
+     */
+    public static boolean ServiceIsStart(List<ActivityManager.RunningServiceInfo> mServiceList,String className){
+
+        for(int i = 0; i < mServiceList.size(); i ++)
+
+        {
+
+            if(className.equals(mServiceList.get(i).service.getClassName()))
+
+            {
+                return true;
+            }
+
+        }
+
+        return false;
+
     }
 }

@@ -1,0 +1,17 @@
+Applications Graphics Acceleration Info:
+Uptime: 610279 Realtime: 610279
+
+** Graphics info for pid 5549 [com.yongyida.robot] **
+Profile data in ms:
+
+	com.yongyida.robot/com.yongyida.robot.activity.ConnectActivity/android.view.ViewRootImpl@417ecbc0
+View hierarchy:
+
+  com.yongyida.robot/com.yongyida.robot.activity.ConnectActivity/android.view.ViewRootImpl@417ecbc0
+  51 views, 0.00 kB of display lists
+
+
+Total ViewRootImpl: 1
+Total Views:        51
+Total DisplayList:  0.00 kB
+

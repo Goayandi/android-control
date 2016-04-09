@@ -102,12 +102,15 @@ public class Constants {
 	// 机器人信息修改
 	public static String Robot_Info_Update = "robot_info_update";
 
+	// 连接机器人
+	public static String Robot_Connection = "Robot_Connection";
+
 	// 视频模式
 	public static String Video_Mode = "yongyida.robot.video.videomode";
 
 	public static boolean flag = false;
 	
-	public static String Start_Socket="start_socket";
+	public static String connect_robot="connect_robot";
 
 	public final static String TYPE = "type";
 

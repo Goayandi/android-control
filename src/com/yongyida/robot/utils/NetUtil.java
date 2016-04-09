@@ -14,7 +14,6 @@ import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.DynamicChannelBuffer;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.Channels;
 import org.jboss.netty.channel.MessageEvent;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -158,7 +157,7 @@ public class NetUtil {
 		try {
 			JSONObject jsonObject = new JSONObject();
 			jsonObject.put("command", command);
-			socketY20(jsonObject, Command.MEDIA_PUSH, event, handler);
+			socketY20(jsonObject, Command.MEDIA_PUSH, handler);
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
@@ -188,7 +187,7 @@ public class NetUtil {
 			jsonObject.put("pic", pic);
 			jsonObject.put("type", type);
 			jsonObject.put("number", number);
-			socketY20(jsonObject, Command.MEDIA_REQUEST, event, handler);
+			socketY20(jsonObject, Command.MEDIA_REQUEST, handler);
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
@@ -207,7 +206,7 @@ public class NetUtil {
 			JSONObject jsonObject = new JSONObject();
 			jsonObject.put("id", id);
 			jsonObject.put("role", role);
-			socketY20(jsonObject, Command.MEDIA_CANCEL, event, handler);
+			socketY20(jsonObject, Command.MEDIA_CANCEL, handler);
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
@@ -239,7 +238,7 @@ public class NetUtil {
 			jsonObject.put("invite_type", invite_type);
 			jsonObject.put("invite_id", invite_id);
 			jsonObject.put("reply", reply);
-			socketY20(jsonObject, Command.MEDIA_REQUEST, event, handler);
+			socketY20(jsonObject, Command.MEDIA_REQUEST, handler);
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
@@ -262,7 +261,7 @@ public class NetUtil {
 			jsonObject.put("id", id);
 			jsonObject.put("role", role);
 			jsonObject.put("room_id", room_id);
-			socketY20(jsonObject, Command.MEDIA_REQUEST, event, handler);
+			socketY20(jsonObject, Command.MEDIA_REQUEST, handler);
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
@@ -285,7 +284,7 @@ public class NetUtil {
 			jsonObject.put("id", id);
 			jsonObject.put("role", role);
 			jsonObject.put("room_id", room_id);
-			socketY20(jsonObject, Command.MEDIA_REQUEST, event, handler);
+			socketY20(jsonObject, Command.MEDIA_REQUEST, handler);
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
@@ -304,11 +303,9 @@ public class NetUtil {
 	 * y20 socket连接
 	 * @param params
 	 * @param cmd
-	 * @param event
 	 * @param handler
 	 */
-	public static void socketY20(JSONObject params, Command cmd, MessageEvent event,
-								 ChannelHandlerContext handler){
+	public static void socketY20(JSONObject params, Command cmd, ChannelHandlerContext handler){
 		ChannelBuffer channelBuffer = null;
 		String str = null;
 		switch (cmd) {
@@ -392,13 +389,32 @@ public class NetUtil {
 		}
 		channelBuffer.writeBytes(int2Byte(str.length()));
 		channelBuffer.writeBytes(str.getBytes());
-		Channels.write(handler, event.getFuture(), channelBuffer);
+		Channel channel = handler.getChannel();
+		channel.write(channelBuffer);
 	}
 
-
+	/**
+	 * 登录socket
+	 * @param id
+	 * @param session
+	 */
+	public static void loginSocket(Long id, String session, ChannelHandlerContext handler){
+		String str = "{\"id\":\""     + id
+				+ "\",\"session\":\"" + session
+				+ "\",\"cmd\":\"/user/login\"}";
+		ChannelBuffer channelBuffer = new DynamicChannelBuffer(ByteOrder.BIG_ENDIAN,
+				12 + str.getBytes().length);
+		channelBuffer.writeByte((byte) 1);
+		for (int i = 0; i < 7; i++) {
+			channelBuffer.writeByte((byte) 0);
+		}
+		channelBuffer.writeBytes(int2Byte(str.length()));
+		channelBuffer.writeBytes(str.getBytes());
+		Channel channel = handler.getChannel();
+		channel.write(channelBuffer);
+	}
 	// socket方法
-	public static void Scoket(JSONObject params, int flag, MessageEvent event,
-			ChannelHandlerContext handler) {
+	public static void Scoket(JSONObject params, int flag, ChannelHandlerContext handler) {
 
 		ChannelBuffer channelBuffer = null;
 		String str = null;
@@ -488,13 +504,13 @@ public class NetUtil {
 			break;
 		}
 
-		Channels.write(handler, event.getFuture(), channelBuffer);
+		Channel channel = handler.getChannel();
+		channel.write(channelBuffer);
 
 	}
 
 	// 任务提醒 socket
-	public static void socket(MessageEvent e, ChannelHandlerContext cxt,
-			Intent intent) {
+	public static void socket(ChannelHandlerContext handler, Intent intent) {
 		ChannelBuffer channelBuffer = null;
 		String request_content = null;
 		if (intent.getAction().equals(Constants.Task_Remove)) {
@@ -619,11 +635,12 @@ public class NetUtil {
 		} catch (UnsupportedEncodingException e1) {
 			e1.printStackTrace();
 		}
-		Channels.write(cxt, e.getFuture(), channelBuffer);
+		Channel channel = handler.getChannel();
+		channel.write(channelBuffer);
 	}
 
 	// 照片socket
-	public static void photo_socket(MessageEvent e, ChannelHandlerContext cxt,
+	public static void photo_socket(ChannelHandlerContext handler,
 			Intent intent) {
 		ChannelBuffer channelBuffer = null;
 		String photo_operation = "";
@@ -660,11 +677,11 @@ public class NetUtil {
 		} catch (UnsupportedEncodingException e1) {
 			e1.printStackTrace();
 		}
-		Channels.write(cxt, e.getFuture(), channelBuffer);
+		Channel channel = handler.getChannel();
+		channel.write(channelBuffer);
 	};
 
-	public static void robotinfoupdate(MessageEvent e,
-			ChannelHandlerContext ctx, Intent intent) {
+	public static void robotinfoupdate(ChannelHandlerContext handler, Intent intent) {
 		ChannelBuffer channelBuffer = null;
 		String robotinfo_operation = "{\"cmd\":\"/robot/flush\",\"rname\":\""
 				+ intent.getStringExtra("name") + "\"}";
@@ -686,8 +703,9 @@ public class NetUtil {
 		} catch (UnsupportedEncodingException e1) {
 			e1.printStackTrace();
 		}
-		Channels.write(ctx, e.getFuture(), channelBuffer);
-	};
+		Channel channel = handler.getChannel();
+		channel.write(channelBuffer);
+	}
 
 	// 将字节数组转换为字符串
 	public static String getHexString(byte[] bytes) {
@@ -702,14 +720,16 @@ public class NetUtil {
 		return sb.toString();
 	}
 
+	//可能是测试用的
 	public static void Scoket(JSONObject params, ChannelHandlerContext handler) {
-		Channel channels = handler.getChannel();
+		Channel channel = handler.getChannel();
 		try {
 			params.put("1", "1");
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
-		channels.write(params.toString().getBytes());
+	//	channel.write(params.toString().getBytes());
+		channel.write("control");
 	}
 
 	// 得到4位字节长度方法
