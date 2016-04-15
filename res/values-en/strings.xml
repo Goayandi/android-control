@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">small robot</string>
+    <string name="app_name">RobotControl</string>
     <string name="version_url">http://resource.yydrobot.com/app/app.version</string>
     <string name="action_settings">Settings</string>
     <string name="hello_world">Hello world!</string>

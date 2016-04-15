@@ -36,14 +36,11 @@ public class SettingActivity<AndroidLearn> extends BaseActivity implements
 
 	private TextView exit;	
 	private TextView userid;
-	private TextView about;
 	private SwitchButton wifi;
 	private Button back;
 	private TextView edit;
 	private EditText robotname;
 	private TextView versionname;
-	private TextView contact;
-	private TextView upgrade;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -113,32 +110,6 @@ public class SettingActivity<AndroidLearn> extends BaseActivity implements
 //			Intent intent = new Intent( this,SettingActivity.class); //***为你想要转到的界面名
 //			startActivity(intent);
 			break;
-		case R.id.about:
-			StartUtil.startintent(this, AboutActivity.class, "no");
-			break;
-		case R.id.upgrade:
-	//		upgrade.setText("升级");
-		break;
-		case R.id.contact:
-			AlertDialog.Builder dialog = new AlertDialog.Builder(SettingActivity.this);  
-//          dialog.setIcon(R.drawable.ic_launcher);//窗口头图标  
-            dialog.setTitle(R.string.reminder);//窗口名
-            dialog.setMessage(R.string.service_number);
-            dialog.setPositiveButton(R.string.confirm,new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int which) {  
-                    // TODO Auto-generated method stub  
-                	Intent intent = new Intent(Intent.ACTION_CALL,Uri.parse("tel:400-9696488"));  
-                    startActivity(intent); 
-                }  
-            });  
-            dialog.setNegativeButton(getString(R.string.cancel),new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int which) {  
-                    // TODO Auto-generated method stub  
-                      
-                }  
-            });
-            dialog.show();
-			break;
 		case R.id.editname:
 			if (edit.getText().toString().equals(getString(R.string.edit))) {
 				edit.setText(R.string.complete);
@@ -202,12 +173,6 @@ public class SettingActivity<AndroidLearn> extends BaseActivity implements
 		} catch (NameNotFoundException e) {
 			e.printStackTrace();
 		}
-		upgrade=(TextView)findViewById(R.id.upgrade);
-		upgrade.setOnClickListener(this);
-		contact=(TextView)findViewById(R.id.contact);
-		contact.setOnClickListener(this);
-		about = (TextView) findViewById(R.id.about);
-		about.setOnClickListener(this);
 		wifi = (SwitchButton) findViewById(R.id.wifisetting);
 		wifi.setOnCheckedChangeListener(changeListener);
 		userid = (TextView) findViewById(R.id.userid);
