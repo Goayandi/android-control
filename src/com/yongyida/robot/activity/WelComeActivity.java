@@ -83,11 +83,7 @@ public class WelComeActivity extends BaseActivity {
 	public void initlayout(OnRefreshListener onRefreshListener) {
 		setContentView(R.layout.activity_wel_come);
 		String stateCode = getSharedPreferences("Receipt", MODE_PRIVATE).getString("state_code", null);
-		if (Constants.HK_CODE.equals(stateCode)) {
-			address = Constants.download_address_hk;
-		} else {
-			address = Constants.download_address;
-		}
+		address = Constants.download_address;
 		ThreadPool.execute(new Runnable() {
 
 			@Override

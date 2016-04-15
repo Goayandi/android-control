@@ -413,13 +413,8 @@ public class SocketService extends Service {
         String stateCode = getSharedPreferences("Receipt", MODE_PRIVATE).getString("state_code", null);
         String ip;
         String port;
-        if (Constants.HK_CODE.equals(stateCode)) {
-            ip = Constants.ip_hk;
-            port = Constants.port_hk;
-        } else {
-            ip = Constants.ip;
-            port = Constants.port;
-        }
+        ip = Constants.ip;
+        port = Constants.port;
         connectsocket(listener, ip, port);
     }
 

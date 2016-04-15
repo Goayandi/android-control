@@ -18,7 +18,7 @@ public class Constants {
 	public static String port_hk = "18002";
 
 	// 下载地址
-	public static String download_address = "http://resource.yydrobot.com/app/app.version";
+	public static String download_address = "http://resource.yydrobot.com/app/cmcc/cn/app.cmcc.version";
 	public static String download_address_hk = "http://hk.resource.yydrobot.com/app/app.version";
 
 	// 任务添加操作请求码
