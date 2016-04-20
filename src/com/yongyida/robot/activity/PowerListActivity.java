@@ -36,13 +36,11 @@ public class PowerListActivity extends BaseActivity implements OnClickListener {
 	private RelativeLayout more;
 	private TextView power_title;
 	private String mMode;
-	private String mType; //机型 eg: Y50  Y20
 	private Handler mHandler = new Handler();
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		mType = getIntent().getStringExtra("type");
 		setContentView(R.layout.activity_power_list);
 		initBase();
 	}
@@ -181,28 +179,14 @@ public class PowerListActivity extends BaseActivity implements OnClickListener {
 			onBackPressed();
 			break;
 		case R.id.video_chat:
-			if ("Y20".equals(mType)) {
-
-			} else {
-				mMode = "chat";
-				sendmsg(mMode,getSharedPreferences("Receipt", MODE_PRIVATE).getString(
-						"username", null));
-				if (!"Y50".equals(mType)){
-					Log.e("PowerListActivity","video_chat");
-				}
-			}
+			mMode = "chat";
+			sendmsg(mMode,getSharedPreferences("Receipt", MODE_PRIVATE).getString(
+					"username", null));
 			break;
 		case R.id.video_monitor:
-			if ("Y20".equals(mType)) {
-
-			} else {
-				mMode = "control";
-				sendmsg(mMode, getSharedPreferences("Receipt", MODE_PRIVATE).getString(
-						"username", null));
-				if (!"Y50".equals(mType)){
-					Log.e("PowerListActivity","video_monitor");
-				}
-			}
+			mMode = "control";
+			sendmsg(mMode, getSharedPreferences("Receipt", MODE_PRIVATE).getString(
+					"username", null));
 			break;
 		case R.id.power_photo:
 		 	StartUtil.startintent(this, PhotoActivity.class, "no");

@@ -82,6 +82,8 @@ public class SettingActivity<AndroidLearn> extends BaseActivity implements
 											.edit();
 									editor.clear();
 									editor.commit();
+									getSharedPreferences("huanxin", MODE_PRIVATE).edit().clear().commit();
+									
 									startActivity(new Intent(
 											SettingActivity.this,
 											LoginActivity.class)
