@@ -179,14 +179,12 @@ public class SocketService extends Service {
                 @Override
                 public void receiveSuccess(final ChannelHandlerContext ctx,
                                            final MessageEvent e) {
-                    String typeString = type.getStringExtra(Constants.TYPE);
                     int ret = 0;
                     Object o = e.getMessage();
                     String callback = "";
                     JSONObject Result = null;
                     Object obj = null;
                     Intent in = new Intent("online");
-                    in.putExtra(Constants.TYPE, typeString);
 
                     //接收到的数据可能是arrayList型的
                     if (o instanceof ArrayList<?>) {
