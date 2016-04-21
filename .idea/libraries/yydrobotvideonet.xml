@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="yydrobotvideonet">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/libs/yydrobotvideonet.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

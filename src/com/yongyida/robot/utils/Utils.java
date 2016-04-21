@@ -7,6 +7,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Utils {
     public static void CopyStream(InputStream is, OutputStream os)
@@ -41,27 +43,65 @@ public class Utils {
         return SystemLanguage.CHINA;
     }
 
+
     /**
      * 判断服务是否开启
-     * @param mServiceList
+     * @param context
      * @param className
      * @return
      */
-    public static boolean ServiceIsStart(List<ActivityManager.RunningServiceInfo> mServiceList,String className){
+    public static boolean isServiceRunning(Context context,String className) {
 
-        for(int i = 0; i < mServiceList.size(); i ++)
+        boolean isRunning = false;
 
-        {
+        ActivityManager activityManager =
 
-            if(className.equals(mServiceList.get(i).service.getClassName()))
+                (ActivityManager) context.getSystemService(context.ACTIVITY_SERVICE);
 
-            {
-                return true;
-            }
+        List<ActivityManager.RunningServiceInfo> serviceList
+
+                = activityManager.getRunningServices(Integer.MAX_VALUE);
+
+        if (!(serviceList.size() > 0)) {
+
+            return false;
 
         }
 
-        return false;
+        for (int i = 0; i < serviceList.size(); i++) {
 
+            if (serviceList.get(i).service.getClassName().equals(className) == true) {
+
+                isRunning = true;
+
+                break;
+
+            }
+        }
+
+        return isRunning;
+
+    }
+
+    /**
+     * 是否符合账号的规则
+     * @param account
+     * @return
+     */
+    public static boolean isAccount(String account){
+        Pattern p = Pattern.compile("^[A-Za-z0-9]{6,20}+$");
+        Matcher m = p.matcher(account);
+        return m.matches();
+    }
+
+    /**
+     * 是否符合密码的规则
+     * @param account
+     * @return
+     */
+    public static boolean isPassword(String account){
+        Pattern p = Pattern.compile("^[A-Za-z0-9]{6,20}+$");
+        Matcher m = p.matcher(account);
+        return m.matches();
     }
 }

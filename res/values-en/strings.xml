@@ -626,4 +626,6 @@
     <string name="state_and_region_code">state and region code</string>
     <string name="video_meeting">video meeting</string>
     <string name="input_number">input robot number or meeting number</string>
+    <string name="title_activity_function">FunctionActivity</string>
+    <string name="modify_fail">modify fail</string>
 </resources>

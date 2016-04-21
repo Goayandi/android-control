@@ -1,7 +1,10 @@
 package com.yongyida.robot.activity;
 
 import android.annotation.SuppressLint;
+import android.app.ActivityManager;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -30,6 +33,8 @@ import com.yongyida.robot.huanxin.DemoHXSDKHelper;
 import com.yongyida.robot.huanxin.HXSDKHelper;
 import com.yongyida.robot.huanxin.User;
 import com.yongyida.robot.huanxin.UserDao;
+import com.yongyida.robot.service.SocketService;
+import com.yongyida.robot.utils.BroadcastReceiverRegister;
 import com.yongyida.robot.utils.Constants;
 import com.yongyida.robot.utils.HandlerUtil;
 import com.yongyida.robot.utils.NetUtil;
@@ -62,13 +67,75 @@ public class LoginActivity extends BaseActivity implements OnClickListener {
     private TextView tv_state;
     private TextView tv_state_num;
     private String stateCode;
+    private BroadcastReceiver mBRLogin = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            int ret = intent.getIntExtra("ret", -1);
+            switch (ret) {
+                case -1:  //参数错误
+                    if (progress != null) {
+                        progress.dismiss();
+                    }
+                    HandlerUtil.sendmsg(handler,
+                            getString(R.string.Captchaoverdue),
+                            2);
+                    break;
+                case 0:   //登录成功
+                case 1:   //已登录过
+                    if (progress != null) {
+                        progress.dismiss();
+                    }
+                    if (timer != null) {
+                        timer.cancel();
+                    }
 
+                    // 进入主页面
+                    handler.sendEmptyMessage(4);
+                    break;
+            }
+        }
+    };
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        BroadcastReceiverRegister.reg(getApplicationContext(),
+                new String[]{Constants.LOGIN}, mBRLogin);
     }
 
     ProgressDialog progress = null;
+
+    public boolean isServiceRunning(Context context,String className) {
+
+        boolean isRunning = false;
+
+        ActivityManager activityManager =
+
+                (ActivityManager) context.getSystemService(ACTIVITY_SERVICE);
+
+        List<ActivityManager.RunningServiceInfo> serviceList
+
+                = activityManager.getRunningServices(Integer.MAX_VALUE);
+
+        if (!(serviceList.size() > 0)) {
+
+            return false;
+
+        }
+
+        for (int i = 0; i < serviceList.size(); i++) {
+
+            if (serviceList.get(i).service.getClassName().equals(className) == true) {
+
+                isRunning = true;
+
+                break;
+
+            }
+        }
+
+        return isRunning;
+
+    }
 
     @Override
     public void onClick(View v) {
@@ -117,6 +184,11 @@ public class LoginActivity extends BaseActivity implements OnClickListener {
                                                                     .getText().toString(),
                                                             edit_phonenum.getText()
                                                                     .toString());
+                                                    Constants.isUserClose = false;
+                                                    if (!isServiceRunning(LoginActivity.this,SocketService.class.getSimpleName())) {
+                                                        startService(new Intent(LoginActivity.this, SocketService.class));
+                                                    }
+
                                                     if (timer != null) {
                                                         timer.cancel();
                                                     }
@@ -330,13 +402,7 @@ public class LoginActivity extends BaseActivity implements OnClickListener {
                             Log.e("LoginActivity",
                                     "update current user nick fail");
                         }
-                        progress.dismiss();
-                        if (timer != null) {
-                            timer.cancel();
-                        }
 
-                        // 进入主页面
-                        handler.sendEmptyMessage(4);
                     }
 
                     @Override
@@ -451,13 +517,15 @@ public class LoginActivity extends BaseActivity implements OnClickListener {
             }, new Date(), 1000);
 
         } else if (msg.what == 4) {
-            getvaild.setEnabled(true);
-            index = 60;
-            getvaild.getBackground().setAlpha(255);
-            getSharedPreferences("login", MODE_PRIVATE)
-                    .edit()
-                    .putString("login_phonenumber",
-                            edit_phonenum.getText().toString()).commit();
+            if (getvaild != null) {
+                getvaild.setEnabled(true);
+                index = 60;
+                getvaild.getBackground().setAlpha(255);
+                getSharedPreferences("login", MODE_PRIVATE)
+                        .edit()
+                        .putString("login_phonenumber",
+                                edit_phonenum.getText().toString()).commit();
+            }
             StartUtil.startintent(LoginActivity.this, ConnectActivity.class,
                     "finish");
         } else if (msg.what == 5) {
@@ -548,6 +616,11 @@ public class LoginActivity extends BaseActivity implements OnClickListener {
         // 如果本地存在记录则自动跳转
         if (id != 0 && DemoHXSDKHelper.getInstance().isLogined()) {
             StartUtil.startintent(this, ConnectActivity.class, "finish");
+            Constants.isUserClose = false;
+            if (!isServiceRunning(LoginActivity.this,SocketService.class.getSimpleName())) {
+                startService(new Intent(LoginActivity.this, SocketService.class));
+            }
+
             return;
         }
         edit_phonenum = (EditText) findViewById(R.id.edit_phonenumber);

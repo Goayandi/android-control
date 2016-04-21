@@ -52,6 +52,16 @@ public class Robot {
 	private boolean online;
 	private String robot_serial;
 
+	public int getBattery() {
+		return battery;
+	}
+
+	public void setBattery(int battery) {
+		this.battery = battery;
+	}
+
+	private int battery;
+
 	public String getRobot_serial() {
 		return robot_serial;
 	}

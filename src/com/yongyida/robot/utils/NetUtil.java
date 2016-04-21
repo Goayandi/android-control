@@ -14,7 +14,6 @@ import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.DynamicChannelBuffer;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.MessageEvent;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -149,10 +148,9 @@ public class NetUtil {
 	/**
 	 * 机器人转发视频数据
 	 * @param command   转发的数据
-	 * @param event
 	 * @param handler
 	 */
-	public static void socketY20MediaPush(String command,MessageEvent event,
+	public static void socketY20MediaPush(String command,
 										  ChannelHandlerContext handler){
 		try {
 			JSONObject jsonObject = new JSONObject();
@@ -167,18 +165,19 @@ public class NetUtil {
 	 * socket视频请求
 	 * @param id     数字id
 	 * @param role   角色
+	 *                 Robot
+	 *                 User
 	 * @param nickname 昵称
 	 * @param pic   图片url
 	 * @param type      Robot 小勇号
 	 *                  Room房间号
 	 *                  Phone 手机号
 	 * @param number  请求拨号
-	 * @param event
 	 * @param handler
 	 */
 	public static void socketY20MediaInvite(long id, String role, String nickname,
 											String pic, String type, long number,
-											MessageEvent event, ChannelHandlerContext handler){
+											ChannelHandlerContext handler){
 		try {
 			JSONObject jsonObject = new JSONObject();
 			jsonObject.put("id", id);
@@ -197,11 +196,10 @@ public class NetUtil {
 	 * socket 视频请求取消,取消当前拨号
 	 * @param id   数字id
 	 * @param role  角色
-	 * @param event
 	 * @param handler
 	 */
 	public static void socketY20MediaCancel(long id, String role,
-											MessageEvent event, ChannelHandlerContext handler){
+											 ChannelHandlerContext handler){
 		try {
 			JSONObject jsonObject = new JSONObject();
 			jsonObject.put("id", id);
@@ -225,12 +223,11 @@ public class NetUtil {
 						2  接受音频
 						3  接受视频
 	 *
-	 * @param event
 	 * @param handler
 	 */
 	public static void socketY20MediaReply(long id, String role, String invite_type,
 											String invite_id, int reply,
-											MessageEvent event, ChannelHandlerContext handler){
+											ChannelHandlerContext handler){
 		try {
 			JSONObject jsonObject = new JSONObject();
 			jsonObject.put("id", id);
@@ -238,7 +235,7 @@ public class NetUtil {
 			jsonObject.put("invite_type", invite_type);
 			jsonObject.put("invite_id", invite_id);
 			jsonObject.put("reply", reply);
-			socketY20(jsonObject, Command.MEDIA_REQUEST, handler);
+			socketY20(jsonObject, Command.MEDIA_REPLY, handler);
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
@@ -251,17 +248,16 @@ public class NetUtil {
 						手机    User
 						机器人  Robot
 	 * @param room_id  房间id
-	 * @param event
 	 * @param handler
 	 */
 	public static void socketY20MediaLogin(String id, String role, int room_id,
-										   MessageEvent event, ChannelHandlerContext handler){
+										   ChannelHandlerContext handler){
 		try {
 			JSONObject jsonObject = new JSONObject();
 			jsonObject.put("id", id);
 			jsonObject.put("role", role);
 			jsonObject.put("room_id", room_id);
-			socketY20(jsonObject, Command.MEDIA_REQUEST, handler);
+			socketY20(jsonObject, Command.MEDIA_LOGIN, handler);
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
@@ -274,17 +270,16 @@ public class NetUtil {
 						手机    User
 						机器人  Robot
 	 * @param room_id  房间id
-	 * @param event
 	 * @param handler
 	 */
 	public static void socketY20MediaLogout(String id, String role, int room_id,
-										   MessageEvent event, ChannelHandlerContext handler){
+										   ChannelHandlerContext handler){
 		try {
 			JSONObject jsonObject = new JSONObject();
 			jsonObject.put("id", id);
 			jsonObject.put("role", role);
 			jsonObject.put("room_id", room_id);
-			socketY20(jsonObject, Command.MEDIA_REQUEST, handler);
+			socketY20(jsonObject, Command.MEDIA_LOGOUT, handler);
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
@@ -317,8 +312,7 @@ public class NetUtil {
 							+ "\",\"pic\":\"" + params.getString("pic")
 							+ "\",\"type\":\"" + params.getString("type")
 							+ "\",\"number\":\"" + params.getLong("number")
-							+ "\",\"session\":\"" + params.getString("session")
-                            + "\",\"cmd\":\"/media/invite\"}";
+							+ "\",\"cmd\":\"/media/invite\"}";
 				} catch (JSONException e) {
 					e.printStackTrace();
 				}
@@ -328,7 +322,7 @@ public class NetUtil {
 				try {
 					str = "{\"id\":\""+ params.getLong("id")
 							+ "\",\"role\":\"" + params.getString("role")
-							+ "\",\"session\":\"" + params.getString("session")
+				//			+ "\",\"session\":\"" + params.getString("session")
 							+ "\",\"cmd\":\"/media/cancel\"}";
 				} catch (JSONException e) {
 					e.printStackTrace();
@@ -337,7 +331,7 @@ public class NetUtil {
 			case MEDIA_PUSH:
 				try {
 					str = "{\"command\":\""+ params.getString("command")
-							+ "\",\"session\":\"" + params.getString("session")
+				//			+ "\",\"session\":\"" + params.getString("session")
 							+ "\",\"cmd\":\"/media/push\"}";
 				} catch (JSONException e) {
 					e.printStackTrace();
@@ -350,7 +344,7 @@ public class NetUtil {
 							+ "\",\"invite_type\":\"" + params.getString("invite_type")
 							+ "\",\"invite_id\":\"" + params.getString("invite_id")
 							+ "\",\"reply\":\"" + params.getInt("reply")
-							+ "\",\"session\":\"" + params.getString("session")
+							//		+ "\",\"session\":\"" + params.getString("session")
 							+ "\",\"cmd\":\"/media/reply\"}";
 				} catch (JSONException e) {
 					e.printStackTrace();
@@ -361,8 +355,8 @@ public class NetUtil {
 					str = "{\"id\":\""+ params.getString("id")
 							+ "\",\"room_id\":\"" + params.getInt("room_id")
 							+ "\",\"role\":\"" + params.getString("role")
-							+ "\",\"session\":\"" + params.getString("session")
-							+ "\",\"cmd\":\"/media/reply\"}";
+				//			+ "\",\"session\":\"" + params.getString("session")
+							+ "\",\"cmd\":\"/media/room/login\"}";
 				} catch (JSONException e) {
 					e.printStackTrace();
 				}
@@ -373,7 +367,7 @@ public class NetUtil {
 							+ "\",\"room_id\":\"" + params.getInt("room_id")
 							+ "\",\"role\":\"" + params.getString("role")
 							+ "\",\"session\":\"" + params.getString("session")
-							+ "\",\"cmd\":\"/media/reply\"}";
+							+ "\",\"cmd\":\"/media/room/logout\"}";
 				} catch (JSONException e) {
 					e.printStackTrace();
 				}
@@ -394,11 +388,33 @@ public class NetUtil {
 	}
 
 	/**
+	 * 登出socket
+	 * @param id
+	 * @param session
+	 * @param handler
+	 */
+	public static void logoutSocket(int id, String session, ChannelHandlerContext handler){
+		String str = "{\"id\":\""     + id
+				+ "\",\"session\":\"" + session
+				+ "\",\"cmd\":\"/user/login\"}";
+		ChannelBuffer channelBuffer = new DynamicChannelBuffer(ByteOrder.BIG_ENDIAN,
+				12 + str.getBytes().length);
+		channelBuffer.writeByte((byte) 1);
+		for (int i = 0; i < 7; i++) {
+			channelBuffer.writeByte((byte) 0);
+		}
+		channelBuffer.writeBytes(int2Byte(str.length()));
+		channelBuffer.writeBytes(str.getBytes());
+		Channel channel = handler.getChannel();
+		channel.write(channelBuffer);
+	}
+
+	/**
 	 * 登录socket
 	 * @param id
 	 * @param session
 	 */
-	public static void loginSocket(Long id, String session, ChannelHandlerContext handler){
+	public static void loginSocket(int id, String session, ChannelHandlerContext handler){
 		String str = "{\"id\":\""     + id
 				+ "\",\"session\":\"" + session
 				+ "\",\"cmd\":\"/user/login\"}";
@@ -749,5 +765,12 @@ public class NetUtil {
 		public void success(JSONObject json);
 
 		public void error(String errorresult);
+	}
+
+	//拨号的类型
+	public interface NumberType{
+		String Robot = "Robot";
+		String Room = "Room";
+		String Phone = "Phone";
 	}
 }

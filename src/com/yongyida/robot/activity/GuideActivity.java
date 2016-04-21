@@ -25,7 +25,7 @@ public class GuideActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_guide);
 		if (getSharedPreferences("guide", MODE_PRIVATE).getInt("guide", 0) != 0) {
-			StartUtil.startintent(this, LoginActivity.class, "finish");
+			StartUtil.startintent(this, NewLoginActivity.class, "finish");
 			return;
 		}
 		viewPager = (ViewPager) findViewById(R.id.pager);
@@ -59,7 +59,7 @@ public class GuideActivity extends Activity {
 					@Override
 					public void onClick(View arg0) {
 						StartUtil.startintent(GuideActivity.this,
-								LoginActivity.class, "finish");
+								NewLoginActivity.class, "finish");
 						getSharedPreferences("guide", MODE_PRIVATE).edit()
 								.putInt("guide", 1).commit();
 					}

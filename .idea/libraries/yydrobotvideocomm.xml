@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="yydrobotvideocomm">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/libs/yydrobotvideocomm.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

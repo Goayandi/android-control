@@ -24,6 +24,7 @@ import android.widget.TextView;
 import com.easemob.EMCallBack;
 import com.yongyida.robot.R;
 import com.yongyida.robot.huanxin.DemoHXSDKHelper;
+import com.yongyida.robot.service.SocketService;
 import com.yongyida.robot.utils.BroadcastReceiverRegister;
 import com.yongyida.robot.utils.Constants;
 import com.yongyida.robot.utils.StartUtil;
@@ -85,9 +86,12 @@ public class SettingActivity<AndroidLearn> extends BaseActivity implements
 											.edit();
 									editor.clear();
 									editor.commit();
+									getSharedPreferences("huanxin", MODE_PRIVATE).edit().clear().commit();
+									Constants.isUserClose = true;
+									stopService(new Intent(SettingActivity.this, SocketService.class));
 									startActivity(new Intent(
 											SettingActivity.this,
-											LoginActivity.class)
+											NewLoginActivity.class)
 											.setFlags(
 													Intent.FLAG_ACTIVITY_NEW_TASK)
 											.addFlags(
@@ -118,7 +122,7 @@ public class SettingActivity<AndroidLearn> extends BaseActivity implements
 			break;
 		case R.id.upgrade:
 	//		upgrade.setText("升级");
-		break;
+			break;
 		case R.id.contact:
 			AlertDialog.Builder dialog = new AlertDialog.Builder(SettingActivity.this);  
 //          dialog.setIcon(R.drawable.ic_launcher);//窗口头图标  
@@ -165,8 +169,11 @@ public class SettingActivity<AndroidLearn> extends BaseActivity implements
 	BroadcastReceiver flush = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context arg0, Intent intent) {
-			if (intent.getStringExtra("result").equals("success")) {
+			int ret = intent.getIntExtra("ret", -1);
+			if (ret == 0) {
 				ToastUtil.showtomain(SettingActivity.this, getString(R.string.modify_success));
+			} else {
+				ToastUtil.showtomain(SettingActivity.this, getString(R.string.modify_fail));
 			}
 		}
 	};
@@ -216,11 +223,33 @@ public class SettingActivity<AndroidLearn> extends BaseActivity implements
 		edit = (TextView) findViewById(R.id.editname);
 		edit.setOnClickListener(this);
 		robotname = (EditText) findViewById(R.id.robotname);
-		String username = getSharedPreferences("userinfo", MODE_PRIVATE)
-				.getString("phonenumber", null);
-		if (!username.equals(null)) {
-			userid.setText(username);
+
+		int method = getSharedPreferences("login",
+				MODE_PRIVATE).getInt(Constants.LOGIN_METHOD, -1);
+		int userId = getSharedPreferences("userinfo", MODE_PRIVATE)
+				.getInt("id", -1);
+		if (method == Constants.ACCOUNT_LOGIN) {
+			String account = getSharedPreferences("userinfo", MODE_PRIVATE)
+					.getString("account_name", null);
+			if (account != null) {
+				userid.setText(account);
+			} else {
+				if (userId != -1) {
+					userid.setText(userId + "");
+				}
+			}
+		} else {
+			String username = getSharedPreferences("userinfo", MODE_PRIVATE)
+					.getString("phonenumber", null);
+			if (username != null) {
+				userid.setText(username);
+			} else {
+				if (userId != -1) {
+					userid.setText(userId + "");
+				}
+			}
 		}
+
 		SharedPreferences sharedPreferences = getSharedPreferences("setting", 0);
 
 		if (sharedPreferences != null) {

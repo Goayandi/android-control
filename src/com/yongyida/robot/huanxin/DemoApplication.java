@@ -69,7 +69,6 @@ public class DemoApplication extends Application {
 				Constants.ip = getString(R.string.ip);
 			}
 		}
-		startService(new Intent(this, SocketService.class));
 		/**
 		 * this function will initialize the HuanXin SDK
 		 * 

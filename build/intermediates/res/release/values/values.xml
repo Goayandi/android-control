@@ -66,6 +66,7 @@
     <color name="possible_result_points">#c0ffff00</color>
     <color name="red">#ff3333</color>
     <color name="red_focused">#853333</color>
+    <color name="red_pure">#ffff00</color>
     <color name="result_view">#b0000000</color>
     <color name="ring_color">#14b9d6</color>
     <color name="title_txt_color">#f1f1f3</color>
@@ -648,6 +649,7 @@
     <string name="mic">麦克风</string>
     <string name="mic_summary">开关麦克风</string>
     <string name="minute_picker_description">Minutes circular slider</string>
+    <string name="modify_fail">修改失败</string>
     <string name="modify_success">修改成功</string>
     <string name="monday">周一</string>
     <string name="monitoring">监控</string>
@@ -864,6 +866,7 @@
     <string name="title_activity_control">ControlActivity</string>
     <string name="title_activity_exit_group_dialog">ExitGroupDialog</string>
     <string name="title_activity_forward_message">ForwardMessageActivity</string>
+    <string name="title_activity_function">FunctionActivity</string>
     <string name="title_activity_group_details">GroupDetailsActivity</string>
     <string name="title_activity_guide">GuideActivity</string>
     <string name="title_activity_head_set_plug">HeadSetPlugActivity</string>
@@ -984,6 +987,12 @@
     </style>
     <style name="AppTheme1" parent="AppBaseTheme">
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
+    </style>
+    <style name="Dialog" parent="android:style/Theme.Dialog">
+        <item name="android:background">#00000000</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowIsFloating">true</item>
     </style>
     <style name="HeadScale" parent="android:Theme.Dialog">
         <item name="android:windowAnimationStyle">@style/AnimHead</item>

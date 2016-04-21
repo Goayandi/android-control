@@ -171,7 +171,7 @@ public class BindRobotActivity extends Activity implements Callback {
 	private void backlogin(String content) {
 		ToastUtil.showtomain(BindRobotActivity.this, content);
 		getSharedPreferences("userinfo", MODE_PRIVATE).edit().clear().commit();
-		StartUtil.startintent(BindRobotActivity.this, LoginActivity.class,
+		StartUtil.startintent(BindRobotActivity.this, NewLoginActivity.class,
 				"finish");
 	}
 	

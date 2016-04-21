@@ -362,6 +362,7 @@
     <string name="mic">mic</string>
     <string name="mic_summary">mic_summary</string>
     <string name="minute_picker_description">Minutes circular slider</string>
+    <string name="modify_fail">modify fail</string>
     <string name="modify_success">modify success</string>
     <string name="monday">Monday</string>
     <string name="monitoring">monitoring</string>
@@ -555,6 +556,7 @@
     <string name="title_activity_control">ControlActivity</string>
     <string name="title_activity_exit_group_dialog">ExitGroupDialog</string>
     <string name="title_activity_forward_message">ForwardMessageActivity</string>
+    <string name="title_activity_function">FunctionActivity</string>
     <string name="title_activity_group_details">GroupDetailsActivity</string>
     <string name="title_activity_guide">GuideActivity</string>
     <string name="title_activity_head_set_plug">HeadSetPlugActivity</string>

@@ -632,4 +632,6 @@
     <string name="connect_off">连接断开</string>
     <string name="video_meeting">视频会议</string>
     <string name="input_number">输入小勇号/会议号</string>
+    <string name="title_activity_function">FunctionActivity</string>
+    <string name="modify_fail">修改失败</string>
 </resources>

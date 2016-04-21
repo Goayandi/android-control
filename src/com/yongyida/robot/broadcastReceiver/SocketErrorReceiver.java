@@ -17,12 +17,10 @@ public class SocketErrorReceiver extends BroadcastReceiver {
 			context.sendBroadcast(new Intent(Constants.Stop));
 			EMChatManager.getInstance().endCall();
 			ToastUtil.showtomain(context, intent.getStringExtra("content"));
-		//	context.stopService(new Intent(context, SocketService.class));
 			context.startActivity(new Intent(context, ConnectActivity.class)
 					.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK).addFlags(
 							Intent.FLAG_ACTIVITY_CLEAR_TASK));
 		}
-
 	}
 
 }

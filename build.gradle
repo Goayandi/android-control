@@ -29,6 +29,12 @@ dependencies {
     compile files('libs/zxing.jar')
     compile files('libs/android-support-v4.jar')
     compile files('libs/android-support-v7-recyclerview.jar')
+    compile files('libs/yydrobotvideocodec.jar')
+    compile files('libs/yydrobotvideocomm.jar')
+    compile files('libs/yydrobotvideonet.jar')
+    compile files('libs/yydrobotvideop2p.jar')
+    compile files('libs/yydrobotvideosdk.jar')
+    compile files('libs/gson-2.3.1.jar')
 }
 
 android {

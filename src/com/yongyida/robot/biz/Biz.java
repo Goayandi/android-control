@@ -1,16 +1,15 @@
 package com.yongyida.robot.biz;
 
-import java.util.List;
+import com.yongyida.robot.bean.Alarm;
+import com.yongyida.robot.bean.Remind;
+import com.yongyida.robot.bean.Robot;
+import com.yongyida.robot.utils.XmlUtil;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.yongyida.robot.bean.Alarm;
-import com.yongyida.robot.bean.Remind;
-import com.yongyida.robot.bean.Robot;
-import com.yongyida.robot.bean.Task;
-import com.yongyida.robot.utils.XmlUtil;
+import java.util.List;
 
 public class Biz {
 
@@ -32,6 +31,7 @@ public class Biz {
 			robot.setController(jsonobject.getInt("controller"));
 			robot.setRobot_serial(jsonobject.getString("serial"));
 			robot.setAir(Robot.air.bind);
+			robot.setBattery(jsonobject.getInt("battery"));
 			list_robots.add(robot);
 		}
 	}

@@ -78,24 +78,30 @@
     <orderEntry type="jdk" jdkName="Android API 20 Platform" jdkType="Android SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" exported="" name="Native_Libs2" level="project" />
-    <orderEntry type="library" exported="" name="locSDK_3.3" level="project" />
-    <orderEntry type="library" exported="" name="easemobchat_2.2.4" level="project" />
-    <orderEntry type="library" exported="" name="netty-3.5.10.Final" level="project" />
+    <orderEntry type="library" exported="" name="gson-2.3.1" level="project" />
     <orderEntry type="library" exported="" name="android-support-v4" level="project" />
     <orderEntry type="library" exported="" name="volley" level="project" />
     <orderEntry type="library" exported="" name="picasso-2.4.0" level="project" />
+    <orderEntry type="library" exported="" name="yydrobotvideop2p" level="project" />
     <orderEntry type="library" exported="" name="zxing" level="project" />
     <orderEntry type="library" exported="" name="microlog4android-1.1" level="project" />
-    <orderEntry type="library" exported="" name="baidumapapi_v3_2_0" level="project" />
+    <orderEntry type="library" exported="" name="yydrobotvideocodec" level="project" />
     <orderEntry type="library" exported="" name="google-play-services" level="project" />
-    <orderEntry type="library" exported="" name="android-support-v7-recyclerview" level="project" />
-    <orderEntry type="library" exported="" name="umeng-analytics-v5.2.4" level="project" />
-    <orderEntry type="library" exported="" name="org.apache.http.legacy" level="project" />
+    <orderEntry type="library" exported="" name="yydrobotvideocomm" level="project" />
+    <orderEntry type="library" exported="" name="yydrobotvideonet" level="project" />
     <orderEntry type="library" exported="" name="beacon_android_v1.9.9" level="project" />
-    <orderEntry type="library" exported="" name="Sunflower" level="project" />
     <orderEntry type="library" exported="" name="Parse-1.9.4" level="project" />
     <orderEntry type="library" exported="" name="Msc" level="project" />
     <orderEntry type="library" exported="" name="bolts-android-1.2.0" level="project" />
+    <orderEntry type="library" exported="" name="locSDK_3.3" level="project" />
+    <orderEntry type="library" exported="" name="easemobchat_2.2.4" level="project" />
+    <orderEntry type="library" exported="" name="netty-3.5.10.Final" level="project" />
+    <orderEntry type="library" exported="" name="baidumapapi_v3_2_0" level="project" />
+    <orderEntry type="library" exported="" name="android-support-v7-recyclerview" level="project" />
+    <orderEntry type="library" exported="" name="yydrobotvideosdk" level="project" />
+    <orderEntry type="library" exported="" name="umeng-analytics-v5.2.4" level="project" />
+    <orderEntry type="library" exported="" name="org.apache.http.legacy" level="project" />
+    <orderEntry type="library" exported="" name="Sunflower" level="project" />
     <orderEntry type="library" exported="" name="servlet-api" level="project" />
   </component>
 </module>

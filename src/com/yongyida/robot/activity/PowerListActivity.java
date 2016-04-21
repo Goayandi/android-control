@@ -1,6 +1,8 @@
 package com.yongyida.robot.activity;
 
 import android.animation.ObjectAnimator;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
@@ -22,6 +24,7 @@ import com.easemob.chat.EMChatManager;
 import com.easemob.chat.EMMessage;
 import com.easemob.chat.EMMessage.Type;
 import com.yongyida.robot.R;
+import com.yongyida.robot.utils.BroadcastReceiverRegister;
 import com.yongyida.robot.utils.Constants;
 import com.yongyida.robot.utils.StartUtil;
 import com.yongyida.robot.utils.ToastUtil;
@@ -36,14 +39,12 @@ public class PowerListActivity extends BaseActivity implements OnClickListener {
 	private RelativeLayout more;
 	private TextView power_title;
 	private String mMode;
-	private String mType; //机型 eg: Y50  Y20
 	private Handler mHandler = new Handler();
+	private TextView mBattery;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-	//	mType = getIntent().getStringExtra("type");
-		//TODO
 		setContentView(R.layout.activity_power_list);
 		initBase();
 	}
@@ -70,6 +71,34 @@ public class PowerListActivity extends BaseActivity implements OnClickListener {
 		power_task = (RelativeLayout) findViewById(R.id.power_task);
 		power_task.setOnClickListener(this);
 		power_task.setOnTouchListener(ontouch);
+		mBattery = ((TextView) findViewById(R.id.tv_battery));
+		int battery = getIntent().getExtras().getInt("battery");
+		setBattery(battery);
+		BroadcastReceiverRegister.reg(PowerListActivity.this, new String[]{Constants.BATTERY}, mBatteryBR);
+	}
+
+	private BroadcastReceiver mBatteryBR = new BroadcastReceiver() {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			int ret = intent.getIntExtra("ret", -1);
+			int battery = intent.getIntExtra("battery", -1);
+			if (ret == 0) {
+				setBattery(battery);
+			}
+		}
+	};
+
+	/**
+	 * 设置电池的电量
+	 * @param battery
+	 */
+	private void setBattery(int battery) {
+		if (battery < 10) {
+			mBattery.setTextColor(getResources().getColor(R.color.red));
+		} else {
+			mBattery.setTextColor(getResources().getColor(R.color.white));
+		}
+		mBattery.setText("电量:" + battery + "%");
 	}
 
 	@Override
@@ -177,27 +206,22 @@ public class PowerListActivity extends BaseActivity implements OnClickListener {
 		switch (v.getId()) {
 		case R.id.more:
 			ToastUtil.showtomain(this, getString(R.string.waitting));
+		//	startActivity(new Intent(PowerListActivity.this,FriendsActivity.class));
 			break;
 		case R.id.power_title:
 			onBackPressed();
 			break;
 		case R.id.video_chat:
-			if ("Y20".equals(mType)) {
-
-			} else {
-				mMode = "chat";
-				sendmsg(mMode,getSharedPreferences("Receipt", MODE_PRIVATE).getString(
-						"username", null));
-			}
+			mMode = "chat";
+			Bundle bundle1 = new Bundle();
+			bundle1.putString("mode", mMode);
+			StartUtil.startintent(PowerListActivity.this, ControlActivity.class, "no", bundle1);
 			break;
 		case R.id.video_monitor:
-			if ("Y20".equals(mType)) {
-
-			} else {
-				mMode = "control";
-				sendmsg(mMode, getSharedPreferences("Receipt", MODE_PRIVATE).getString(
-						"username", null));
-			}
+			mMode = "control";
+			Bundle bundle2 = new Bundle();
+			bundle2.putString("mode", mMode);
+			StartUtil.startintent(PowerListActivity.this, ControlActivity.class, "no", bundle2);
 			break;
 		case R.id.power_photo:
 		 	StartUtil.startintent(this, PhotoActivity.class, "no");

@@ -68,11 +68,11 @@ public class ConnectActivity extends BaseActivity implements
 	private SwipeRefreshLayout refreshableView;
 	private ImageView setting;
 	private long time;
+	private int mBattery;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		setContentView(R.layout.activity_connect);
 		super.onCreate(savedInstanceState);
-		startService(new Intent(this, SocketService.class));
 	}
 
 	@Override
@@ -114,10 +114,15 @@ public class ConnectActivity extends BaseActivity implements
 	}
 
 	@Override
+	protected void onNewIntent(Intent intent) {
+		super.onNewIntent(intent);
+
+	}
+
+	@Override
 	protected void onResume() {
 		if (Constants.flag) {
 			sendBroadcast(new Intent(Constants.Stop));
-		//	stopService(new Intent(this, SocketService.class));
 		}
 		getrobotinfo();
 		time = 0;
@@ -240,7 +245,7 @@ public class ConnectActivity extends BaseActivity implements
 	private void backlogin(String content) {
 		ToastUtil.showtomain(ConnectActivity.this, content);
 		getSharedPreferences("userinfo", MODE_PRIVATE).edit().clear().commit();
-		StartUtil.startintent(ConnectActivity.this, LoginActivity.class,
+		StartUtil.startintent(ConnectActivity.this, NewLoginActivity.class,
 				"finish");
 	}
 
@@ -251,6 +256,7 @@ public class ConnectActivity extends BaseActivity implements
 	public void onClick(View v) {
 		switch (v.getId()) {
 		case R.id.findrobot:
+		//	startActivity(new Intent(ConnectActivity.this, MeetingTestActivity.class));
 			StartUtil.startintentforresult(this, BindRobotActivity.class,
 					Constants.bindrobot_RequestCode);
 			break;
@@ -291,10 +297,11 @@ public class ConnectActivity extends BaseActivity implements
 			intent.setAction(Constants.Robot_Connection);
 			sendBroadcast(intent);
 			BroadcastReceiverRegister.reg(ConnectActivity.this,
-					new String[] { "online" }, bro);
+					new String[]{"online"}, bro);
 			pro = new ProgressDialog(ConnectActivity.this);
 			pro.setMessage(getString(R.string.connecting));
 			pro.show();
+			mBattery = list_robots.get(position).getBattery();
 		}
 	};
 	// 接收soket返回状态
@@ -303,12 +310,13 @@ public class ConnectActivity extends BaseActivity implements
 		@Override
 		public void onReceive(Context arg0, Intent intent) {
 			if (intent.getAction().equals("online")) {
-			//	String type = intent.getStringExtra(Constants.TYPE);
 				pro.dismiss();
 				unregisterReceiver(bro);
 				switch (intent.getIntExtra("ret", 0)) {
 					case 0:
-					StartUtil.startintent(ConnectActivity.this, PowerListActivity.class, "no");
+					Bundle params = new Bundle();
+					params.putInt("battery", mBattery);
+					StartUtil.startintent(ConnectActivity.this, PowerListActivity.class, "no", params);
 					break;
 				case -1:
 					handler.sendEmptyMessage(4);
@@ -532,10 +540,11 @@ public class ConnectActivity extends BaseActivity implements
 
 	@Override
 	public void onBackPressed() {
+		Constants.isUserClose = true;
 		stopService(new Intent(this, SocketService.class));
-		if (Constants.flag) {
-			sendBroadcast(new Intent(Constants.Stop));
-		}
+//		if (Constants.flag) {
+//			sendBroadcast(new Intent(Constants.Stop));
+//		}
 		super.onBackPressed();
 	}
 

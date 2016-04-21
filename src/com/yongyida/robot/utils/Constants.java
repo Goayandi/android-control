@@ -75,7 +75,7 @@ public class Constants {
 	public static String Result = "result";
 
 	// 超时时间
-	public static int timeout = 5000;
+	public static int timeout = 30000;
 
 	// 照片查询
 	public static String Photo_Query = "photo_query";
@@ -105,10 +105,15 @@ public class Constants {
 	// 连接机器人
 	public static String Robot_Connection = "Robot_Connection";
 
+	//socket退出登录
+	public static String Socket_Logout = "Socket_Logout";
+
 	// 视频模式
 	public static String Video_Mode = "yongyida.robot.video.videomode";
 
 	public static boolean flag = false;
+
+	public static boolean isUserClose = false;  //是不是用户自己要断开socket的 如果是 就断开  不是就需要重连
 	
 	public static String connect_robot="connect_robot";
 
@@ -136,6 +141,8 @@ public class Constants {
 
 	public static final String CMD_MEDIA_REPLY = "/media/reply/response";
 
+	public static final String CMD_MEDIA_REPLY_NEW = "/media/reply";
+
 	public static final String CMD_MEDIA_LOGIN = "/media/room/login/response";
 
 	public static final String CMD_MEDIA_LOGOUT = "/media/room/login/response";
@@ -143,4 +150,50 @@ public class Constants {
 	public static final String CMD_MEDIA_JOIN = "/media/room/join";
 
 	public static final String CMD_MEDIA_CALLBACK = "/media/callback";
+
+	public static final String CMD_MEDIA_IVT = "/media/invite";
+
+	public static final String LOGIN = "login";
+
+	public static final String VIDEO_REQUEST = "video_request";
+
+	public static final String CONNECTION_REQUEST = "connection_request";
+
+	public static final String RET = "ret";
+
+	public static final String RoomID = "roomId";
+
+	public static final String ID = "id";
+
+	public static final String REPLY = "reply";
+
+	public static final String CONNECTION_RESPONSE = "connection_response";
+
+	public static final String Replay_Response = "replay_response";
+
+	public static final String VIDEO_REQUEST_FROM_OTHERS = "video_request_from_others";
+
+	public static final String BR_REPLY = "br_reply";
+
+	public static final String MEDIA_REPLY = "media_reply";
+
+	public static final String LOGIN_VIDEO_ROOM = "login_video_room";
+
+	public static final String LOGIN_VIDEO_ROOM_RESPONSE = "login_video_room_response";
+
+	public static final String INVITE_ID = "invite_id";
+
+	public static final String BATTERY = "battery";
+
+	public static final int SMS_LOGIN = 1;
+
+	public static final int ACCOUNT_LOGIN = 2;
+
+	public static final String LOGIN_METHOD = "method";
+
+	public interface Role{
+		String Robot = "Robot";
+		String User = "User";
+		String Phone = "Phone";
+	}
 }

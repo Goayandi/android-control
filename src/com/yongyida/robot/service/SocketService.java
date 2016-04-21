@@ -18,13 +18,23 @@ import com.yongyida.robot.bean.Result;
 import com.yongyida.robot.broadcastReceiver.NetStateBroadcastReceiver;
 import com.yongyida.robot.broadcastReceiver.SocketErrorReceiver;
 import com.yongyida.robot.net.helper.Decoder;
+import com.yongyida.robot.net.helper.MeetingVideoDecoder;
 import com.yongyida.robot.net.helper.SocketConnect;
 import com.yongyida.robot.net.helper.SocketConnect.SocketListener;
 import com.yongyida.robot.utils.BroadcastReceiverRegister;
+import com.yongyida.robot.utils.Config;
 import com.yongyida.robot.utils.Constants;
 import com.yongyida.robot.utils.FileUtil;
 import com.yongyida.robot.utils.NetUtil;
 import com.yongyida.robot.utils.ThreadPool;
+import com.yongyida.robot.video.av.BitrateType;
+import com.yongyida.robot.video.av.EncoderType;
+import com.yongyida.robot.video.av.FrameRateType;
+import com.yongyida.robot.video.av.TransferDataType;
+import com.yongyida.robot.video.av.TransferType;
+import com.yongyida.robot.video.av.VideoSizeType;
+import com.yongyida.robot.video.sdk.Role;
+import com.yongyida.robot.video.sdk.YYDSDKHelper;
 
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.channel.ChannelHandlerContext;
@@ -51,6 +61,7 @@ public class SocketService extends Service {
     private ChannelHandlerContext ctx;
     private NetStateBroadcastReceiver netstate = new NetStateBroadcastReceiver();
     private String size = "";
+    private SocketErrorReceiver mSocketErrorReceiver = new SocketErrorReceiver();
 
     @Override
     public void onCreate() {
@@ -58,9 +69,9 @@ public class SocketService extends Service {
         /**
          * socket Error 广播
          */
-        BroadcastReceiverRegister.reg(getApplicationContext(),
+        BroadcastReceiverRegister.reg(this,
                 new String[]{Constants.Socket_Error},
-                new SocketErrorReceiver());
+                mSocketErrorReceiver);
 
         /**
          * 网络状况
@@ -73,38 +84,50 @@ public class SocketService extends Service {
          *  y50b广播
          */
         /* 移动 */
-        BroadcastReceiverRegister.reg(getApplicationContext(),
+        BroadcastReceiverRegister.reg(this,
                 new String[]{Constants.Move_aciton}, move);
 
         /* 语音 */
-        BroadcastReceiverRegister.reg(getApplicationContext(),
+        BroadcastReceiverRegister.reg(this,
                 new String[]{Constants.Speech_action}, speak);
 
         /* 任务提醒 */
-        BroadcastReceiverRegister.reg(getApplicationContext(), new String[]{
+        BroadcastReceiverRegister.reg(this, new String[]{
                 Constants.Task_Remove, Constants.Task_Add,
                 Constants.Task_Query, Constants.Task_Updata}, task);
 
         /* 注销机器人连接 */
-        BroadcastReceiverRegister.reg(getApplicationContext(),
+        BroadcastReceiverRegister.reg(this,
                 new String[]{Constants.Stop}, stop);
 
         /* 相片 */
-        BroadcastReceiverRegister.reg(getApplicationContext(), new String[]{
+        BroadcastReceiverRegister.reg(this, new String[]{
                 Constants.Photo_Delete, Constants.Photo_Query,
                 Constants.Photo_Query_Name, Constants.Photo_Download}, photo);
 
         /* 修改机器人名字 */
-        BroadcastReceiverRegister.reg(getApplicationContext(),
+        BroadcastReceiverRegister.reg(this,
                 new String[]{Constants.Robot_Info_Update}, flush);
 
         /* 连接机器人 */
-        BroadcastReceiverRegister.reg(getApplicationContext(),
+        BroadcastReceiverRegister.reg(this,
                 new String[]{Constants.Robot_Connection}, connectRobot);
+
+        /* 退出socket登录 */
+        BroadcastReceiverRegister.reg(this,
+                new String[]{Constants.Socket_Logout}, socketLogout);
+
         /**
-         * 其它产品广播
+         * Y20广播
          */
-        //TODO
+        /* 建立视频房间 */
+        BroadcastReceiverRegister.reg(this, new String[]{Constants.VIDEO_REQUEST}, mVideoRequestBR);
+
+        /* 视频反馈 */
+        BroadcastReceiverRegister.reg(this, new String[]{Constants.BR_REPLY}, mVideoReplyBR);
+
+        /* 登入视频房间 */
+        BroadcastReceiverRegister.reg(this, new String[]{Constants.LOGIN_VIDEO_ROOM}, mLoginVideoRoomBR);
         /**
          *  建立socket连接
          */
@@ -129,17 +152,35 @@ public class SocketService extends Service {
      */
     private void socketY20Receive(ChannelHandlerContext ctx, MessageEvent e) {
         Object o = e.getMessage();
+        Object obj;
         JSONObject Result;
+
+        //接收到的数据可能是arrayList型的
+        if (o instanceof ArrayList<?>) {
+            ArrayList arr = (ArrayList) o;
+            for (int n = 0; n < arr.size(); n++) {
+                obj = arr.get(n);
+                if (obj instanceof  JSONObject) {
+                    o = obj;
+                }
+                if (obj instanceof Decoder.Result2) {
+                    o = obj;
+                }
+            }
+        }
+
         try {
             if (o instanceof JSONObject) {
                 Result = (JSONObject) o;
                 String cmd = Result.getString("cmd");
-                if (Constants.CMD_MEDIA_INVITE.equals(cmd)) {
-                    int ret = Result.getInt("ret");
+                if (Constants.CMD_MEDIA_INVITE.equals(cmd)) {      //视频请求响应
+                    int ret = Result.getInt(Constants.RET);
                     String mediaTcpIp = Result.getString("media_tcp_ip");
                     int mediaTcpPort = Result.getInt("media_tcp_port");
                     int roomId = Result.getInt("room_id");
-
+                    Intent intent = new Intent(Constants.CONNECTION_REQUEST);
+                    intent.putExtra(Constants.RoomID, roomId);
+                    sendBroadcast(intent);
                 } else if (Constants.CMD_MEDIA_CANCEL.equals(cmd)) {
                     int ret = Result.getInt("ret");
                     //TODO
@@ -148,20 +189,28 @@ public class SocketService extends Service {
                     String mediaTcpIp = Result.getString("media_tcp_ip");
                     int mediaTcpPort = Result.getInt("media_tcp_port");
                     int roomId = Result.getInt("room_id");
-
+                    Intent intent = new Intent(Constants.Replay_Response);
+                    intent.putExtra("media_tcp_ip", mediaTcpIp);
+                    intent.putExtra("mediaTcpPort", mediaTcpPort);
+                    intent.putExtra(Constants.RoomID, roomId);
+                    sendBroadcast(intent);
                 } else if (Constants.CMD_MEDIA_LOGIN.equals(cmd)) {
                     String UserMedias = Result.getString("UserMedias");
-
                 } else if (Constants.CMD_MEDIA_LOGOUT.equals(cmd)) {
 
                 } else if (Constants.CMD_MEDIA_JOIN.equals(cmd)) {
 
                 } else if (Constants.CMD_MEDIA_CALLBACK.equals(cmd)) {
                     String command = Result.getString("command");
-                } else {
 
+                } else if (Constants.CMD_MEDIA_IVT.equals(cmd)) {
+                    Long id = Result.getLong("id");
+                    Intent intent = new Intent(Constants.VIDEO_REQUEST_FROM_OTHERS);
+                    sendBroadcast(intent);
+                } else if (Constants.CMD_MEDIA_REPLY_NEW.equals(cmd)) {
+                    Intent intent = new Intent(Constants.MEDIA_REPLY);
+                    sendBroadcast(intent);
                 }
-
             }
         } catch (JSONException e1) {
             e1.printStackTrace();
@@ -182,7 +231,6 @@ public class SocketService extends Service {
         String callback = "";
         JSONObject Result = null;
         Object obj = null;
-        Intent in = new Intent("online");
 
         //接收到的数据可能是arrayList型的
         if (o instanceof ArrayList<?>) {
@@ -242,62 +290,76 @@ public class SocketService extends Service {
                     sendBroadcast(socketErrorIntent);
                     return;
                 } else if (callback.equals("/robot/flush")) {
-                    sendBroadcast(new Intent("flush").putExtra(
-                            "result", "success"));
+                    String from = Result.getString("from");
+                    if (from.equals("Robot")) {
+                        JSONObject jsonObject = new JSONObject(
+                                Result.getString("Robot"));
+                        int battery = jsonObject.getInt("battery");
+                        Intent intent = new Intent(Constants.BATTERY);
+                        intent.putExtra("ret", ret);
+                        intent.putExtra("battery", battery);
+                        sendBroadcast(intent);
+                    } else {
+                        sendBroadcast(new Intent("flush").putExtra("ret", ret));
+                    }
                     return;
+                } else if (callback.equals("/user/login")) {
+                    sendBroadcast(new Intent(Constants.LOGIN).putExtra(
+                            "ret", Result.getInt("ret")));
+                    Log.i("SocketService", "login");
+                    return;
+                } else if (callback.equals("/robot/controll")) {
+                    ret = Result.getInt("ret");
+                    Intent in = new Intent("online");
+                    switch (ret) {
+                        case 0:
+                            flag = 1;
+                            in.putExtra("ret", 0);
+                            Constants.flag = true;
+                            break;
+                        case -1:
+                            in.putExtra("ret", -1);
+                            the = true;
+                            break;
+                        case 1:
+                            in.putExtra("ret", 1);
+                            the = true;
+                            break;
+                        case 2:
+                            in.putExtra("ret", 2);
+                            the = true;
+                            break;
+                        case 3:
+                            in.putExtra("ret", 3);
+                            the = true;
+                            break;
+                        case 4:
+                            in.putExtra("ret", 4);
+                            the = true;
+                            break;
+                        case 5:
+                            in.putExtra("ret", 5);
+                            the = true;
+                            break;
+                        case 6:
+                            in.putExtra("ret", 6);
+                            the = true;
+                            break;
+                        case 7:
+                            in.putExtra("ret", 6);
+                            the = true;
+                            break;
+                        default:
+                            the = true;
+                            break;
+
+                    }
+                    sendBroadcast(in);
                 }
             } catch (JSONException e1) {
                 e1.printStackTrace();
             }
-            try {
-                ret = Result.getInt("ret");
-            } catch (JSONException e1) {
-                e1.printStackTrace();
-            }
-            switch (ret) {
-                case 0:
-                    flag = 1;
-                    in.putExtra("ret", 0);
-                    Constants.flag = true;
-                    break;
-                case -1:
-                    in.putExtra("ret", -1);
-                    the = true;
-                    break;
-                case 1:
-                    in.putExtra("ret", 1);
-                    the = true;
-                    break;
-                case 2:
-                    in.putExtra("ret", 2);
-                    the = true;
-                    break;
-                case 3:
-                    in.putExtra("ret", 3);
-                    the = true;
-                    break;
-                case 4:
-                    in.putExtra("ret", 4);
-                    the = true;
-                    break;
-                case 5:
-                    in.putExtra("ret", 5);
-                    the = true;
-                    break;
-                case 6:
-                    in.putExtra("ret", 6);
-                    the = true;
-                    break;
-                case 7:
-                    in.putExtra("ret", 6);
-                    the = true;
-                    break;
-                default:
-                    the = true;
-                    break;
 
-            }
-            sendBroadcast(in);
         } else if (o instanceof Decoder.Result2) {
             Log.i("Success", "收到图片");
             final Decoder.Result2 res = (Decoder.Result2) o;
@@ -423,9 +485,13 @@ public class SocketService extends Service {
                         jsonObject.put("session",
                                 getSharedPreferences("userinfo", MODE_PRIVATE)
                                         .getString("session", null));
-                        jsonObject.put("rid",
-                                getSharedPreferences("Receipt", MODE_PRIVATE)
-                                        .getString("robotid", null));
+                        String rid = getSharedPreferences("Receipt", MODE_PRIVATE)
+                                .getString("robotid", null);
+                        if (rid != null) {
+                            jsonObject.put("rid", rid);
+                        } else {
+                            return;
+                        }
                     } catch (JSONException ee) {
                         ee.printStackTrace();
                     }
@@ -456,6 +522,109 @@ public class SocketService extends Service {
             control(ctx);
         }
     };
+
+    BroadcastReceiver socketLogout = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context arg0, Intent intent) {
+            NetUtil.logoutSocket(getSharedPreferences("userinfo", MODE_PRIVATE).getInt("id",0),
+                    getSharedPreferences("userinfo", MODE_PRIVATE).getString("session",""),
+                    ctx);
+        }
+    };
+
+    BroadcastReceiver mVideoReplyBR = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Long invite_id = intent.getLongExtra(Constants.INVITE_ID, -1);
+            int id = getSharedPreferences("userinfo", MODE_PRIVATE).getInt("id", 0);
+            NetUtil.socketY20MediaReply(id, NetUtil.NumberType.Phone, Role.User, 100069 + "", 1, ctx);
+        }
+    };
+
+    BroadcastReceiver mLoginVideoRoomBR = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            final int id = getSharedPreferences("userinfo", MODE_PRIVATE).getInt("id", 0);
+            final int roomId = intent.getIntExtra(Constants.RoomID, -1);
+            connectVideoSocket(new SocketListener() {
+                @Override
+                public void connectFail() {
+
+                }
+
+                @Override
+                public void connectSuccess(ChannelHandlerContext ctx, ChannelStateEvent e) {
+                    Log.i("Message", "connectSuccess");
+                    NetUtil.socketY20MediaLogin(id + "", Role.User, roomId, ctx);
+                }
+
+                @Override
+                public void writeData(ChannelHandlerContext ctx, MessageEvent e) {
+                    Object message = e.getMessage();
+                    ChannelBuffer buffer;
+                    if (message instanceof ChannelBuffer) {
+                        buffer = ((ChannelBuffer) message);
+                        Channels.write(ctx, e.getFuture(), buffer);
+                    }
+                }
+
+                @Override
+                public void receiveSuccess(ChannelHandlerContext ctx, MessageEvent e) {
+                    Log.i("Message", e.getMessage().toString());
+                    Object o = e.getMessage();
+                    Object obj;
+                    JSONObject Result;
+
+                    //接收到的数据可能是arrayList型的
+                    if (o instanceof ArrayList<?>) {
+                        ArrayList arr = (ArrayList) o;
+                        for (int n = 0; n < arr.size(); n++) {
+                            obj = arr.get(n);
+                            if (obj instanceof JSONObject) {
+                                o = obj;
+                            }
+                            if (obj instanceof MeetingVideoDecoder.Result2) {
+                                o = obj;
+                            }
+                        }
+                    }
+
+                    try {
+                        if (o instanceof JSONObject) {
+                            Result = (JSONObject) o;
+
+
+                        } else if (o instanceof MeetingVideoDecoder.Result2) {
+                            MeetingVideoDecoder.Result2 result = ((MeetingVideoDecoder.Result2) o);
+                            String cmd = result.json.getString("cmd");
+                            if (Constants.CMD_MEDIA_LOGIN.equals(cmd)) {
+                                sendBroadcast(new Intent(Constants.LOGIN_VIDEO_ROOM_RESPONSE));
+                            }
+                        }
+                    } catch (JSONException e1) {
+                        e1.printStackTrace();
+                    }
+
+                }
+
+                @Override
+                public void connectClose(ChannelHandlerContext ctx, ChannelStateEvent e) {
+
+                }
+            }, "120.24.242.163", "8003");
+
+        }
+    };
+
+    BroadcastReceiver mVideoRequestBR = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            int id = getSharedPreferences("userinfo", MODE_PRIVATE).getInt("id", 0);
+            String robotId = getSharedPreferences("Receipt", MODE_PRIVATE).getString("robotid", null);
+            NetUtil.socketY20MediaInvite(id, Role.User, "User" + id, "", NetUtil.NumberType.Phone, 18664920330l, ctx);
+        }
+    };
+
     /**
      * 连接机器人
      * @param ctx
@@ -524,6 +693,18 @@ public class SocketService extends Service {
         });
     }
 
+    private void connectVideoSocket(final SocketListener socketListener, final String ip , final String port){
+        ThreadPool.execute(new Runnable() {
+
+            @Override
+            public void run() {
+
+                SocketConnect.InitVideoSocket(socketListener, ip,
+                        Integer.parseInt(port));
+            }
+        });
+    }
+
     public void setCtx(ChannelHandlerContext ctx) {
         this.ctx = ctx;
     }
@@ -543,7 +724,7 @@ public class SocketService extends Service {
         @Override
         public void receiveSuccess(final ChannelHandlerContext ctx,
                                    final MessageEvent e) {
-
+            socketY20Receive(ctx, e);
             socketY50Receive(ctx, e);
         }
 
@@ -551,6 +732,9 @@ public class SocketService extends Service {
         public void connectSuccess(final ChannelHandlerContext ctx,
                                    final ChannelStateEvent e) {
             setCtx(ctx);
+            NetUtil.loginSocket(getSharedPreferences("userinfo", MODE_PRIVATE).getInt("id",0),
+                    getSharedPreferences("userinfo", MODE_PRIVATE).getString("session",""),
+                    ctx);
             time = new Timer();
             time.schedule(new TimerTask() {
                 @Override
@@ -558,25 +742,43 @@ public class SocketService extends Service {
                     NetUtil.Scoket(new JSONObject(), 3, ctx);
                 }
             }, new Date(), 9000);
-
+            initVideo();
         }
 
         @Override
         public void connectFail() {
             Log.i("Connect", "connectFail");
-            connectSocketByLanguage();
+//            connectSocketByLanguage();
         }
 
         @Override
         public void connectClose(ChannelHandlerContext ctx,
                                  ChannelStateEvent e) {
-            //TODO
-            Intent connectCloseIntent = new Intent(Constants.Socket_Error);
-            connectCloseIntent.putExtra("content", getString(R.string.connection_off));
-            sendBroadcast(connectCloseIntent);
+//            Intent connectCloseIntent = new Intent(Constants.Socket_Error);
+//            connectCloseIntent.putExtra("content", getString(R.string.connection_off));
+//            sendBroadcast(connectCloseIntent);
+            if (!Constants.isUserClose) {
+                connectSocketByLanguage();
+            }
             Log.i("Connect", "connectClose");
         }
     };
+
+
+    /**
+     * 初始化视频
+     */
+    private void initVideo(){
+        YYDSDKHelper.getInstance().init(this);
+        YYDSDKHelper.getInstance().setRole(Role.User);
+        Config.init(this);
+        Config.setTransferDataType(TransferDataType.AUDIOVIDEO);
+        Config.setTransferType(TransferType.RTPOVERUDP);
+        Config.setEncoderType(EncoderType.HARD_ENCODER);
+        Config.setVideoSizeType(VideoSizeType.SIZE_320X240);
+        Config.setFrameRateType(FrameRateType.LOW);
+        Config.setBitRateType(BitrateType.LOW);
+    }
 
     @Override
     public void onDestroy() {
@@ -584,28 +786,51 @@ public class SocketService extends Service {
         if (netstate != null) {
             unregisterReceiver(netstate);
         }
+
+        if (mSocketErrorReceiver != null) {
+            unregisterReceiver(mSocketErrorReceiver);
+        }
+
+        if (photo != null) {
+            unregisterReceiver(photo);
+        }
+        if (task != null) {
+            unregisterReceiver(task);
+        }
+        if (move != null) {
+            unregisterReceiver(move);
+        }
+        if (stop != null) {
+            unregisterReceiver(stop);
+        }
+        if (speak != null) {
+            unregisterReceiver(speak);
+        }
+        if (flush != null) {
+            unregisterReceiver(flush);
+        }
+        if (connectRobot != null) {
+            unregisterReceiver(connectRobot);
+        }
+        if (socketLogout != null) {
+            unregisterReceiver(socketLogout);
+        }
+        if (mVideoRequestBR != null) {
+            unregisterReceiver(mVideoRequestBR);
+        }
+        if (mVideoReplyBR != null) {
+            unregisterReceiver(mVideoReplyBR);
+        }
+        if (mLoginVideoRoomBR != null) {
+            unregisterReceiver(mLoginVideoRoomBR);
+        }
+
         if (time != null) {
             time.cancel();
         }
-      //  ctx.getChannel().close();
-        // if (photo != null) {
-        // unregisterReceiver(photo);
-        // }
-        // if (task != null) {
-        // unregisterReceiver(task);
-        // }
-        // if (move != null) {
-        // unregisterReceiver(move);
-        // }
-        // if (stop != null) {
-        // unregisterReceiver(stop);
-        // }
-        // if (speak != null) {
-        // unregisterReceiver(speak);
-        // }
-        // if (flush != null) {
-        // unregisterReceiver(flush);
-        // }
+
+        ctx.getChannel().close();
+
         super.onDestroy();
     }
 }
