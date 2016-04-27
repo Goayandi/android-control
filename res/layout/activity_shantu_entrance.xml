@@ -15,7 +15,7 @@
         app:layout_marginLeftPercent="3%"
         app:layout_textSizePercent="4%"
         android:gravity="center"
-        android:text="@string/disconnect"
+        android:text="返回"
         android:drawableLeft="@drawable/back"
         android:textColor="@color/white" />
 
@@ -30,25 +30,45 @@
         app:layout_marginBottomPercent="3%"
         app:layout_widthPercent="96%" >
 
-
-        <ImageView
+        <LinearLayout 
+            android:id="@+id/ll_tmp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:background="@drawable/surround1" />
-
+            android:orientation="vertical">
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:src="@drawable/sd"/>
+            <TextView 
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:textColor="#67faff"
+                android:textSize="20sp"
+                android:text="湿度:67%"/>
+            <TextView 
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#67faff"
+                android:textSize="20sp"
+                android:text="温度:23°C"/>
+            
+        </LinearLayout>
+        
         <ImageView
-            android:id="@+id/iv_ball"
+            android:id="@+id/iv_door"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:background="@drawable/ball1" />
+            android:visibility="gone"
+            android:layout_centerInParent="true"/>
         
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:background="@drawable/robot1" />
+            android:src="@drawable/p1" />
 
     </com.layout.utils.PercentRelativeLayout>
 
@@ -66,7 +86,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             style="@style/style_bt_control"
-            android:background="@drawable/videochat1"
+            android:background="@drawable/deng"
             />
 
         <TextView
@@ -74,8 +94,8 @@
             android:layout_height="0dp"
             android:layout_below="@id/video_chat_img"
             style="@style/style_tv_control"
-            android:text="@string/video1"
-             />
+            android:text="灯开关"
+            />
     </com.layout.utils.PercentRelativeLayout>
 
     <com.layout.utils.PercentRelativeLayout
@@ -91,14 +111,14 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             style="@style/style_bt_control"
-            android:background="@drawable/photo1"
+            android:background="@drawable/men"
             />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             android:layout_below="@id/power_photo_img"
-            android:text="@string/album"
+            android:text="门开关"
             style="@style/style_tv_control" />
     </com.layout.utils.PercentRelativeLayout>
 
@@ -106,7 +126,7 @@
         android:id="@+id/video_monitor"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_alignParentRight="true"
+        android:layout_toRightOf="@id/power_photo"
         android:layout_below="@id/rl"
         style="@style/style_rl_control" >
 
@@ -114,14 +134,14 @@
             android:id="@+id/video_monitor_img"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:background="@drawable/monitor_plus1"
+            android:background="@drawable/dg"
             style="@style/style_bt_control" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             android:layout_below="@id/video_monitor_img"
-            android:text="@string/monitoring"
+            android:text="灯光管理"
             style="@style/style_tv_control" />
     </com.layout.utils.PercentRelativeLayout>
 
@@ -138,14 +158,14 @@
             android:id="@+id/power_task_img"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:background="@drawable/taskremind_plus1"
+            android:background="@drawable/cl"
             style="@style/style_bt_control" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             android:layout_below="@id/power_task_img"
-            android:text="@string/remind"
+            android:text="窗帘"
             style="@style/style_tv_control" />
     </com.layout.utils.PercentRelativeLayout>
 
@@ -161,14 +181,14 @@
             android:id="@+id/power_setting_img"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:background="@drawable/setting1"
+            android:background="@drawable/yanwu"
             style="@style/style_bt_control" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             android:layout_below="@id/power_setting_img"
-            android:text="@string/setting"
+            android:text="烟雾"
             style="@style/style_tv_control"/>
     </com.layout.utils.PercentRelativeLayout>
 
@@ -185,15 +205,15 @@
             android:id="@+id/bt_more"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:background="@drawable/znjj"
+            android:background="@drawable/wasi"
             style="@style/style_bt_control" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             android:layout_below="@id/bt_more"
-            android:text="智能家居"
+            android:text="瓦斯"
             style="@style/style_tv_control" />
     </com.layout.utils.PercentRelativeLayout>
-    
+
 </com.layout.utils.PercentRelativeLayout>
