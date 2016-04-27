@@ -149,7 +149,7 @@ public class ControlActivity extends CallActivity implements OnClickListener,
 		if (runningMode.equals("control")) {
 			localSurface.setVisibility(View.INVISIBLE);
 			audioManager.setMicrophoneMute(!audioManager.isMicrophoneMute());
-			findViewById(R.id.mictoggole).setVisibility(View.GONE);
+	//		findViewById(R.id.mictoggole).setVisibility(View.GONE);
 		} else {
 			audioManager.setMicrophoneMute(!audioManager.isMicrophoneMute());
 		}
@@ -946,15 +946,28 @@ public class ControlActivity extends CallActivity implements OnClickListener,
 		mDialog.setCancelable(true);
 	}
 
+	private boolean controlMute = true; //监控静音标识
+
 	public void toggle_speak(View view) {
-		if (audioManager.isMicrophoneMute()) {
-			audioManager.setMicrophoneMute(false);
-			sendMuteMsg(false);
-			view.setBackgroundResource(R.drawable.icon_mute_normal);
+		if (runningMode.equals("control")) {
+			if (controlMute) {
+				sendMuteMsg(false);
+				view.setBackgroundResource(R.drawable.icon_mute_normal);
+			} else {
+				sendMuteMsg(true);
+				view.setBackgroundResource(R.drawable.icon_mute_on);
+			}
+			controlMute= !controlMute;
 		} else {
-			audioManager.setMicrophoneMute(true);
-			sendMuteMsg(true);
-			view.setBackgroundResource(R.drawable.icon_mute_on);
+			if (audioManager.isMicrophoneMute()) {
+				audioManager.setMicrophoneMute(false);
+				sendMuteMsg(false);
+				view.setBackgroundResource(R.drawable.icon_mute_normal);
+			} else {
+				audioManager.setMicrophoneMute(true);
+				sendMuteMsg(true);
+				view.setBackgroundResource(R.drawable.icon_mute_on);
+			}
 		}
 	}
 

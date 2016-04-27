@@ -61,6 +61,7 @@ import java.util.Timer;
 public class ConnectActivity extends BaseActivity implements
 		View.OnClickListener {
 
+	private static final String TAG = "ConnectActivity";
 	private SwipeMenuListView robots_bind;
 	private ImageView findrobot;
 	private SharedPreferences sharedPreferences;
@@ -74,6 +75,7 @@ public class ConnectActivity extends BaseActivity implements
 		setContentView(R.layout.activity_connect);
 		super.onCreate(savedInstanceState);
 	}
+
 
 	@Override
 	public void initlayout(OnRefreshListener onRefreshListener) {
@@ -116,11 +118,12 @@ public class ConnectActivity extends BaseActivity implements
 	@Override
 	protected void onNewIntent(Intent intent) {
 		super.onNewIntent(intent);
-
+		Log.i(TAG, "onNewIntent");
 	}
 
 	@Override
 	protected void onResume() {
+		Log.i(TAG, "onResume");
 		if (Constants.flag) {
 			sendBroadcast(new Intent(Constants.Stop));
 		}
@@ -256,7 +259,6 @@ public class ConnectActivity extends BaseActivity implements
 	public void onClick(View v) {
 		switch (v.getId()) {
 		case R.id.findrobot:
-		//	startActivity(new Intent(ConnectActivity.this, MeetingTestActivity.class));
 			StartUtil.startintentforresult(this, BindRobotActivity.class,
 					Constants.bindrobot_RequestCode);
 			break;

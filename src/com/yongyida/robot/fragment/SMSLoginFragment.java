@@ -316,6 +316,7 @@ public class SMSLoginFragment extends BaseFragment implements View.OnClickListen
                 }
                 progress = new ProgressDialog(getActivity());
                 progress.setMessage(getString(R.string.logining));
+                progress.setCancelable(false);
                 progress.show();
                 //   handler.sendEmptyMessage(1);
                 ThreadPool.execute(new Runnable() {
@@ -473,8 +474,13 @@ public class SMSLoginFragment extends BaseFragment implements View.OnClickListen
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (mBRLogin != null) {
-            getActivity().unregisterReceiver(mBRLogin);
+        try {
+            if (mBRLogin != null) {
+                getActivity().unregisterReceiver(mBRLogin);
+            }
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
         }
+
     }
 }

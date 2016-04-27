@@ -184,7 +184,6 @@ public class LoginActivity extends BaseActivity implements OnClickListener {
                                                                     .getText().toString(),
                                                             edit_phonenum.getText()
                                                                     .toString());
-                                                    Constants.isUserClose = false;
                                                     if (!isServiceRunning(LoginActivity.this,SocketService.class.getSimpleName())) {
                                                         startService(new Intent(LoginActivity.this, SocketService.class));
                                                     }
@@ -616,7 +615,6 @@ public class LoginActivity extends BaseActivity implements OnClickListener {
         // 如果本地存在记录则自动跳转
         if (id != 0 && DemoHXSDKHelper.getInstance().isLogined()) {
             StartUtil.startintent(this, ConnectActivity.class, "finish");
-            Constants.isUserClose = false;
             if (!isServiceRunning(LoginActivity.this,SocketService.class.getSimpleName())) {
                 startService(new Intent(LoginActivity.this, SocketService.class));
             }

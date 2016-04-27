@@ -162,9 +162,9 @@ public class RegisterLoginFragment extends BaseFragment implements View.OnClickL
 
 
     private void inputVerifyAndCommit(){
-        String account = mAccountET.getText().toString().trim();
-        String password = mPasswordET.getText().toString().trim();
-        String verifyCode = mVerifyCodeET.getText().toString().trim();
+        String account = mAccountET.getText().toString();
+        String password = mPasswordET.getText().toString();
+        String verifyCode = mVerifyCodeET.getText().toString();
         if (TextUtils.isEmpty(account)){
             ToastUtil.showtomain(getActivity(), "请输入账户");
             return;
@@ -178,11 +178,11 @@ public class RegisterLoginFragment extends BaseFragment implements View.OnClickL
             return;
         }
         if (!Utils.isAccount(account)) {
-            ToastUtil.showtomain(getActivity(), "账号请输入6-20位数字或字母");
+            ToastUtil.showtomain(getActivity(), "账号请输入6-20位数字,字母或下划线(必须以字母开头)");
             return;
         }
         if (!Utils.isPassword(password)) {
-            ToastUtil.showtomain(getActivity(), "密码请输入6-20位数字或字母");
+            ToastUtil.showtomain(getActivity(), "密码请输入6-20位数字,字母或下划线");
             return;
         }
 
@@ -192,6 +192,7 @@ public class RegisterLoginFragment extends BaseFragment implements View.OnClickL
     private void login(final String account, final String password, final String verifyCode) {
         mProgress = new ProgressDialog(getActivity());
         mProgress.setMessage("登录中");
+        mProgress.setCancelable(false);
         mProgress.show();
         ThreadPool.execute(new Runnable() {
             @Override
@@ -232,6 +233,9 @@ public class RegisterLoginFragment extends BaseFragment implements View.OnClickL
                                         break;
                                     case 3:
                                         HandlerUtil.sendmsg(mHandler, "密码错误", 2);
+                                        break;
+                                    case 4:
+                                        HandlerUtil.sendmsg(mHandler, "密码未设置，请设置密码", 2);
                                         break;
                                 }
                             } catch (JSONException e) {

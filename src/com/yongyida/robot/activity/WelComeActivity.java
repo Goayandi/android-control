@@ -25,6 +25,9 @@ import com.yongyida.robot.utils.XmlUtil;
 
 import org.json.JSONObject;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 public class WelComeActivity extends BaseActivity {
 	private String address;
 	@Override
@@ -68,6 +71,50 @@ public class WelComeActivity extends BaseActivity {
 		//	ToastUtil.showtomain(WelComeActivity.this,msg.getData().getString("result"));
 			StartUtil.startintent(WelComeActivity.this, GuideActivity.class,
 					"finish");
+		} else if (msg.what == 2) {
+			ThreadPool.execute(new Runnable() {
+
+				@Override
+				public void run() {
+
+					try {
+
+						String version = XmlUtil.xml(
+								NetUtil.getinstance().downloadfile(
+										WelComeActivity.this,
+										address,
+										new callback() {
+
+											@Override
+											public void success(JSONObject json) {
+
+											}
+
+											@Override
+											public void error(String errorresult) {
+												HandlerUtil.sendmsg(handler,
+														errorresult, 1);
+											}
+										}), "xin");
+						PackageManager packageManager = getPackageManager();
+						PackageInfo info = packageManager.getPackageInfo(
+								getPackageName(), 0);
+						if (Double.parseDouble(version) > Double
+								.parseDouble(info.versionName)) {
+							handler.sendEmptyMessage(0);
+						} else {
+							startActivity(new Intent(WelComeActivity.this,
+									GuideActivity.class));
+							overridePendingTransition(android.R.anim.fade_in,
+									android.R.anim.fade_out);
+							finish();
+						}
+					} catch (NameNotFoundException e) {
+						e.printStackTrace();
+					}
+
+				}
+			});
 		}
 		super.onHandlerMessage(msg);
 	}
@@ -88,54 +135,13 @@ public class WelComeActivity extends BaseActivity {
 		} else {
 			address = Constants.download_address;
 		}
-		ThreadPool.execute(new Runnable() {
-
+		Timer timer = new Timer();
+		timer.schedule(new TimerTask() {
 			@Override
 			public void run() {
-
-				try {
-
-					String version = XmlUtil.xml(
-							NetUtil.getinstance().downloadfile(
-									WelComeActivity.this,
-									address,
-									new callback() {
-
-										@Override
-										public void success(JSONObject json) {
-
-										}
-
-										@Override
-										public void error(String errorresult) {
-											HandlerUtil.sendmsg(handler,
-													errorresult, 1);
-										}
-									}), "xin");
-					PackageManager packageManager = getPackageManager();
-					PackageInfo info = packageManager.getPackageInfo(
-							getPackageName(), 0);
-					if (Double.parseDouble(version) > Double
-							.parseDouble(info.versionName)) {
-						handler.sendEmptyMessage(0);
-					} else {
-						try {
-							Thread.sleep(1000);
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
-						startActivity(new Intent(WelComeActivity.this,
-								GuideActivity.class));
-						overridePendingTransition(android.R.anim.fade_in,
-								android.R.anim.fade_out);
-						finish();
-					}
-				} catch (NameNotFoundException e) {
-					e.printStackTrace();
-				}
-
+				handler.sendEmptyMessage(2);
 			}
-		});
+		}, 1000);
 	}
 
 }

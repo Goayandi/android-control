@@ -93,7 +93,8 @@ public class InviteActivity extends BaseVideoActivity implements OnClickListener
                 public void run() {
                     User user = new User("User", 100069);
                     YYDSDKHelper.getInstance().setUser(user);
-                    YYDVideoServer.getInstance().getMeetingInfo().setVideoServer(
+                    YYDVideoServer.getInstance().getMeetingInfo().setOwner("User", getSharedPreferences("userinfo", MODE_PRIVATE).getInt("id", 0), "qqq");
+                    YYDVideoServer.getInstance().getMeetingInfo().setVideoServer_Tcp(
                             mRoomID,
                             "120.24.242.163",
                             8003);
@@ -212,7 +213,7 @@ public class InviteActivity extends BaseVideoActivity implements OnClickListener
 
     public EventListener mEventListener = new EventListener() {
         public void onEvent(Event event, final Object data) {
-            log.d(TAG, "onEvent(), envet: " + event);
+            Log.i(TAG, "onEvent(), envet: " + event);
 
             switch (event) {
                 //1：收到邀请响应,成功跳过，失败提示。
@@ -222,7 +223,8 @@ public class InviteActivity extends BaseVideoActivity implements OnClickListener
                 case MeetingInviteCancelResponse:
                     break;
                 //情况3：收到邀请答复，如果为“接受”不处理，如果为“拒绝”则提示后关闭。
-                case MeetingReplyRequest: {
+                case MeetingReplyRequest:
+                {
                     MeetingReplyRequest req = (MeetingReplyRequest)data;
                     if (req.getAnswer() == 0) {
                         Utils.noUIThreadToast(InviteActivity.this, "对方已拒绝");
@@ -233,12 +235,13 @@ public class InviteActivity extends BaseVideoActivity implements OnClickListener
                 //情况4：进入房间响应
                 case EnterRoomResponse: {
                     // 收到进入房间响应后，打开视频会议 页面。
-                    Intent intent = new Intent(InviteActivity.this, ActivityMeeting.class);
-                    intent.putExtra("EnableSend", true);
-                    intent.putExtra("EnableRecv", true);
-                    startActivity(intent);
-                    finish();
+//                    Intent intent = new Intent(InviteActivity.this, ActivityMeeting.class);
+//                    intent.putExtra("EnableSend", true);
+//                    intent.putExtra("EnableRecv", true);
+//                    startActivity(intent);
+//                    finish();
                 }
+                break;
                 case CommandTimeout:
                     log.e(TAG, "CommandTimeout, cmdId: " + data);
                     break;

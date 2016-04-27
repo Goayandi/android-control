@@ -7,6 +7,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
 import com.yongyida.robot.R;
+import com.yongyida.robot.activity.ConnectActivity;
 import com.yongyida.robot.huanxin.DemoHXSDKHelper;
 import com.yongyida.robot.utils.Constants;
 import com.yongyida.robot.utils.ToastUtil;
@@ -41,10 +42,8 @@ public class NetStateBroadcastReceiver extends BroadcastReceiver {
 	public void back(Context context) {
 		if (DemoHXSDKHelper.getInstance().isLogined()) {
 			context.sendBroadcast(new Intent(Constants.Stop));
-//			context.stopService(new Intent(context,SocketService.class));
-//			context.startActivity(new Intent(context, ConnectActivity.class)
-//					.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK).addFlags(
-//							Intent.FLAG_ACTIVITY_CLEAR_TASK));
+			context.startActivity(new Intent(context, ConnectActivity.class)
+					.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
 		}
 
 	}

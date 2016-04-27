@@ -173,7 +173,7 @@
         <activity
             android:name="com.yongyida.robot.activity.ConnectActivity"
             android:label="@string/title_activity_connect"
-            android:launchMode="singleTop"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait" >
         </activity>
         <activity
@@ -271,7 +271,8 @@
             android:launchMode="singleTop">
         </activity>
         <activity
-            android:name="com.yongyida.robot.activity.RegisterActivity">
+            android:name="com.yongyida.robot.activity.RegisterActivity"
+            android:screenOrientation="portrait">
         </activity>
     </application>
 

@@ -22,7 +22,6 @@ import com.yongyida.robot.R;
 import com.yongyida.robot.utils.Config;
 import com.yongyida.robot.video.av.AVMeeting;
 import com.yongyida.robot.video.av.CameraView;
-import com.yongyida.robot.video.av.IThumbView;
 import com.yongyida.robot.video.av.TransferDataType;
 import com.yongyida.robot.video.av.UserView;
 import com.yongyida.robot.video.av.VideoParam;
@@ -200,7 +199,7 @@ public class ActivityMeeting extends BaseVideoActivity implements OnClickListene
 				smallView.getWidth(),
 				smallView.getHeight());
 		bigView.setLayoutParams(svp);
-		if (bigView instanceof IThumbView) {
+		/*if (bigView instanceof IThumbView) {
 			IThumbView thumb = (IThumbView)bigView;
 			thumb.setBorderVisible(true);
 			thumb.setTitleVisible(true);
@@ -215,7 +214,7 @@ public class ActivityMeeting extends BaseVideoActivity implements OnClickListene
 			IThumbView thumb = (IThumbView)smallView;
 			thumb.setBorderVisible(false);
 			thumb.setTitleVisible(false);
-		}
+		}*/
 		
 		// 把小视图（原来的大视图）置前
 		mFrameLayout.bringChildToFront(bigView);

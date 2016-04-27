@@ -10,6 +10,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.net.ConnectivityManager;
+import android.os.Environment;
 import android.os.IBinder;
 import android.util.Log;
 
@@ -27,6 +28,7 @@ import com.yongyida.robot.utils.Constants;
 import com.yongyida.robot.utils.FileUtil;
 import com.yongyida.robot.utils.NetUtil;
 import com.yongyida.robot.utils.ThreadPool;
+import com.yongyida.robot.utils.Utils;
 import com.yongyida.robot.video.av.BitrateType;
 import com.yongyida.robot.video.av.EncoderType;
 import com.yongyida.robot.video.av.FrameRateType;
@@ -45,9 +47,14 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -743,12 +750,12 @@ public class SocketService extends Service {
                 }
             }, new Date(), 9000);
             initVideo();
+            logUpload();
         }
 
         @Override
         public void connectFail() {
             Log.i("Connect", "connectFail");
-//            connectSocketByLanguage();
         }
 
         @Override
@@ -759,6 +766,9 @@ public class SocketService extends Service {
 //            sendBroadcast(connectCloseIntent);
             if (!Constants.isUserClose) {
                 connectSocketByLanguage();
+            } else {
+                Constants.isUserClose = false;
+
             }
             Log.i("Connect", "connectClose");
         }
@@ -780,49 +790,134 @@ public class SocketService extends Service {
         Config.setBitRateType(BitrateType.LOW);
     }
 
+    private void logUpload(){
+		/* 发送错误日志 */
+        String PATH_LOGCAT;
+        if (Environment.getExternalStorageState().equals(
+                Environment.MEDIA_MOUNTED)) {// 优先保存到SD卡中
+            PATH_LOGCAT = Environment.getExternalStorageDirectory()
+                    .getAbsolutePath() + File.separator + "miniGPS";
+        } else {// 如果SD卡不存在，就保存到本应用的目录下
+            PATH_LOGCAT = getFilesDir().getAbsolutePath()
+                    + File.separator + "miniGPS";
+        }
+        if (!Utils.checknetwork(this)) {
+            return;
+        }
+        final File file = new File(PATH_LOGCAT, "info.log");
+        if (!file.exists()) {
+            return;
+        } else if (file.length() == 0) {
+            return;
+        } else {
+            ThreadPool.execute(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        int id = getSharedPreferences("userinfo", MODE_PRIVATE).getInt("id", -1);
+                        if (id == -1) {
+                            return;
+                        } else {
+                            URL url = new URL(Constants.address + Constants.UPLOAD);
+                            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+							/* 允许Input、Output，不使用Cache */
+                            conn.setDoInput(true);
+                            conn.setDoOutput(true);
+                            conn.setUseCaches(false);
+							/* 设定传送的method=POST */
+                            conn.setRequestMethod("POST");
+							/* setRequestProperty */
+                            conn.setRequestProperty("id", id + "");
+                            conn.setRequestProperty("platform", "yyd");
+                            conn.setRequestProperty("os", "android");
+                            conn.setRequestProperty("Content-Length", file.length()+"");
+                            conn.setRequestProperty("Content-Type", "text/plain;charset=utf-8;");
+							/* 设定DataOutputStream */
+                            DataOutputStream ds = new DataOutputStream(conn.getOutputStream());
+							 /* 取得文件的FileInputStream */
+                            FileInputStream fStream = new FileInputStream(file);
+							/* 设定每次写入1024bytes */
+                            int bufferSize = 1024;
+                            byte[] buffer = new byte[bufferSize];
+                            int length = -1;
+							/* 从文件读取数据到缓冲区 */
+                            while ((length = fStream.read(buffer)) != -1) {
+								/* 将数据写入DataOutputStream中 */
+                                ds.write(buffer, 0, length);
+                            }
+                            fStream.close();
+                            ds.flush();
+                            ds.close();
+							/* 取得Response内容 */
+                            InputStream is = conn.getInputStream();
+                            int ch;
+                            StringBuffer b = new StringBuffer();
+                            while ((ch = is.read()) != -1) {
+                                b.append((char)ch);
+                            }
+                            is.close();
+                            JSONObject obj = new JSONObject(b.toString());
+                            String ret = obj.getString("ret");
+                            if (ret.equals("0")){
+                                file.delete();
+                            }
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+        }
+
+    }
+
     @Override
     public void onDestroy() {
         Log.i("SocketService","onDestroy");
-        if (netstate != null) {
-            unregisterReceiver(netstate);
-        }
+        try {
+            if (netstate != null) {
+                unregisterReceiver(netstate);
+            }
 
-        if (mSocketErrorReceiver != null) {
-            unregisterReceiver(mSocketErrorReceiver);
-        }
+            if (mSocketErrorReceiver != null) {
+                unregisterReceiver(mSocketErrorReceiver);
+            }
 
-        if (photo != null) {
-            unregisterReceiver(photo);
-        }
-        if (task != null) {
-            unregisterReceiver(task);
-        }
-        if (move != null) {
-            unregisterReceiver(move);
-        }
-        if (stop != null) {
-            unregisterReceiver(stop);
-        }
-        if (speak != null) {
-            unregisterReceiver(speak);
-        }
-        if (flush != null) {
-            unregisterReceiver(flush);
-        }
-        if (connectRobot != null) {
-            unregisterReceiver(connectRobot);
-        }
-        if (socketLogout != null) {
-            unregisterReceiver(socketLogout);
-        }
-        if (mVideoRequestBR != null) {
-            unregisterReceiver(mVideoRequestBR);
-        }
-        if (mVideoReplyBR != null) {
-            unregisterReceiver(mVideoReplyBR);
-        }
-        if (mLoginVideoRoomBR != null) {
-            unregisterReceiver(mLoginVideoRoomBR);
+            if (photo != null) {
+                unregisterReceiver(photo);
+            }
+            if (task != null) {
+                unregisterReceiver(task);
+            }
+            if (move != null) {
+                unregisterReceiver(move);
+            }
+            if (stop != null) {
+                unregisterReceiver(stop);
+            }
+            if (speak != null) {
+                unregisterReceiver(speak);
+            }
+            if (flush != null) {
+                unregisterReceiver(flush);
+            }
+            if (connectRobot != null) {
+                unregisterReceiver(connectRobot);
+            }
+            if (socketLogout != null) {
+                unregisterReceiver(socketLogout);
+            }
+            if (mVideoRequestBR != null) {
+                unregisterReceiver(mVideoRequestBR);
+            }
+            if (mVideoReplyBR != null) {
+                unregisterReceiver(mVideoReplyBR);
+            }
+            if (mLoginVideoRoomBR != null) {
+                unregisterReceiver(mLoginVideoRoomBR);
+            }
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
         }
 
         if (time != null) {

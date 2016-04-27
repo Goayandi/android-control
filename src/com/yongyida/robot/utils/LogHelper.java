@@ -18,9 +18,9 @@ public class LogHelper {
 	private int mPId;
 
 	/**
-	 * 
+	 *
 	 * 初始化目录
-	 * 
+	 *
 	 * */
 	public void init(Context context) {
 		if (Environment.getExternalStorageState().equals(
@@ -74,25 +74,24 @@ public class LogHelper {
 		public LogDumper(String pid, String dir) {
 			mPID = pid;
 			try {
-				out = new FileOutputStream(new File(dir, "GPS-"
-						+ System.currentTimeMillis() + ".log"));
+				out = new FileOutputStream(new File(dir, "info.log"), true);
 			} catch (FileNotFoundException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 
 			/**
-			 * 
+			 *
 			 * 日志等级：*:v , *:d , *:w , *:e , *:f , *:s
-			 * 
+			 *
 			 * 显示当前mPID程序的 E和W等级的日志.
-			 * 
+			 *
 			 * */
 
 			// cmds = "logcat *:e *:w | grep \"(" + mPID + ")\"";
 			// cmds = "logcat  | grep \"(" + mPID + ")\"";//打印所有日志信息
 			// cmds = "logcat -s way";//打印标签过滤信息
-		//	cmds = "logcat *:e *:w | grep \"(" + mPID + ")\"";
+			//	cmds = "logcat *:e *:w | grep \"(" + mPID + ")\"";
 			cmds = "logcat *:e | grep \"(" + mPID + ")\"";
 
 		}

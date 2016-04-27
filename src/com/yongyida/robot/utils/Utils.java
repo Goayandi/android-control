@@ -2,6 +2,8 @@ package com.yongyida.robot.utils;
 
 import android.app.ActivityManager;
 import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -84,12 +86,28 @@ public class Utils {
     }
 
     /**
+     * 是否是wifi环境
+     * @param context
+     * @return
+     */
+    public static boolean checknetwork(Context context) {
+        ConnectivityManager manager = (ConnectivityManager) context.getSystemService(context.CONNECTIVITY_SERVICE);
+        NetworkInfo info = manager
+                .getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+        if (info.isAvailable() && info.isConnected()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
      * 是否符合账号的规则
      * @param account
      * @return
      */
     public static boolean isAccount(String account){
-        Pattern p = Pattern.compile("^[A-Za-z0-9]{6,20}+$");
+        Pattern p = Pattern.compile("^[A-Z,a-z][A-Z,a-z,0-9]{5,19}$");
         Matcher m = p.matcher(account);
         return m.matches();
     }
@@ -100,8 +118,9 @@ public class Utils {
      * @return
      */
     public static boolean isPassword(String account){
-        Pattern p = Pattern.compile("^[A-Za-z0-9]{6,20}+$");
-        Matcher m = p.matcher(account);
-        return m.matches();
+        if (account.length() < 6 || account.length() > 20) {
+            return false;
+        }
+        return true;
     }
 }

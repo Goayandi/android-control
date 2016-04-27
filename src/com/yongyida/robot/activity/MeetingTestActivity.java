@@ -66,10 +66,11 @@ public class MeetingTestActivity extends BaseVideoActivity implements OnClickLis
                 public void run() {
                     User user = new User("User", 100227);
                     YYDSDKHelper.getInstance().setUser(user);
-                    YYDVideoServer.getInstance().getMeetingInfo().setVideoServer(
-                            intent.getIntExtra(Constants.RoomID, -1),
+                    YYDVideoServer.getInstance().getMeetingInfo().setVideoServer_Tcp(
+                            mRoomId,
                             "120.24.242.163",
                             8003);
+                    YYDVideoServer.getInstance().getMeetingInfo().setOwner("User", 100227, "111");
                     YYDVideoServer.getInstance().connect("120.24.242.163", 8003);
                     YYDVideoServer.getInstance().enterRoom(new CmdCallBacker() {
                         @Override
@@ -84,7 +85,7 @@ public class MeetingTestActivity extends BaseVideoActivity implements OnClickLis
 
                         @Override
                         public void onFailed(int i) {
-                            Log.i(TAG, "fail");
+                            Log.i(TAG, "fail" + i);
                         }
                     });
                 }
@@ -92,12 +93,13 @@ public class MeetingTestActivity extends BaseVideoActivity implements OnClickLis
 
         }
     };
-
+    private int mRoomId;
     BroadcastReceiver mConnectionResponseBR = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             Intent itt = new Intent(Constants.LOGIN_VIDEO_ROOM);
-            itt.putExtra(Constants.RoomID, intent.getIntExtra(Constants.RoomID, -1));
+            mRoomId = intent.getIntExtra(Constants.RoomID, -1);
+            itt.putExtra(Constants.RoomID, mRoomId);
             sendBroadcast(itt);
         }
     };
@@ -164,21 +166,22 @@ public class MeetingTestActivity extends BaseVideoActivity implements OnClickLis
 
     public EventListener mEventListener = new EventListener() {
         public void onEvent(Event event, final Object data) {
-            log.d(TAG, "onEvent(), envet: " + event);
+            Log.i(TAG, "onEvent(), envet: " + event);
 
             switch (event) {
                 case MeetingInviteResponse:
                     break;
-                case MeetingInviteRequest: {
-                    // 用户B：收到服务器的视频会议邀请转发后，显示邀请页面（“接受”还是“拒绝”）。
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            showInvite((MeetingInviteRequest) data);
-                        }
-                    });
-                    break;
-                }
+                case MeetingInviteRequest:
+//                {
+//                    // 用户B：收到服务器的视频会议邀请转发后，显示邀请页面（“接受”还是“拒绝”）。
+//                    runOnUiThread(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            showInvite((MeetingInviteRequest) data);
+//                        }
+//                    });
+//                }
+                break;
                 case MeetingReplyRequest:
                     break;
                 case MeetingReplyResponse:
@@ -187,11 +190,11 @@ public class MeetingTestActivity extends BaseVideoActivity implements OnClickLis
                     break;
                 case EnterRoomResponse: {
                     // 收到进入房间响应后，打开视频会议 页面。
-                    Intent intent = new Intent(MeetingTestActivity.this, InviteActivity.class);
+                   /* Intent intent = new Intent(MeetingTestActivity.this, InviteActivity.class);
                     intent.putExtra("EnableSend", true);
                     intent.putExtra("EnableRecv", true);
                     startActivity(intent);
-                    break;
+                    break;*/
                 }
                 case CommandTimeout:
                     log.e(TAG, "CommandTimeout, cmdId: " + data);

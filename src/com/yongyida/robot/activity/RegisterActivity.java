@@ -47,6 +47,7 @@ import java.util.Map;
  */
 public class RegisterActivity extends Activity implements OnClickListener{
 
+    private static final String TAG = "RegisterActivity";
     private EditText mAccountET;
     private EditText mPasswordET;
     private EditText mPasswordConfirmET;
@@ -156,10 +157,10 @@ public class RegisterActivity extends Activity implements OnClickListener{
     }
 
     private void inputVerifyAndCommit(){
-        String account = mAccountET.getText().toString().trim();
-        String password = mPasswordET.getText().toString().trim();
-        String passwordConfirm = mPasswordConfirmET.getText().toString().trim();
-        String verifyCode = mVerifyCodeET.getText().toString().trim();
+        String account = mAccountET.getText().toString();
+        String password = mPasswordET.getText().toString();
+        String passwordConfirm = mPasswordConfirmET.getText().toString();
+        String verifyCode = mVerifyCodeET.getText().toString();
         if (TextUtils.isEmpty(account)){
             ToastUtil.showtomain(RegisterActivity.this, "请输入账户");
             return;
@@ -177,11 +178,11 @@ public class RegisterActivity extends Activity implements OnClickListener{
             return;
         }
         if (!Utils.isAccount(account)) {
-            ToastUtil.showtomain(RegisterActivity.this, "账号请输入6-20位数字或字母");
+            ToastUtil.showtomain(RegisterActivity.this, "账号请输入6-20位数字,字母或下划线(必须以字母开头)");
             return;
         }
         if (!Utils.isPassword(password)) {
-            ToastUtil.showtomain(RegisterActivity.this, "密码请输入6-20位数字或字母");
+            ToastUtil.showtomain(RegisterActivity.this, "密码请输入6-20位数字,字母或下划线");
             return;
         }
         register(account, password, verifyCode);
@@ -207,6 +208,7 @@ public class RegisterActivity extends Activity implements OnClickListener{
     private void register(final String account, final String password, final String verifyCode){
         mProgress = new ProgressDialog(this);
         mProgress.setMessage("注册中");
+        mProgress.setCancelable(false);
         mProgress.show();
         ThreadPool.execute(new Runnable() {
             @Override
@@ -229,7 +231,6 @@ public class RegisterActivity extends Activity implements OnClickListener{
                                     case 0:
                                         into(json);
                                         huanxinlogin(json.getString("id"), json.getString("id"));
-                                        Constants.isUserClose = false;
                                         if (!Utils.isServiceRunning(RegisterActivity.this, SocketService.class.getSimpleName())) {
                                             startService(new Intent(RegisterActivity.this, SocketService.class));
                                         }
@@ -244,6 +245,9 @@ public class RegisterActivity extends Activity implements OnClickListener{
                                         break;
                                     case 2:
                                         HandlerUtil.sendmsg(mHandler, "账号已经存在", 2);
+                                        break;
+                                    case 3:
+                                        HandlerUtil.sendmsg(mHandler, "账号只能是字母下划线和数字", 2);
                                         break;
                                 }
                             } catch (JSONException e) {

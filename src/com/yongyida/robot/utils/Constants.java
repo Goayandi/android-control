@@ -191,6 +191,8 @@ public class Constants {
 
 	public static final String LOGIN_METHOD = "method";
 
+	public static final String UPLOAD = "/upload/applog";
+
 	public interface Role{
 		String Robot = "Robot";
 		String User = "User";
