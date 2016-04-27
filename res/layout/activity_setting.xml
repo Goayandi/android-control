@@ -225,19 +225,6 @@
                 android:textColor="@color/white" />
         </RelativeLayout>
 
-        <RelativeLayout
-            android:layout_width="wrap_content"
-            android:layout_height="50dip"
-            android:orientation="horizontal"
-            android:paddingLeft="15dip" >
-
-            <TextView
-                android:id="@+id/contact"
-                style="@style/mag"
-                android:layout_width="fill_parent"
-                android:autoLink="email|phone|web"
-                android:text="@string/contact" />
-        </RelativeLayout>
     </LinearLayout>
 
     <RelativeLayout
