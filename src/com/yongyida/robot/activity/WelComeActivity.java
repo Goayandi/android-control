@@ -1,9 +1,6 @@
 package com.yongyida.robot.activity;
 
 
-import java.util.Timer;
-import java.util.TimerTask;
-
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.content.DialogInterface;
@@ -12,7 +9,6 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.Message;
 import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.view.Menu;
@@ -83,61 +79,6 @@ public class WelComeActivity extends BaseActivity {
 		return true;
 	}
 
-	private Timer mTimer;
-	private Handler mHandler = new Handler() {
-		public void handleMessage(Message msg) {
-			if (msg.what == 1) {
-				ThreadPool.execute(new Runnable() {
-
-					@Override
-					public void run() {
-
-						try {
-
-							String version = XmlUtil.xml(
-									NetUtil.getinstance().downloadfile(
-											WelComeActivity.this,
-											address,
-											new callback() {
-
-												@Override
-												public void success(JSONObject json) {
-
-												}
-
-												@Override
-												public void error(String errorresult) {
-													HandlerUtil.sendmsg(handler,
-															errorresult, 1);
-												}
-											}), "xin");
-							PackageManager packageManager = getPackageManager();
-							PackageInfo info = packageManager.getPackageInfo(
-									getPackageName(), 0);
-							if (Double.parseDouble(version) > Double
-									.parseDouble(info.versionName)) {
-								handler.sendEmptyMessage(0);
-							} else {
-								try {
-									Thread.sleep(1000);
-								} catch (InterruptedException e) {
-									e.printStackTrace();
-								}
-								startActivity(new Intent(WelComeActivity.this,
-										GuideActivity.class));
-								overridePendingTransition(android.R.anim.fade_in,
-										android.R.anim.fade_out);
-								finish();
-							}
-						} catch (NameNotFoundException e) {
-							e.printStackTrace();
-						}
-
-					}
-				});
-			}
-		};
-	};
 	@Override
 	public void initlayout(OnRefreshListener onRefreshListener) {
 		setContentView(R.layout.activity_wel_come);
@@ -147,15 +88,54 @@ public class WelComeActivity extends BaseActivity {
 		} else {
 			address = Constants.download_address;
 		}
-		mTimer = new Timer();
-		mTimer.schedule(new TimerTask() {
-			
+		ThreadPool.execute(new Runnable() {
+
 			@Override
 			public void run() {
-				mHandler.sendEmptyMessage(1);
+
+				try {
+
+					String version = XmlUtil.xml(
+							NetUtil.getinstance().downloadfile(
+									WelComeActivity.this,
+									address,
+									new callback() {
+
+										@Override
+										public void success(JSONObject json) {
+
+										}
+
+										@Override
+										public void error(String errorresult) {
+											HandlerUtil.sendmsg(handler,
+													errorresult, 1);
+										}
+									}), "xin");
+					PackageManager packageManager = getPackageManager();
+					PackageInfo info = packageManager.getPackageInfo(
+							getPackageName(), 0);
+					if (Double.parseDouble(version) > Double
+							.parseDouble(info.versionName)) {
+						handler.sendEmptyMessage(0);
+					} else {
+						try {
+							Thread.sleep(1000);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+						startActivity(new Intent(WelComeActivity.this,
+								GuideActivity.class));
+						overridePendingTransition(android.R.anim.fade_in,
+								android.R.anim.fade_out);
+						finish();
+					}
+				} catch (NameNotFoundException e) {
+					e.printStackTrace();
+				}
+
 			}
-		}, 1000);
-		
+		});
 	}
 
 }

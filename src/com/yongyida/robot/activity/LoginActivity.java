@@ -285,10 +285,7 @@ public class LoginActivity extends BaseActivity implements OnClickListener {
                     .putString("username", currentUsername)
                     .putString("password", currentPassword).commit();
         }
-        Log.i("LoginActivity",  getSharedPreferences("huanxin", MODE_PRIVATE).getString(
-                "username", null));
-        Log.i("LoginActivity",  getSharedPreferences("huanxin", MODE_PRIVATE).getString(
-        		"password", null));
+
         EMChatManager.getInstance().login(
                 getSharedPreferences("huanxin", MODE_PRIVATE).getString(
                         "username", null),

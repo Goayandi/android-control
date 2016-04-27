@@ -65,17 +65,6 @@ public class SettingActivity<AndroidLearn> extends BaseActivity implements
 		}
 	};
 
-	private void showHintDialog(){
-		AlertDialog.Builder dialog = new AlertDialog.Builder(SettingActivity.this);  
-        dialog.setMessage("山土科技（上海）有限公司\n联系方式：021-61260511");
-        dialog.setPositiveButton("确认",new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {  
-            	dialog.dismiss();
-            }  
-        });  
-        dialog.show();
-	}
-	
 	@Override
 	public void onClick(View v) {
 		switch (v.getId()) {
@@ -126,12 +115,31 @@ public class SettingActivity<AndroidLearn> extends BaseActivity implements
 //			startActivity(intent);
 			break;
 		case R.id.about:
-		//	StartUtil.startintent(this, AboutActivity.class, "no");
-			showHintDialog();
+			StartUtil.startintent(this, AboutActivity.class, "no");
 			break;
 		case R.id.upgrade:
 	//		upgrade.setText("升级");
 		break;
+		case R.id.contact:
+			AlertDialog.Builder dialog = new AlertDialog.Builder(SettingActivity.this);  
+//          dialog.setIcon(R.drawable.ic_launcher);//窗口头图标  
+            dialog.setTitle(R.string.reminder);//窗口名
+            dialog.setMessage(R.string.service_number);
+            dialog.setPositiveButton(R.string.confirm,new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {  
+                    // TODO Auto-generated method stub  
+                	Intent intent = new Intent(Intent.ACTION_CALL,Uri.parse("tel:400-9696488"));  
+                    startActivity(intent); 
+                }  
+            });  
+            dialog.setNegativeButton(getString(R.string.cancel),new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {  
+                    // TODO Auto-generated method stub  
+                      
+                }  
+            });
+            dialog.show();
+			break;
 		case R.id.editname:
 			if (edit.getText().toString().equals(getString(R.string.edit))) {
 				edit.setText(R.string.complete);
@@ -197,6 +205,8 @@ public class SettingActivity<AndroidLearn> extends BaseActivity implements
 		}
 		upgrade=(TextView)findViewById(R.id.upgrade);
 		upgrade.setOnClickListener(this);
+		contact=(TextView)findViewById(R.id.contact);
+		contact.setOnClickListener(this);
 		about = (TextView) findViewById(R.id.about);
 		about.setOnClickListener(this);
 		wifi = (SwitchButton) findViewById(R.id.wifisetting);

@@ -246,6 +246,7 @@
         <item name="android:textColor">@color/light_blue</item>
         <item name="com.yongyida.robot:layout_heightPercent">40%</item>
         <item name="com.yongyida.robot:layout_marginTopPercent">10%</item>
+        <item name="com.yongyida.robot:layout_widthPercent">35%</item>
     </style>
     <style name="rb">
         <item name="com.yongyida.robot:layout_marginTopPercent">1%</item>

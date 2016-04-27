@@ -185,14 +185,14 @@
             android:id="@+id/bt_more"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:background="@drawable/znjj"
+            android:background="@drawable/more1"
             style="@style/style_bt_control" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             android:layout_below="@id/bt_more"
-            android:text="智能家居"
+            android:text="@string/more"
             style="@style/style_tv_control" />
     </com.layout.utils.PercentRelativeLayout>
     
