@@ -21,6 +21,9 @@ public class Constants {
 	public static String download_address = "http://resource.yydrobot.com/app/app.version";
 	public static String download_address_hk = "http://hk.resource.yydrobot.com/app/app.version";
 
+	//fota下载地址
+	public static String download_fota_address = "http://resource.yydrobot.com/app/robot.version";
+	public static String download_fota_address_hk = "http://hk.resource.yydrobot.com/app/robot.version";
 	// 任务添加操作请求码
 	public static int add_RequestCode = 888;
 

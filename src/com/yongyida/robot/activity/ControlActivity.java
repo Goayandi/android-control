@@ -149,7 +149,7 @@ public class ControlActivity extends CallActivity implements OnClickListener,
 		if (runningMode.equals("control")) {
 			localSurface.setVisibility(View.INVISIBLE);
 			audioManager.setMicrophoneMute(!audioManager.isMicrophoneMute());
-			findViewById(R.id.mictoggole).setVisibility(View.GONE);
+	//		findViewById(R.id.mictoggole).setVisibility(View.GONE);
 		} else {
 			audioManager.setMicrophoneMute(!audioManager.isMicrophoneMute());
 		}
@@ -607,6 +607,57 @@ public class ControlActivity extends CallActivity implements OnClickListener,
 		}
 	}
 
+	public void sendmsg(String mode, String touser) {
+		EMMessage msg = EMMessage.createSendMessage(Type.CMD);
+		msg.setReceipt(touser);
+		msg.setAttribute("mode", mode);
+		CmdMessageBody cmd = new CmdMessageBody(Constants.Video_Mode);
+		msg.addBody(cmd);
+		if (EMChatManager.getInstance().isConnected()) {
+			EMChatManager.getInstance().sendMessage(msg, mCallBack);
+		} else {
+			Log.e("ControlActivity","连接失败");
+			ToastUtil.showtomain(ControlActivity.this, getString(R.string.initialize_fail));
+			EMChatManager.getInstance().login(
+					getSharedPreferences("huanxin", MODE_PRIVATE)
+							.getString("username", null),
+					getSharedPreferences("huanxin", MODE_PRIVATE)
+							.getString("password", null),
+					new EMCallBack() {
+
+						@Override
+						public void onSuccess() {
+						}
+
+						@Override
+						public void onProgress(int arg0, String arg1) {
+						}
+
+						@Override
+						public void onError(int arg0, String arg1) {
+						}
+					});
+		}
+	}
+	
+	/**
+	 * 发送静音透传
+	 * @param mute
+	 */
+	private void sendMuteMsg(boolean mute){
+		EMMessage msg = EMMessage.createSendMessage(Type.CMD);
+		msg.setReceipt(username);
+		CmdMessageBody cmd = new CmdMessageBody("yongyida.robot.video.mute");
+		msg.setAttribute("mute", mute);
+		msg.addBody(cmd);
+		try {
+			EMChatManager.getInstance().sendMessage(msg);
+		} catch (EaseMobException e) {
+			Log.e("ControlActivity",e.getMessage());
+			e.printStackTrace();
+		}
+	}
+	
 	ProgressDialog progress = null;
 
 	/* (non-Javadoc)
@@ -618,40 +669,8 @@ public class ControlActivity extends CallActivity implements OnClickListener,
 		switch (v.getId()) {
 		case R.id.play:
 			if (!cameraHelper.isStarted()) {
-				oppositeSurface.setVisibility(View.VISIBLE);
-				if (runningMode.equals("control")) {
-					localSurface.setVisibility(View.INVISIBLE);
-				} else {
-					localSurface.setVisibility(View.VISIBLE);
-				}
-				if (index > 0) {
-					ToastUtil.showtomain(this, getString(R.string.dont_so_fast2));
-					return;
-				}
-				boolean wificheck = getSharedPreferences("setting",
-						MODE_PRIVATE).getBoolean("wificheck", true);
-				if (wificheck && !checknetwork()) {
-					ToastUtil.showtomain(this, getString(R.string.not_wifi));
-					return;
-				}
-				try {
-					// 拨打视频通话
-					if (EMChatManager.getInstance().isConnected()) {
-						EMChatManager.getInstance().makeVideoCall(username);
-						play.setBackgroundResource(R.drawable.zanting);
-						cameraHelper.setStartFlag(true);
-						if (!runningMode.equals("control")) {
-							// 通知cameraHelper可以写入数据
-							cameraHelper.startCapture();
-						}
-						Log.e("username", username);
-					} else {
-						huanxinLogin();
-					}
-				} catch (EMServiceNotReadyException e) {
-					Log.i("EMChatManager", "exception:"+e.getMessage());
-					huanxinLogin();
-				}
+				sendmsg(runningMode,getSharedPreferences("Receipt", MODE_PRIVATE).getString(
+						"username", null));
 			} else {
 				progress = new ProgressDialog(this);
 				progress.setMessage(getString(R.string.hang_uping));
@@ -861,17 +880,93 @@ public class ControlActivity extends CallActivity implements OnClickListener,
 		mDialog.setCancelable(true);
 	}
 
+	private boolean controlMute = true; //监控静音标识
+	
 	public void toggle_speak(View view) {
-		if (audioManager.isMicrophoneMute()) {
-			audioManager.setMicrophoneMute(false);
-			view.setBackgroundResource(R.drawable.icon_mute_normal);
+		if (runningMode.equals("control")) {
+			if (controlMute) {
+				sendMuteMsg(false);
+				view.setBackgroundResource(R.drawable.icon_mute_normal);
+			} else {
+				sendMuteMsg(true);
+				view.setBackgroundResource(R.drawable.icon_mute_on);
+			}
+			controlMute = !controlMute;
 		} else {
-			audioManager.setMicrophoneMute(true);
-			view.setBackgroundResource(R.drawable.icon_mute_on);
+			if (audioManager.isMicrophoneMute()) {
+				audioManager.setMicrophoneMute(false);
+				sendMuteMsg(false);
+				view.setBackgroundResource(R.drawable.icon_mute_normal);
+			} else {
+				audioManager.setMicrophoneMute(true);
+				sendMuteMsg(true);
+				view.setBackgroundResource(R.drawable.icon_mute_on);
+			}
 		}
 	}
 
 	
+	private EMCallBack mCallBack = new EMCallBack() {
+
+		@Override
+		public void onSuccess() {
+			runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					oppositeSurface.setVisibility(View.VISIBLE);
+					if (runningMode.equals("control")) {
+						localSurface.setVisibility(View.INVISIBLE);
+					} else {
+						localSurface.setVisibility(View.VISIBLE);
+					}
+					if (index > 0) {
+						ToastUtil.showtomain(ControlActivity.this, getString(R.string.dont_so_fast2));
+						return;
+					}
+					boolean wificheck = getSharedPreferences("setting",
+							MODE_PRIVATE).getBoolean("wificheck", true);
+					if (wificheck && !checknetwork()) {
+						ToastUtil.showtomain(ControlActivity.this, getString(R.string.not_wifi));
+						return;
+					}
+					try {
+						// 拨打视频通话
+						if (EMChatManager.getInstance().isConnected()) {
+							EMChatManager.getInstance().makeVideoCall(username);
+							play.setBackgroundResource(R.drawable.zanting);
+							cameraHelper.setStartFlag(true);
+							if (!runningMode.equals("control")) {
+								// 通知cameraHelper可以写入数据
+								cameraHelper.startCapture();
+							}
+							Log.e("username", username);
+						} else {
+							huanxinLogin();
+						}
+					} catch (EMServiceNotReadyException e) {
+						Log.i("EMChatManager", "exception:"+e.getMessage());
+						huanxinLogin();
+					}
+				}
+			});
+		}
+
+		@Override
+		public void onProgress(int arg0, String arg1) {
+		}
+
+		@Override
+		public void onError(int arg0, String arg1) {
+			Log.e("ControlActivity","error:" + arg1);
+			enHandler.post(new Runnable() {
+
+				@Override
+				public void run() {
+					ToastUtil.showtomain(ControlActivity.this, getString(R.string.initialize_fail));
+				}
+			});
+		}
+	};
 	
 	@Override
 	protected void onDestroy() {

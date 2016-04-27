@@ -107,6 +107,7 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_alignParentRight="true"
+        app:layout_marginRightPercent="2%"
         android:layout_below="@id/rl"
         style="@style/style_rl_control" >
 

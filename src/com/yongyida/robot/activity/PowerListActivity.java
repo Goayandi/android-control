@@ -180,13 +180,15 @@ public class PowerListActivity extends BaseActivity implements OnClickListener {
 			break;
 		case R.id.video_chat:
 			mMode = "chat";
-			sendmsg(mMode,getSharedPreferences("Receipt", MODE_PRIVATE).getString(
-					"username", null));
+			Bundle bundle1 = new Bundle();
+			bundle1.putString("mode", mMode);
+			StartUtil.startintent(PowerListActivity.this, ControlActivity.class, "no", bundle1);
 			break;
 		case R.id.video_monitor:
 			mMode = "control";
-			sendmsg(mMode, getSharedPreferences("Receipt", MODE_PRIVATE).getString(
-					"username", null));
+			Bundle bundle2 = new Bundle();
+			bundle2.putString("mode", mMode);
+			StartUtil.startintent(PowerListActivity.this, ControlActivity.class, "no", bundle2);
 			break;
 		case R.id.power_photo:
 		 	StartUtil.startintent(this, PhotoActivity.class, "no");

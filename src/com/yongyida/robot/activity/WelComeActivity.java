@@ -1,6 +1,9 @@
 package com.yongyida.robot.activity;
 
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.content.DialogInterface;
@@ -27,6 +30,7 @@ import org.json.JSONObject;
 
 public class WelComeActivity extends BaseActivity {
 	private String address;
+	private String fotaAddress;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -68,7 +72,77 @@ public class WelComeActivity extends BaseActivity {
 		//	ToastUtil.showtomain(WelComeActivity.this,msg.getData().getString("result"));
 			StartUtil.startintent(WelComeActivity.this, GuideActivity.class,
 					"finish");
+		} else if (msg.what == 2) {
+			ThreadPool.execute(new Runnable() {
+
+				@Override
+				public void run() {
+
+					try {
+
+						String version = XmlUtil.xml(
+								NetUtil.getinstance().downloadfile(
+										WelComeActivity.this,
+										address,
+										new callback() {
+
+											@Override
+											public void success(JSONObject json) {
+
+											}
+
+											@Override
+											public void error(String errorresult) {
+												HandlerUtil.sendmsg(handler,
+														errorresult, 1);
+											}
+										}), "xin");
+						PackageManager packageManager = getPackageManager();
+						PackageInfo info = packageManager.getPackageInfo(
+								getPackageName(), 0);
+						if (Double.parseDouble(version) > Double
+								.parseDouble(info.versionName)) {
+							handler.sendEmptyMessage(0);
+						} else {
+							startActivity(new Intent(WelComeActivity.this,
+									GuideActivity.class));
+							overridePendingTransition(android.R.anim.fade_in,
+									android.R.anim.fade_out);
+							finish();
+						}
+					} catch (NameNotFoundException e) {
+						e.printStackTrace();
+					}
+
+				}
+			});
+			/*ThreadPool.execute(new Runnable() {
+
+				@Override
+				public void run() {
+					String version = XmlUtil.xmlFota(
+							NetUtil.getinstance().downloadfile(
+									WelComeActivity.this,
+									address,
+									new callback() {
+
+										@Override
+										public void success(JSONObject json) {
+
+										}
+
+										@Override
+										public void error(String errorresult) {
+											HandlerUtil.sendmsg(handler,
+													errorresult, 1);
+										}
+									}), XmlUtil.Y50B, XmlUtil.YYD);
+					getSharedPreferences("Receipt", MODE_PRIVATE).edit().putString("fota", version).apply();
+
+				}
+			});*/
 		}
+		
 		super.onHandlerMessage(msg);
 	}
 
@@ -85,57 +159,19 @@ public class WelComeActivity extends BaseActivity {
 		String stateCode = getSharedPreferences("Receipt", MODE_PRIVATE).getString("state_code", null);
 		if (Constants.HK_CODE.equals(stateCode)) {
 			address = Constants.download_address_hk;
+			fotaAddress = Constants.download_fota_address_hk;
 		} else {
 			address = Constants.download_address;
+			fotaAddress = Constants.download_fota_address;
 		}
-		ThreadPool.execute(new Runnable() {
-
+		Timer timer = new Timer();
+		timer.schedule(new TimerTask() {
+			
 			@Override
 			public void run() {
-
-				try {
-
-					String version = XmlUtil.xml(
-							NetUtil.getinstance().downloadfile(
-									WelComeActivity.this,
-									address,
-									new callback() {
-
-										@Override
-										public void success(JSONObject json) {
-
-										}
-
-										@Override
-										public void error(String errorresult) {
-											HandlerUtil.sendmsg(handler,
-													errorresult, 1);
-										}
-									}), "xin");
-					PackageManager packageManager = getPackageManager();
-					PackageInfo info = packageManager.getPackageInfo(
-							getPackageName(), 0);
-					if (Double.parseDouble(version) > Double
-							.parseDouble(info.versionName)) {
-						handler.sendEmptyMessage(0);
-					} else {
-						try {
-							Thread.sleep(1000);
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
-						startActivity(new Intent(WelComeActivity.this,
-								GuideActivity.class));
-						overridePendingTransition(android.R.anim.fade_in,
-								android.R.anim.fade_out);
-						finish();
-					}
-				} catch (NameNotFoundException e) {
-					e.printStackTrace();
-				}
-
+				handler.sendEmptyMessage(2);
 			}
-		});
+		}, 1000);
 	}
 
 }

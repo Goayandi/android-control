@@ -57,4 +57,42 @@ public class XmlUtil {
 		Log.i("result", result);
 		return result;
 	}
+	
+	public final static String Y50B = "Y50B";
+	public final static String YYD = "yyd";
+	public final static String SHANTUKEJI = "shantukeji";
+	public final static String CMCC = "cmcc";
+	
+	public static String xmlFota(InputStream input, String code, String type) {
+		try {
+			XmlPullParser xmlPullParser = Xml.newPullParser();
+			xmlPullParser.setInput(input, "utf-8");
+			int eventtype = xmlPullParser.getEventType();
+			while (eventtype != XmlPullParser.END_DOCUMENT) {
+				switch (eventtype) {
+				case XmlPullParser.START_DOCUMENT:
+					break;
+				case XmlPullParser.START_TAG:
+					if (type.equals(Y50B)) {
+						if (xmlPullParser.getName().equals(code)) {
+							return xmlPullParser.nextText();
+						}
+					}
+					break;
+				case XmlPullParser.END_TAG:
+					break;
+				case XmlPullParser.END_DOCUMENT:
+					break;
+				default:
+					break;
+				}
+				eventtype = xmlPullParser.next();
+			}
+		} catch (XmlPullParserException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 }
