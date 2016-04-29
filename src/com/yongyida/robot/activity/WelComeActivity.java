@@ -14,6 +14,7 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
 import android.os.Message;
 import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
+import android.util.Log;
 import android.view.Menu;
 
 import com.yongyida.robot.R;
@@ -116,14 +117,14 @@ public class WelComeActivity extends BaseActivity {
 
 				}
 			});
-			/*ThreadPool.execute(new Runnable() {
+			ThreadPool.execute(new Runnable() {
 
 				@Override
 				public void run() {
 					String version = XmlUtil.xmlFota(
 							NetUtil.getinstance().downloadfile(
 									WelComeActivity.this,
-									address,
+									fotaAddress,
 									new callback() {
 
 										@Override
@@ -137,10 +138,11 @@ public class WelComeActivity extends BaseActivity {
 													errorresult, 1);
 										}
 									}), XmlUtil.Y50B, XmlUtil.YYD);
+					Log.i("WelComeActivity", "version:" + version);
 					getSharedPreferences("Receipt", MODE_PRIVATE).edit().putString("fota", version).apply();
 
 				}
-			});*/
+			});
 		}
 		
 		super.onHandlerMessage(msg);
