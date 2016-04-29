@@ -16,20 +16,25 @@ package com.yongyida.robot.huanxin;
 import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
+import android.util.Log;
 
 import com.easemob.EMCallBack;
 import com.google.code.microlog4android.Logger;
 import com.google.code.microlog4android.LoggerFactory;
 import com.google.code.microlog4android.config.PropertyConfigurator;
 import com.yongyida.robot.R;
+import com.yongyida.robot.activity.ConnectActivity;
 import com.yongyida.robot.service.SocketService;
 import com.yongyida.robot.utils.Constants;
 import com.yongyida.robot.utils.LogHelper;
 import com.yongyida.robot.utils.MyCrashHandler;
 import com.yongyida.robot.utils.NetUtil;
+import com.yongyida.robot.utils.Utils;
 
 public class DemoApplication extends Application {
 
+	private static final String TAG = "DemoApplication";
 	public static Context applicationContext;
 	private static DemoApplication instance;
 	// login user name
@@ -38,7 +43,7 @@ public class DemoApplication extends Application {
 			.getLogger(DemoApplication.class);
 
 	/**
-	 * 当前用户nickname,为了苹果推送不是userid而是昵称
+	 * 当前用户nickname,为了苹果推送不是userid而是昵称a
 	 */
 	public static String currentUserNick = "";
 	public static DemoHXSDKHelper hxSDKHelper = new DemoHXSDKHelper();

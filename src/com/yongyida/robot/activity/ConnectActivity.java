@@ -140,60 +140,57 @@ public class ConnectActivity extends BaseActivity implements
 	}
 
 	public void getrobotinfo() {
-		synchronized (this) {
 			ThreadPool.execute(new Runnable() {
-
 				@Override
 				public void run() {
-					Map<String, String> params = new HashMap<String, String>();
-					params.put("id", sharedPreferences.getInt("id", 0) + "");
-					params.put("session",
-							sharedPreferences.getString("session", null));
-					list_robots.clear();
-					if (list_robots.size() == 0) {
-						try {
-							NetUtil.getinstance().http("/robot/info", params,
-									new callback() {
-										@Override
-										public void success(JSONObject json) {
-											try {
-												if(Integer.parseInt(json.get("ret").toString()) < 0){
-													handler.sendEmptyMessage(7);
-													return;
+					synchronized (ConnectActivity.this) {
+						Map<String, String> params = new HashMap<String, String>();
+						params.put("id", sharedPreferences.getInt("id", 0) + "");
+						params.put("session",
+								sharedPreferences.getString("session", null));
+						list_robots.clear();
+						if (list_robots.size() == 0) {
+							try {
+								NetUtil.getinstance().http("/robot/info", params,
+										new callback() {
+											@Override
+											public void success(JSONObject json) {
+												try {
+													if (Integer.parseInt(json.get("ret").toString()) < 0) {
+														handler.sendEmptyMessage(7);
+														return;
+													}
+													Biz.adapter_robot(json,
+															list_robots);
+												} catch (JSONException e) {
+													// block
+													e.printStackTrace();
 												}
-												Biz.adapter_robot(json,
-														list_robots);
-											} catch (JSONException e) {
-												// block
-												e.printStackTrace();
+												time = System.currentTimeMillis();
+												handler.sendEmptyMessage(2);
 											}
-											time = System.currentTimeMillis();
-											handler.sendEmptyMessage(2);
-										}
 
-										@Override
-										public void error(String errorresult) {
-											Log.i("net", "e");
-											HandlerUtil.sendmsg(handler,
-													errorresult, 5);
-										}
-									}, ConnectActivity.this);
-						} catch (SocketTimeoutException e) {
-							if (refreshableView.isRefreshing()) {
-								refreshableView.setRefreshing(false);
+											@Override
+											public void error(String errorresult) {
+												Log.i("net", "e");
+												HandlerUtil.sendmsg(handler,
+														errorresult, 5);
+											}
+										}, ConnectActivity.this);
+							} catch (SocketTimeoutException e) {
+								if (refreshableView.isRefreshing()) {
+									refreshableView.setRefreshing(false);
+								}
+								HandlerUtil.sendmsg(handler, getString(R.string.request_timeout), 5);
+								e.printStackTrace();
 							}
-							HandlerUtil.sendmsg(handler, getString(R.string.request_timeout), 5);
-							e.printStackTrace();
+
 						}
-
 					}
-
 				}
 			});
-		}
 	}
 
-	//TODO
 	@Override
 	public void onHandlerMessage(Message msg) {
 		switch (msg.what) {

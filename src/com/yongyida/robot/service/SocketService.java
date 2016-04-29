@@ -683,24 +683,24 @@ public class SocketService extends Service {
 
     }
 
-    private void inbackground() {
+    /**
+     * 应用是否在后台运行
+     * @return
+     */
+    private boolean isInbackground() {
         ActivityManager activityManager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
         List<RunningAppProcessInfo> prs = activityManager
                 .getRunningAppProcesses();
         for (int i = 0; i < prs.size(); i++) {
             if (prs.get(i).equals(getPackageName())) {
-                pn = 0;
+                return true;
             }
         }
-        if (pn == 1) {
-            sendBroadcast(new Intent(Constants.Stop));
-            stopSelf();
-        }
+        return false;
     }
 
     static int flag = 0;
     String name = null;
-    int pn = 1;
 
     @Override
     public int onStartCommand(final Intent intent, int flags, int startId) {
@@ -760,8 +760,8 @@ public class SocketService extends Service {
         public void connectSuccess(final ChannelHandlerContext ctx,
                                    final ChannelStateEvent e) {
             setCtx(ctx);
-            NetUtil.loginSocket(getSharedPreferences("userinfo", MODE_PRIVATE).getInt("id",0),
-                    getSharedPreferences("userinfo", MODE_PRIVATE).getString("session",""),
+            NetUtil.loginSocket(getSharedPreferences("userinfo", MODE_PRIVATE).getInt("id", 0),
+                    getSharedPreferences("userinfo", MODE_PRIVATE).getString("session", ""),
                     ctx);
             time = new Timer();
             time.schedule(new TimerTask() {
@@ -786,7 +786,12 @@ public class SocketService extends Service {
 //            connectCloseIntent.putExtra("content", getString(R.string.connection_off));
 //            sendBroadcast(connectCloseIntent);
             if (!Constants.isUserClose) {
-                connectSocketByLanguage();
+                if (isInbackground()) {
+                    connectSocketByLanguage();
+                } else {
+                    Constants.isUserClose = false;
+                    stopSelf();
+                }
             } else {
                 Constants.isUserClose = false;
             }

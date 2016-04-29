@@ -6,7 +6,6 @@ import android.content.Intent;
 
 import com.easemob.chat.EMChatManager;
 import com.yongyida.robot.activity.ConnectActivity;
-import com.yongyida.robot.utils.Constants;
 import com.yongyida.robot.utils.ToastUtil;
 
 public class SocketErrorReceiver extends BroadcastReceiver {
@@ -14,7 +13,7 @@ public class SocketErrorReceiver extends BroadcastReceiver {
 	@Override
 	public void onReceive(Context context, Intent intent) {
 		if (intent.getAction().equals("socket_error")) {
-			context.sendBroadcast(new Intent(Constants.Stop));
+			//context.sendBroadcast(new Intent(Constants.Stop));
 			EMChatManager.getInstance().endCall();
 			ToastUtil.showtomain(context, intent.getStringExtra("content"));
 			context.startActivity(new Intent(context, ConnectActivity.class)

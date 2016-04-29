@@ -245,6 +245,7 @@ public class ControlActivity extends CallActivity implements OnClickListener,
 	};
 
 	public void sendmsg(String mode, String touser) {
+		sendmsg();
 		EMMessage msg = EMMessage.createSendMessage(Type.CMD);
 		msg.setReceipt(touser);
 		msg.setAttribute("mode", mode);
