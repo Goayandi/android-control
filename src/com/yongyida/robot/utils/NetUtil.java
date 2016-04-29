@@ -396,7 +396,7 @@ public class NetUtil {
 	public static void logoutSocket(int id, String session, ChannelHandlerContext handler){
 		String str = "{\"id\":\""     + id
 				+ "\",\"session\":\"" + session
-				+ "\",\"cmd\":\"/user/login\"}";
+				+ "\",\"cmd\":\"/user/logout\"}";
 		ChannelBuffer channelBuffer = new DynamicChannelBuffer(ByteOrder.BIG_ENDIAN,
 				12 + str.getBytes().length);
 		channelBuffer.writeByte((byte) 1);
@@ -429,9 +429,36 @@ public class NetUtil {
 		Channel channel = handler.getChannel();
 		channel.write(channelBuffer);
 	}
+
+	/**
+	 * FOTA升级
+	 * @param robotVersion
+	 * @param newVersion
+	 * @param handler
+	 */
+	public static void fotaUpdate(String robotVersion, String newVersion, ChannelHandlerContext handler) {
+		String str = "{\"cmd\":\"/robot/push\",\"command\":{\"cmd\":\"updateSystem\",\"robotVersion\":\""
+				+ robotVersion
+				+ "\",\"newVersion\":\""
+				+ newVersion
+				+ "\"}}";
+		ChannelBuffer channelBuffer = new DynamicChannelBuffer(ByteOrder.BIG_ENDIAN,
+				12 + str.getBytes().length);
+		channelBuffer.writeByte((byte) 1);
+		for (int i = 0; i < 7; i++) {
+			channelBuffer.writeByte((byte) 0);
+		}
+		channelBuffer.writeBytes(int2Byte(str.length()));
+		channelBuffer.writeBytes(str.getBytes());
+		Channel channel = handler.getChannel();
+		channel.write(channelBuffer);
+	}
+
 	// socket方法
 	public static void Scoket(JSONObject params, int flag, ChannelHandlerContext handler) {
-
+		if (params != null) {
+			Log.i("NetUtil", params.toString());
+		}
 		ChannelBuffer channelBuffer = null;
 		String str = null;
 		switch (flag) {

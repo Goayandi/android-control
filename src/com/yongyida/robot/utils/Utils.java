@@ -107,7 +107,7 @@ public class Utils {
      * @return
      */
     public static boolean isAccount(String account){
-        Pattern p = Pattern.compile("^[A-Z,a-z][A-Z,a-z,0-9]{5,19}$");
+        Pattern p = Pattern.compile("^[A-Z,a-z][A-Z,a-z,0-9,_]{5,19}$");
         Matcher m = p.matcher(account);
         return m.matches();
     }

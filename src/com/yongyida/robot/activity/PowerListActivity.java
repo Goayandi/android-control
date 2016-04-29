@@ -41,6 +41,7 @@ public class PowerListActivity extends BaseActivity implements OnClickListener {
 	private String mMode;
 	private Handler mHandler = new Handler();
 	private TextView mBattery;
+	private String mVersion;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -73,8 +74,21 @@ public class PowerListActivity extends BaseActivity implements OnClickListener {
 		power_task.setOnTouchListener(ontouch);
 		mBattery = ((TextView) findViewById(R.id.tv_battery));
 		int battery = getIntent().getExtras().getInt("battery");
+		mVersion = getIntent().getExtras().getString("version");
 		setBattery(battery);
 		BroadcastReceiverRegister.reg(PowerListActivity.this, new String[]{Constants.BATTERY}, mBatteryBR);
+	}
+
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		try {
+			if (mBatteryBR != null) {
+				unregisterReceiver(mBatteryBR);
+			}
+		} catch (IllegalArgumentException e) {
+			e.printStackTrace();
+		}
 	}
 
 	private BroadcastReceiver mBatteryBR = new BroadcastReceiver() {
@@ -205,8 +219,8 @@ public class PowerListActivity extends BaseActivity implements OnClickListener {
 
 		switch (v.getId()) {
 		case R.id.more:
-		//	ToastUtil.showtomain(this, getString(R.string.waitting));
-			startActivity(new Intent(this, MeetingTestActivity.class));
+			ToastUtil.showtomain(this, getString(R.string.waitting));
+		//	startActivity(new Intent(this, MeetingTestActivity.class));
 		//	startActivity(new Intent(PowerListActivity.this,FriendsActivity.class));
 			break;
 		case R.id.power_title:
@@ -229,6 +243,7 @@ public class PowerListActivity extends BaseActivity implements OnClickListener {
 		 	break;
 		case R.id.power_setting:
 			params.putString("flag", "main");
+			params.putString("version", mVersion);
 			StartUtil.startintent(this, SettingActivity.class, "no", params);
 			break;
 		case R.id.power_task:

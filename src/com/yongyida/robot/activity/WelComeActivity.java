@@ -30,6 +30,7 @@ import java.util.TimerTask;
 
 public class WelComeActivity extends BaseActivity {
 	private String address;
+	private String fotaAddress;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -115,6 +116,32 @@ public class WelComeActivity extends BaseActivity {
 
 				}
 			});
+
+			ThreadPool.execute(new Runnable() {
+
+				@Override
+				public void run() {
+					String version = XmlUtil.xmlFota(
+							NetUtil.getinstance().downloadfile(
+									WelComeActivity.this,
+									fotaAddress,
+									new callback() {
+
+										@Override
+										public void success(JSONObject json) {
+
+										}
+
+										@Override
+										public void error(String errorresult) {
+											HandlerUtil.sendmsg(handler,
+													errorresult, 1);
+										}
+									}), XmlUtil.Y50B, XmlUtil.YYD);
+					getSharedPreferences("Receipt", MODE_PRIVATE).edit().putString("fota", version).apply();
+
+				}
+			});
 		}
 		super.onHandlerMessage(msg);
 	}
@@ -132,8 +159,10 @@ public class WelComeActivity extends BaseActivity {
 		String stateCode = getSharedPreferences("Receipt", MODE_PRIVATE).getString("state_code", null);
 		if (Constants.HK_CODE.equals(stateCode)) {
 			address = Constants.download_address_hk;
+			fotaAddress = Constants.download_fota_address_hk;
 		} else {
 			address = Constants.download_address;
+			fotaAddress = Constants.download_fota_address;
 		}
 		Timer timer = new Timer();
 		timer.schedule(new TimerTask() {

@@ -45,6 +45,8 @@ public class SettingActivity<AndroidLearn> extends BaseActivity implements
 	private TextView versionname;
 	private TextView contact;
 	private TextView upgrade;
+	private String versionRobot;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -121,7 +123,10 @@ public class SettingActivity<AndroidLearn> extends BaseActivity implements
 			StartUtil.startintent(this, AboutActivity.class, "no");
 			break;
 		case R.id.upgrade:
-	//		upgrade.setText("升级");
+			Intent intent = new Intent(Constants.FOTA_UPDATE);
+			intent.putExtra("robotVersion", versionRobot);
+			intent.putExtra("newVersion", getSharedPreferences("Receipt", MODE_PRIVATE).getString("fota", ""));
+			sendBroadcast(intent);
 			break;
 		case R.id.contact:
 			AlertDialog.Builder dialog = new AlertDialog.Builder(SettingActivity.this);  
@@ -261,6 +266,14 @@ public class SettingActivity<AndroidLearn> extends BaseActivity implements
 			(findViewById(R.id.robot_name)).setVisibility(View.VISIBLE);
 			robotname.setText(getSharedPreferences("robotname", MODE_PRIVATE)
 					.getString("name", null));
+			versionRobot = getIntent().getStringExtra("version");
+			String versionNew = getSharedPreferences("Receipt", MODE_PRIVATE).getString("fota", "");
+			if (!"".equals(versionNew)) {
+				if (!versionRobot.equals(versionNew)) {
+					upgrade.setTextColor(getResources().getColor(R.color.red));
+					upgrade.setOnClickListener(this);
+				}
+			}
 		} else {
 			(findViewById(R.id.robot_name)).setVisibility(View.GONE);
 		}

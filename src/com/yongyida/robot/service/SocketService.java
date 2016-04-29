@@ -12,6 +12,7 @@ import android.graphics.Matrix;
 import android.net.ConnectivityManager;
 import android.os.Environment;
 import android.os.IBinder;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.yongyida.robot.R;
@@ -72,7 +73,7 @@ public class SocketService extends Service {
 
     @Override
     public void onCreate() {
-        Log.i("SocketService","onCreate");
+        Log.i("SocketService", "onCreate");
         /**
          * socket Error 广播
          */
@@ -123,6 +124,10 @@ public class SocketService extends Service {
         /* 退出socket登录 */
         BroadcastReceiverRegister.reg(this,
                 new String[]{Constants.Socket_Logout}, socketLogout);
+
+        /* Fota升级 */
+        BroadcastReceiverRegister.reg(this,
+                new String[]{Constants.FOTA_UPDATE}, mFotaUpdateBR);
 
         /**
          * Y20广播
@@ -254,7 +259,9 @@ public class SocketService extends Service {
         }
 
         if (o instanceof JSONObject) {
-            Log.i("Message", e.getMessage().toString());
+            if (!TextUtils.isEmpty(e.getMessage().toString())) {
+                Log.i("Message", e.getMessage().toString());
+            }
             try {
                 Result = (JSONObject) o;
                 callback = Result.getString("cmd");
@@ -321,6 +328,10 @@ public class SocketService extends Service {
                     switch (ret) {
                         case 0:
                             flag = 1;
+                            String robot = Result.getString("Robot");
+                            JSONObject jsonObject = new JSONObject(robot);
+                            String version = jsonObject.getString("version");
+                            in.putExtra("version", version);
                             in.putExtra("ret", 0);
                             Constants.flag = true;
                             break;
@@ -353,8 +364,9 @@ public class SocketService extends Service {
                             the = true;
                             break;
                         case 7:
-                            in.putExtra("ret", 6);
+                            in.putExtra("ret", 7);
                             the = true;
+                        //    sendBroadcast(new Intent(Constants.SESSION_ERROR));
                             break;
                         default:
                             the = true;
@@ -536,6 +548,15 @@ public class SocketService extends Service {
             NetUtil.logoutSocket(getSharedPreferences("userinfo", MODE_PRIVATE).getInt("id",0),
                     getSharedPreferences("userinfo", MODE_PRIVATE).getString("session",""),
                     ctx);
+        }
+    };
+
+    BroadcastReceiver mFotaUpdateBR = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String robotVersion = intent.getStringExtra("robotVersion");
+            String newVersion = intent.getStringExtra("newVersion");
+            NetUtil.fotaUpdate(robotVersion, newVersion, ctx);
         }
     };
 
@@ -768,7 +789,6 @@ public class SocketService extends Service {
                 connectSocketByLanguage();
             } else {
                 Constants.isUserClose = false;
-
             }
             Log.i("Connect", "connectClose");
         }

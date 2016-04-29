@@ -178,11 +178,11 @@ public class RegisterLoginFragment extends BaseFragment implements View.OnClickL
             return;
         }
         if (!Utils.isAccount(account)) {
-            ToastUtil.showtomain(getActivity(), "账号请输入6-20位数字,字母或下划线(必须以字母开头)");
+            Toast.makeText(getActivity(), "账号请输入6-20位数字,字母或下划线(必须以字母开头)", Toast.LENGTH_LONG).show();
             return;
         }
         if (!Utils.isPassword(password)) {
-            ToastUtil.showtomain(getActivity(), "密码请输入6-20位数字,字母或下划线");
+            Toast.makeText(getActivity(), "密码请输入6-20位数字,字母或下划线", Toast.LENGTH_LONG).show();
             return;
         }
 

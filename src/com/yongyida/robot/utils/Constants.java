@@ -21,6 +21,10 @@ public class Constants {
 	public static String download_address = "http://resource.yydrobot.com/app/app.version";
 	public static String download_address_hk = "http://hk.resource.yydrobot.com/app/app.version";
 
+	//fota下载地址
+	public static String download_fota_address = "http://resource.yydrobot.com/robot/robot.version";
+	public static String download_fota_address_hk = "http://hk.resource.yydrobot.com/robot/robot.version";
+
 	// 任务添加操作请求码
 	public static int add_RequestCode = 888;
 
@@ -192,6 +196,10 @@ public class Constants {
 	public static final String LOGIN_METHOD = "method";
 
 	public static final String UPLOAD = "/upload/applog";
+
+	public static final String FOTA_UPDATE = "fota_update";
+
+	public static final String SESSION_ERROR = "session_error";
 
 	public interface Role{
 		String Robot = "Robot";

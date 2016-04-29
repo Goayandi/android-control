@@ -46,6 +46,7 @@ import com.yongyida.robot.utils.NetUtil.callback;
 import com.yongyida.robot.utils.StartUtil;
 import com.yongyida.robot.utils.ThreadPool;
 import com.yongyida.robot.utils.ToastUtil;
+import com.yongyida.robot.utils.Utils;
 import com.yongyida.robot.widget.RobotDialog;
 
 import org.json.JSONException;
@@ -248,6 +249,11 @@ public class ConnectActivity extends BaseActivity implements
 	private void backlogin(String content) {
 		ToastUtil.showtomain(ConnectActivity.this, content);
 		getSharedPreferences("userinfo", MODE_PRIVATE).edit().clear().commit();
+		getSharedPreferences("huanxin", MODE_PRIVATE).edit().clear().commit();
+		if (Utils.isServiceRunning(ConnectActivity.this, SocketService.class.getSimpleName())) {
+			Constants.isUserClose = true;
+			stopService(new Intent(ConnectActivity.this, SocketService.class));
+		}
 		StartUtil.startintent(ConnectActivity.this, NewLoginActivity.class,
 				"finish");
 	}
@@ -316,32 +322,37 @@ public class ConnectActivity extends BaseActivity implements
 				unregisterReceiver(bro);
 				switch (intent.getIntExtra("ret", 0)) {
 					case 0:
-					Bundle params = new Bundle();
-					params.putInt("battery", mBattery);
-					StartUtil.startintent(ConnectActivity.this, PowerListActivity.class, "no", params);
-					break;
-				case -1:
-					handler.sendEmptyMessage(4);
-					break;
-				case -5:
-					break;
-				case 1:
-					handler.sendEmptyMessage(7);
-					break;
-				case 2:
-					handler.sendEmptyMessage(8);
-					break;
-				case 3:
-					handler.sendEmptyMessage(8);
-					break;
-				case 4:
-					break;
-				case 5:
-					handler.sendEmptyMessage(6);
-					break;
-				case 6:
-					handler.sendEmptyMessage(9);
-					break;
+						Bundle params = new Bundle();
+						params.putString("version", intent.getStringExtra("version"));
+						params.putInt("battery", mBattery);
+						StartUtil.startintent(ConnectActivity.this, PowerListActivity.class, "no", params);
+						break;
+					case -1:
+						handler.sendEmptyMessage(4);
+						break;
+					case -5:
+						break;
+					case 1:
+						handler.sendEmptyMessage(1);
+						break;
+					case 2:
+						handler.sendEmptyMessage(9);
+						break;
+					case 3:
+						handler.sendEmptyMessage(9);
+						break;
+					case 4:
+						handler.sendEmptyMessage(6);
+						break;
+					case 5:
+						handler.sendEmptyMessage(12);
+						break;
+					case 6:
+						handler.sendEmptyMessage(7);
+						break;
+					case 7:
+						handler.sendEmptyMessage(8);
+						break;
 
 				default:
 					break;

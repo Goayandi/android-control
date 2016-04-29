@@ -178,11 +178,11 @@ public class RegisterActivity extends Activity implements OnClickListener{
             return;
         }
         if (!Utils.isAccount(account)) {
-            ToastUtil.showtomain(RegisterActivity.this, "账号请输入6-20位数字,字母或下划线(必须以字母开头)");
+            Toast.makeText(RegisterActivity.this, "账号请输入6-20位数字,字母或下划线(必须以字母开头)", Toast.LENGTH_LONG).show();
             return;
         }
         if (!Utils.isPassword(password)) {
-            ToastUtil.showtomain(RegisterActivity.this, "密码请输入6-20位数字,字母或下划线");
+            Toast.makeText(RegisterActivity.this, "密码请输入6-20位数字,字母或下划线", Toast.LENGTH_LONG).show();
             return;
         }
         register(account, password, verifyCode);
