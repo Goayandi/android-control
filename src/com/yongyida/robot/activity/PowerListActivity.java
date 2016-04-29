@@ -219,7 +219,8 @@ public class PowerListActivity extends BaseActivity implements OnClickListener {
 
 		switch (v.getId()) {
 		case R.id.more:
-			ToastUtil.showtomain(this, getString(R.string.waitting));
+			startActivity(new Intent(this, ShantuEntranceActivity.class));
+		//	ToastUtil.showtomain(this, getString(R.string.waitting));
 		//	startActivity(new Intent(this, MeetingTestActivity.class));
 		//	startActivity(new Intent(PowerListActivity.this,FriendsActivity.class));
 			break;

@@ -101,6 +101,7 @@
     <orderEntry type="library" exported="" name="yydrobotvideosdk" level="project" />
     <orderEntry type="library" exported="" name="umeng-analytics-v5.2.4" level="project" />
     <orderEntry type="library" exported="" name="org.apache.http.legacy" level="project" />
+    <orderEntry type="library" exported="" name="junit-4.12" level="project" />
     <orderEntry type="library" exported="" name="Sunflower" level="project" />
     <orderEntry type="library" exported="" name="servlet-api" level="project" />
   </component>

@@ -1,6 +1,5 @@
 package com.yongyida.robot.activity;
 
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
@@ -94,16 +93,7 @@ public class NewLoginActivity extends FragmentActivity implements OnCheckedChang
 
     private void initFragment() {
 
-        SharedPreferences sharedPreferences = getSharedPreferences("login",
-                MODE_PRIVATE);
-        int method = sharedPreferences.getInt(Constants.LOGIN_METHOD, -1); //登录方式 1是短信，2是账号
-        if (method == Constants.ACCOUNT_LOGIN) {
-            switchFragment(Constants.ACCOUNT_LOGIN);
-            setRadioButtonColor(Constants.ACCOUNT_LOGIN);
-        } else {
-            switchFragment(Constants.SMS_LOGIN);
-            setRadioButtonColor(Constants.SMS_LOGIN);
-        }
+        switchFragment(Constants.SMS_LOGIN);
     }
 
     /**

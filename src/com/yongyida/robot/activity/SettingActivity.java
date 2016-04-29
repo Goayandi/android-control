@@ -10,7 +10,6 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.view.Menu;
@@ -27,7 +26,6 @@ import com.yongyida.robot.huanxin.DemoHXSDKHelper;
 import com.yongyida.robot.service.SocketService;
 import com.yongyida.robot.utils.BroadcastReceiverRegister;
 import com.yongyida.robot.utils.Constants;
-import com.yongyida.robot.utils.StartUtil;
 import com.yongyida.robot.utils.ThreadPool;
 import com.yongyida.robot.utils.ToastUtil;
 import com.yongyida.robot.widget.SwitchButton;
@@ -120,33 +118,14 @@ public class SettingActivity<AndroidLearn> extends BaseActivity implements
 //			startActivity(intent);
 			break;
 		case R.id.about:
-			StartUtil.startintent(this, AboutActivity.class, "no");
+			showHintDialog();
+		//	StartUtil.startintent(this, AboutActivity.class, "no");
 			break;
 		case R.id.upgrade:
 			Intent intent = new Intent(Constants.FOTA_UPDATE);
 			intent.putExtra("robotVersion", versionRobot);
 			intent.putExtra("newVersion", getSharedPreferences("Receipt", MODE_PRIVATE).getString("fota", ""));
 			sendBroadcast(intent);
-			break;
-		case R.id.contact:
-			AlertDialog.Builder dialog = new AlertDialog.Builder(SettingActivity.this);  
-//          dialog.setIcon(R.drawable.ic_launcher);//窗口头图标  
-            dialog.setTitle(R.string.reminder);//窗口名
-            dialog.setMessage(R.string.service_number);
-            dialog.setPositiveButton(R.string.confirm,new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int which) {  
-                    // TODO Auto-generated method stub  
-                	Intent intent = new Intent(Intent.ACTION_CALL,Uri.parse("tel:400-9696488"));  
-                    startActivity(intent); 
-                }  
-            });  
-            dialog.setNegativeButton(getString(R.string.cancel),new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int which) {  
-                    // TODO Auto-generated method stub  
-                      
-                }  
-            });
-            dialog.show();
 			break;
 		case R.id.editname:
 			if (edit.getText().toString().equals(getString(R.string.edit))) {
@@ -169,6 +148,17 @@ public class SettingActivity<AndroidLearn> extends BaseActivity implements
 
 			break;
 		}
+	}
+
+	private void showHintDialog(){
+		AlertDialog.Builder dialog = new AlertDialog.Builder(SettingActivity.this);
+		dialog.setMessage("山土科技（上海）有限公司\n联系方式：021-61260511");
+		dialog.setPositiveButton("确认",new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int which) {
+				dialog.dismiss();
+			}
+		});
+		dialog.show();
 	}
 
 	BroadcastReceiver flush = new BroadcastReceiver() {
@@ -216,8 +206,6 @@ public class SettingActivity<AndroidLearn> extends BaseActivity implements
 		}
 		upgrade=(TextView)findViewById(R.id.upgrade);
 		upgrade.setOnClickListener(this);
-		contact=(TextView)findViewById(R.id.contact);
-		contact.setOnClickListener(this);
 		about = (TextView) findViewById(R.id.about);
 		about.setOnClickListener(this);
 		wifi = (SwitchButton) findViewById(R.id.wifisetting);

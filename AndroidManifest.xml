@@ -274,6 +274,10 @@
             android:name="com.yongyida.robot.activity.RegisterActivity"
             android:screenOrientation="portrait">
         </activity>
+        <activity
+            android:name="com.yongyida.robot.activity.ShantuEntranceActivity"
+            android:screenOrientation="portrait" >
+        </activity>
     </application>
 
 </manifest>
