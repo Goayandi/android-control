@@ -219,7 +219,7 @@ public class SettingActivity<AndroidLearn> extends BaseActivity implements
 		robotname = (EditText) findViewById(R.id.robotname);
 		String username = getSharedPreferences("userinfo", MODE_PRIVATE)
 				.getString("phonenumber", null);
-		if (!username.equals(null)) {
+		if (username != null) {
 			userid.setText(username);
 		}
 		SharedPreferences sharedPreferences = getSharedPreferences("setting", 0);
