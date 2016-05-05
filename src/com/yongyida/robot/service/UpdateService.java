@@ -10,6 +10,7 @@ import android.os.Handler;
 import android.os.IBinder;
 
 import com.yongyida.robot.R;
+import com.yongyida.robot.utils.Constants;
 import com.yongyida.robot.utils.NetUtil;
 import com.yongyida.robot.utils.NetUtil.callback;
 import com.yongyida.robot.utils.ThreadPool;
@@ -71,7 +72,7 @@ public class UpdateService extends Service {
 					String url = XmlUtil.xml(
 							NetUtil.getinstance().downloadfile(
 									UpdateService.this,
-									getString(R.string.version_url),
+									Constants.download_address,
 									new callback() {
 
 										@Override

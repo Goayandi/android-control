@@ -149,7 +149,7 @@ public class ControlActivity extends CallActivity implements OnClickListener,
 		if (runningMode.equals("control")) {
 			localSurface.setVisibility(View.INVISIBLE);
 			audioManager.setMicrophoneMute(!audioManager.isMicrophoneMute());
-	//		findViewById(R.id.mictoggole).setVisibility(View.GONE);
+			findViewById(R.id.mictoggole).setVisibility(View.GONE);
 		} else {
 			audioManager.setMicrophoneMute(!audioManager.isMicrophoneMute());
 		}

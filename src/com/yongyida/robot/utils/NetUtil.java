@@ -31,6 +31,8 @@ import java.util.Map;
 
 public class NetUtil {
 
+	private static final String TAG = "NetUtil";
+
 	public NetUtil() {
 		super();
 		httputil = this;
