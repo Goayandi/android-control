@@ -55,7 +55,6 @@ public class NetUtil {
 			address = Constants.address;
 		}
 		try {
-
 			Http http = new Http(address + url);
 			http.setRequestProperty("Content-Type", "text/plain;charset=utf-8;");
 			http.setCharset("utf-8");

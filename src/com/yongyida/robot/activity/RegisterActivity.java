@@ -64,10 +64,14 @@ public class RegisterActivity extends Activity implements OnClickListener{
                 case 1:
                     Bitmap bitmap = msg.getData().getParcelable("bitmap");
                     mVerifyCodeIV.setImageBitmap(bitmap);
+                    mVerifyCodeIV.setEnabled(true);
                     break;
                 case 2:
                     ToastUtil.showtomain(RegisterActivity.this,
                             msg.getData().getString("result"));
+                    break;
+                case 3:
+                    mVerifyCodeIV.setEnabled(true);
                     break;
             }
         }
@@ -110,6 +114,7 @@ public class RegisterActivity extends Activity implements OnClickListener{
     }
 
     private void getPicture() {
+        mVerifyCodeIV.setEnabled(false);
         ThreadPool.execute(new Runnable() {
             @Override
             public void run() {
@@ -123,6 +128,7 @@ public class RegisterActivity extends Activity implements OnClickListener{
                     mHandler.sendMessage(msg);
                 } catch (Exception e) {
                     e.printStackTrace();
+                    mHandler.sendEmptyMessage(3);
                 }
             }
         });
@@ -178,11 +184,11 @@ public class RegisterActivity extends Activity implements OnClickListener{
             return;
         }
         if (!Utils.isAccount(account)) {
-            Toast.makeText(RegisterActivity.this, "账号请输入6-20位数字,字母或下划线(必须以字母开头)", Toast.LENGTH_LONG).show();
+            Toast.makeText(RegisterActivity.this, "账号请输入6-20位数字,字母(必须以字母开头)", Toast.LENGTH_LONG).show();
             return;
         }
         if (!Utils.isPassword(password)) {
-            Toast.makeText(RegisterActivity.this, "密码请输入6-20位数字,字母或下划线", Toast.LENGTH_LONG).show();
+            Toast.makeText(RegisterActivity.this, "密码请输入6-20位数字,字母", Toast.LENGTH_LONG).show();
             return;
         }
         register(account, password, verifyCode);
@@ -241,7 +247,8 @@ public class RegisterActivity extends Activity implements OnClickListener{
                                         HandlerUtil.sendmsg(mHandler, "传入参数为空", 2);
                                         break;
                                     case 1:
-                                        HandlerUtil.sendmsg(mHandler, "验证码数值错误", 2);
+                                        HandlerUtil.sendmsg(mHandler, "验证码已过期", 2);
+                                        getPicture();
                                         break;
                                     case 2:
                                         HandlerUtil.sendmsg(mHandler, "账号已经存在", 2);

@@ -37,7 +37,9 @@ import com.yongyida.robot.video.av.TransferDataType;
 import com.yongyida.robot.video.av.TransferType;
 import com.yongyida.robot.video.av.VideoSizeType;
 import com.yongyida.robot.video.sdk.Role;
+import com.yongyida.robot.video.sdk.User;
 import com.yongyida.robot.video.sdk.YYDSDKHelper;
+import com.yongyida.robot.video.sdk.YYDVideoServer;
 
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.channel.ChannelHandlerContext;
@@ -190,7 +192,13 @@ public class SocketService extends Service {
                     String mediaTcpIp = Result.getString("media_tcp_ip");
                     int mediaTcpPort = Result.getInt("media_tcp_port");
                     int roomId = Result.getInt("room_id");
+                    Log.i("Message", "ret:" + ret);
+                    Log.i("Message", "mediaTcpIp:" + mediaTcpIp);
+                    Log.i("Message", "mediaTcpPort:" + mediaTcpPort);
+                    Log.i("Message", "roomId:" + roomId);
                     Intent intent = new Intent(Constants.CONNECTION_REQUEST);
+                    intent.putExtra(Constants.MediaTcpIp, mediaTcpIp);
+                    intent.putExtra(Constants.MediaTcpPort, mediaTcpPort);
                     intent.putExtra(Constants.RoomID, roomId);
                     sendBroadcast(intent);
                 } else if (Constants.CMD_MEDIA_CANCEL.equals(cmd)) {
@@ -201,9 +209,13 @@ public class SocketService extends Service {
                     String mediaTcpIp = Result.getString("media_tcp_ip");
                     int mediaTcpPort = Result.getInt("media_tcp_port");
                     int roomId = Result.getInt("room_id");
+                    Log.i("Message", "ret:" + ret);
+                    Log.i("Message", "mediaTcpIp:" + mediaTcpIp);
+                    Log.i("Message", "mediaTcpPort:" + mediaTcpPort);
+                    Log.i("Message", "roomId:" + roomId);
                     Intent intent = new Intent(Constants.Replay_Response);
-                    intent.putExtra("media_tcp_ip", mediaTcpIp);
-                    intent.putExtra("mediaTcpPort", mediaTcpPort);
+                    intent.putExtra(Constants.MediaTcpIp, mediaTcpIp);
+                    intent.putExtra(Constants.MediaTcpPort, mediaTcpPort);
                     intent.putExtra(Constants.RoomID, roomId);
                     sendBroadcast(intent);
                 } else if (Constants.CMD_MEDIA_LOGIN.equals(cmd)) {
@@ -309,9 +321,11 @@ public class SocketService extends Service {
                         JSONObject jsonObject = new JSONObject(
                                 Result.getString("Robot"));
                         int battery = jsonObject.getInt("battery");
+                        String rname = jsonObject.getString("rname");
                         Intent intent = new Intent(Constants.BATTERY);
                         intent.putExtra("ret", ret);
                         intent.putExtra("battery", battery);
+                        intent.putExtra("rname", rname);
                         sendBroadcast(intent);
                     } else {
                         sendBroadcast(new Intent("flush").putExtra("ret", ret));
@@ -574,6 +588,8 @@ public class SocketService extends Service {
         public void onReceive(Context context, Intent intent) {
             final int id = getSharedPreferences("userinfo", MODE_PRIVATE).getInt("id", 0);
             final int roomId = intent.getIntExtra(Constants.RoomID, -1);
+            final String ip = intent.getStringExtra(Constants.MediaTcpIp);
+            final int port = intent.getIntExtra(Constants.MediaTcpPort, -1);
             connectVideoSocket(new SocketListener() {
                 @Override
                 public void connectFail() {
@@ -626,7 +642,28 @@ public class SocketService extends Service {
                             MeetingVideoDecoder.Result2 result = ((MeetingVideoDecoder.Result2) o);
                             String cmd = result.json.getString("cmd");
                             if (Constants.CMD_MEDIA_LOGIN.equals(cmd)) {
-                                sendBroadcast(new Intent(Constants.LOGIN_VIDEO_ROOM_RESPONSE));
+                                String userMedia = result.json.getString("UserMedia");
+                                JSONObject jsonObject = new JSONObject(userMedia);
+                                String send_host = jsonObject.getString("send_host");
+                                int send_port = jsonObject.getInt("send_port");
+                                String userMedias = result.json.getString("UserMedias");
+                                JSONArray jsonArray = new JSONArray(userMedias);
+                                Log.e("Message", "length:" + jsonArray.length());
+                                if (jsonArray.length() > 0) {
+                                    for (int i = 0; i < jsonArray.length(); i++) {
+                                        long id1 = jsonArray.getJSONObject(i).getLong("id");
+                                        String role1 = jsonArray.getJSONObject(i).getString("role");
+                                        String nickName1 = jsonArray.getJSONObject(i).getString("nikename");
+                                        if (id1 != YYDSDKHelper.getInstance().getUser().getId()
+                                                || !role1.equalsIgnoreCase(YYDSDKHelper.getInstance().getUser().getRole())) {
+                                            YYDVideoServer.getInstance().getMeetingInfo().addUser(new User(role1, id, nickName1));
+                                        }
+                                    }
+                                }
+                                Intent intent = new Intent(Constants.LOGIN_VIDEO_ROOM_RESPONSE);
+                                intent.putExtra("send_host", send_host);
+                                intent.putExtra("send_port", send_port);
+                                sendBroadcast(intent);
                             }
                         }
                     } catch (JSONException e1) {
@@ -639,7 +676,7 @@ public class SocketService extends Service {
                 public void connectClose(ChannelHandlerContext ctx, ChannelStateEvent e) {
 
                 }
-            }, "120.24.242.163", "8003");
+            }, ip, port + "");
 
         }
     };
@@ -741,7 +778,7 @@ public class SocketService extends Service {
         @Override
         public void writeData(final ChannelHandlerContext handler,
                               final MessageEvent event) {
-            Object message = event.getMessage();
+             Object message = event.getMessage();
             ChannelBuffer buffer;
             if (message instanceof ChannelBuffer) {
                 buffer = ((ChannelBuffer) message);
@@ -802,7 +839,7 @@ public class SocketService extends Service {
         YYDSDKHelper.getInstance().init(this);
         YYDSDKHelper.getInstance().setRole(Role.User);
         Config.init(this);
-        Config.setTransferDataType(TransferDataType.AUDIOVIDEO);
+        Config.setTransferDataType(TransferDataType.VIDEO);
         Config.setTransferType(TransferType.RTPOVERUDP);
         Config.setEncoderType(EncoderType.HARD_ENCODER);
         Config.setVideoSizeType(VideoSizeType.SIZE_320X240);

@@ -32,6 +32,9 @@ public class MeetingTestActivity extends BaseVideoActivity implements OnClickLis
     public static final String TAG = "MeetingTestActivity";
     private EditText mEditUserId;
     private EditText mEditInviteeUserId;
+    private String mIp;
+    private int mPort;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         log.d(TAG, "onCreate()");
@@ -61,46 +64,90 @@ public class MeetingTestActivity extends BaseVideoActivity implements OnClickLis
     BroadcastReceiver mLoginVideoRoomResponseBR = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, final Intent intent) {
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    User user = new User("User", 100227);
-                    YYDSDKHelper.getInstance().setUser(user);
-                    YYDVideoServer.getInstance().getMeetingInfo().setVideoServer_Tcp(
-                            mRoomId,
-                            "120.24.242.163",
-                            8003);
-                    YYDVideoServer.getInstance().getMeetingInfo().setOwner("User", 100227, "111");
-                    YYDVideoServer.getInstance().connect("120.24.242.163", 8003);
-                    YYDVideoServer.getInstance().enterRoom(new CmdCallBacker() {
-                        @Override
-                        public void onSuccess(Object o) {
-                            Log.i(TAG, "success");
-                            Intent i = new Intent(MeetingTestActivity.this, ActivityMeeting.class);
-                            i.putExtra("EnableSend", true);
-                            i.putExtra("EnableRecv", true);
-                            startActivity(i);
-                            finish();
-                        }
+//            new Thread(new Runnable() {
+//                @Override
+//                public void run() {
+//                    User user = new User("User", 100227);
+//                    YYDSDKHelper.getInstance().setUser(user);
+//                    YYDVideoServer.getInstance().getMeetingInfo().setVideoServer_Tcp(
+//                            mRoomId,
+//                            "120.24.242.163",
+//                            8003);
+//                    YYDVideoServer.getInstance().getMeetingInfo().setOwner("User", 100227, "111");
+//                    YYDVideoServer.getInstance().connect("120.24.242.163", 8003);
+//                    YYDVideoServer.getInstance().enterRoom(new CmdCallBacker() {
+//                        @Override
+//                        public void onSuccess(Object o) {
+//                            Log.i(TAG, "success");
+//                            Intent i = new Intent(MeetingTestActivity.this, ActivityMeeting.class);
+//                            i.putExtra("EnableSend", true);
+//                            i.putExtra("EnableRecv", true);
+//                            startActivity(i);
+//                            finish();
+//                        }
+//
+//                        @Override
+//                        public void onFailed(int i) {
+//                            Log.i(TAG, "fail" + i);
+//                        }
+//                    });
 
-                        @Override
-                        public void onFailed(int i) {
-                            Log.i(TAG, "fail" + i);
-                        }
-                    });
-                }
-            }).start();
-
+//                    YYDVideoServer.getInstance().getMeetingInfo().setVideoServer_Udp(resp.getVideoServer(), resp.getVideoPort());
+//                    YYDVideoServer.getInstance().getMeetingInfo().setAtRooming(true);
+//
+//                    // 保存房间已有用户
+//                    for (RoomUser ru : resp.getRoomUsers()) {
+//                        //排除自己
+//                        if (ru.Id != YYDSDKHelper.getInstance().getUser().getId()
+//                                || !ru.Role.equalsIgnoreCase(YYDSDKHelper.getInstance().getUser().getRole())) {
+//                            mMeetingInfo.addUser(new User(ru.Role, ru.Id, ru.NickName));
+//                        }
+//                    }
+//
+//
+//                }
+//            }).start();
+            String send_host = intent.getStringExtra("send_host");
+            int send_port = intent.getIntExtra("send_port", -1);
+            YYDVideoServer.getInstance().getMeetingInfo().setVideoServer_Udp(send_host, send_port);
+            YYDVideoServer.getInstance().getMeetingInfo().setAtRooming(true);
+            Intent i = new Intent(MeetingTestActivity.this, ActivityMeeting.class);
+            i.putExtra("EnableSend", true);
+            i.putExtra("EnableRecv", true);
+            startActivity(i);
+            finish();
         }
     };
     private int mRoomId;
     BroadcastReceiver mConnectionResponseBR = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Intent itt = new Intent(Constants.LOGIN_VIDEO_ROOM);
             mRoomId = intent.getIntExtra(Constants.RoomID, -1);
-            itt.putExtra(Constants.RoomID, mRoomId);
-            sendBroadcast(itt);
+            mIp = intent.getStringExtra(Constants.MediaTcpIp);
+            mPort = intent.getIntExtra(Constants.MediaTcpPort, -1);
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    User user = new User("User", 100069);
+                //    User user = new User("User", 100227);
+                    YYDSDKHelper.getInstance().setUser(user);
+                    YYDVideoServer.getInstance().getMeetingInfo().setOwner("User", 100227, "111");
+                    YYDVideoServer.getInstance().getMeetingInfo().setVideoServer_Tcp(
+                            mRoomId,
+                            mIp,
+                            mPort);
+                    YYDVideoServer.getInstance().connect(
+                            mIp,
+                            mPort);
+                    Intent itt = new Intent(Constants.LOGIN_VIDEO_ROOM);
+                    itt.putExtra(Constants.RoomID, mRoomId);
+                    itt.putExtra(Constants.MediaTcpIp, mIp);
+                    itt.putExtra(Constants.MediaTcpPort, mPort);
+                    sendBroadcast(itt);
+
+                }
+            }).start();
+
         }
     };
 

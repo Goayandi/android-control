@@ -4,6 +4,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.view.View;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -23,6 +24,7 @@ import java.util.List;
  * Created by Administrator on 2016/4/18 0018.
  */
 public class NewLoginActivity extends FragmentActivity implements OnCheckedChangeListener{
+    private static final String TAG = "NewLoginActivity";
     private List<BaseFragment> mFragments;
     private int index_mode = 0; //用于点击切换测试版本
     private long starttime = 0; //用于点击切换测试版本
@@ -34,6 +36,7 @@ public class NewLoginActivity extends FragmentActivity implements OnCheckedChang
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.i(TAG, "onCreate");
         setContentView(R.layout.activity_new_login);
         initView();
         initFragment();
@@ -139,6 +142,7 @@ public class NewLoginActivity extends FragmentActivity implements OnCheckedChang
         }
         setRadioButtonColor(position);
     }
+
 
     /**
      * 设置选中radioButton的颜色

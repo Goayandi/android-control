@@ -201,6 +201,10 @@ public class Constants {
 
 	public static final String SESSION_ERROR = "session_error";
 
+	public static final String MediaTcpIp = "media_tcp_ip";
+
+	public static final String MediaTcpPort = "media_tcp_port";
+
 	public interface Role{
 		String Robot = "Robot";
 		String User = "User";

@@ -2,6 +2,7 @@ package com.yongyida.robot.activity;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
@@ -18,12 +19,20 @@ import com.yongyida.robot.utils.StartUtil;
 
 public class GuideActivity extends Activity {
 
+	private static final String TAG = "GuideActivity";
 	private ViewPager viewPager;
+
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		Log.i(TAG, "onDestroy");
+	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_guide);
+		Log.i(TAG, "onCreate");
 		if (getSharedPreferences("guide", MODE_PRIVATE).getInt("guide", 0) != 0) {
 			StartUtil.startintent(this, NewLoginActivity.class, "finish");
 			return;

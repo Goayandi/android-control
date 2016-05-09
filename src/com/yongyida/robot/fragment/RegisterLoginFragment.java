@@ -57,10 +57,14 @@ public class RegisterLoginFragment extends BaseFragment implements View.OnClickL
                 case 1:
                     Bitmap bitmap = msg.getData().getParcelable("bitmap");
                     mImageCode.setImageBitmap(bitmap);
+                    mImageCode.setEnabled(true);
                     break;
                 case 2:
                     ToastUtil.showtomain(getActivity(),
                             msg.getData().getString("result"));
+                    break;
+                case 3:
+                    mImageCode.setEnabled(true);
                     break;
             }
         }
@@ -99,6 +103,7 @@ public class RegisterLoginFragment extends BaseFragment implements View.OnClickL
     }
 
     private void getPicture() {
+        mImageCode.setEnabled(false);
         ThreadPool.execute(new Runnable() {
             @Override
             public void run() {
@@ -112,6 +117,7 @@ public class RegisterLoginFragment extends BaseFragment implements View.OnClickL
                     mHandler.sendMessage(msg);
                 } catch (Exception e) {
                     e.printStackTrace();
+                    mHandler.sendEmptyMessage(3);
                 }
             }
         });
@@ -178,11 +184,11 @@ public class RegisterLoginFragment extends BaseFragment implements View.OnClickL
             return;
         }
         if (!Utils.isAccount(account)) {
-            Toast.makeText(getActivity(), "账号请输入6-20位数字,字母或下划线(必须以字母开头)", Toast.LENGTH_LONG).show();
+            Toast.makeText(getActivity(), "账号请输入6-20位数字,字母(必须以字母开头)", Toast.LENGTH_LONG).show();
             return;
         }
         if (!Utils.isPassword(password)) {
-            Toast.makeText(getActivity(), "密码请输入6-20位数字,字母或下划线", Toast.LENGTH_LONG).show();
+            Toast.makeText(getActivity(), "密码请输入6-20位数字,字母", Toast.LENGTH_LONG).show();
             return;
         }
 
@@ -206,11 +212,9 @@ public class RegisterLoginFragment extends BaseFragment implements View.OnClickL
                     NetUtil.getinstance().http("/account/login", params, new NetUtil.callback() {
                         @Override
                         public void success(JSONObject json) {
-                            if (mProgress != null) {
-                                mProgress.dismiss();
-                            }
                             try {
                                 int ret = json.getInt("ret");
+                                Log.i(TAG, "ret:" + ret);
                                 switch (ret) {
                                     case 0:
                                         into(json);
@@ -226,7 +230,8 @@ public class RegisterLoginFragment extends BaseFragment implements View.OnClickL
                                         HandlerUtil.sendmsg(mHandler, "传入参数为空", 2);
                                         break;
                                     case 1:
-                                        HandlerUtil.sendmsg(mHandler, "验证码数值错误", 2);
+                                        HandlerUtil.sendmsg(mHandler, "验证码已过期", 2);
+                                        getPicture();
                                         break;
                                     case 2:
                                         HandlerUtil.sendmsg(mHandler, "账号信息不存在", 2);
@@ -238,20 +243,31 @@ public class RegisterLoginFragment extends BaseFragment implements View.OnClickL
                                         HandlerUtil.sendmsg(mHandler, "密码未设置，请设置密码", 2);
                                         break;
                                 }
+                                if (mProgress != null) {
+                                    mProgress.dismiss();
+                                }
                             } catch (JSONException e) {
                                 e.printStackTrace();
+                                Log.e(TAG, "Exception:" + e.getMessage());
+                                if (mProgress != null) {
+                                    mProgress.dismiss();
+                                }
                             }
                         }
 
                         @Override
                         public void error(String errorresult) {
+                            HandlerUtil.sendmsg(mHandler, errorresult, 2);
                             if (mProgress != null) {
                                 mProgress.dismiss();
                             }
                         }
                     }, getActivity());
                 } catch (Exception e) {
-
+                    Log.e(TAG, "Exception:" + e.getMessage());
+                    if (mProgress != null) {
+                        mProgress.dismiss();
+                    }
                 }
             }
         });

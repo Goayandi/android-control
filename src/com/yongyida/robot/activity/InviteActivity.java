@@ -18,7 +18,6 @@ import com.yongyida.robot.utils.Constants;
 import com.yongyida.robot.video.comm.Utils;
 import com.yongyida.robot.video.comm.log;
 import com.yongyida.robot.video.command.MeetingReplyRequest;
-import com.yongyida.robot.video.sdk.CmdCallBacker;
 import com.yongyida.robot.video.sdk.Event;
 import com.yongyida.robot.video.sdk.EventListener;
 import com.yongyida.robot.video.sdk.User;
@@ -46,6 +45,8 @@ public class InviteActivity extends BaseVideoActivity implements OnClickListener
     private String mNumberType;
     private long mNumber;
     private int mRoomID;
+    private int mPort;
+    private String mIp;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,7 +57,7 @@ public class InviteActivity extends BaseVideoActivity implements OnClickListener
 
         Intent intent = getIntent();
         mRole = intent.getStringExtra("role");
-        mId = intent.getLongExtra("id", 0);
+        mId = intent.getIntExtra("id", 0);
         mUserName = intent.getStringExtra("username");
         mPicture = intent.getStringExtra("picture");
         mNumberType = intent.getStringExtra("numbertype");
@@ -88,44 +89,64 @@ public class InviteActivity extends BaseVideoActivity implements OnClickListener
     BroadcastReceiver mLoginVideoRoomResponseBR = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    User user = new User("User", 100069);
-                    YYDSDKHelper.getInstance().setUser(user);
-                    YYDVideoServer.getInstance().getMeetingInfo().setOwner("User", getSharedPreferences("userinfo", MODE_PRIVATE).getInt("id", 0), "qqq");
-                    YYDVideoServer.getInstance().getMeetingInfo().setVideoServer_Tcp(
-                            mRoomID,
-                            "120.24.242.163",
-                            8003);
-                    YYDVideoServer.getInstance().connect("120.24.242.163", 8003);
-                    YYDVideoServer.getInstance().enterRoom(new CmdCallBacker() {
-                        @Override
-                        public void onSuccess(Object o) {
-                            Log.i(TAG, "success");
-                            Intent i = new Intent(InviteActivity.this, ActivityMeeting.class);
-                            i.putExtra("EnableSend", true);
-                            i.putExtra("EnableRecv", true);
-                            startActivity(i);
-                            finish();
-                        }
-
-                        @Override
-                        public void onFailed(int i) {
-                            Log.i(TAG, "fail");
-                        }
-                    });
-                }
-            }).start();
+//            new Thread(new Runnable() {
+//                @Override
+//                public void run() {
+//                    User user = new User("User", 100069);
+//                    YYDSDKHelper.getInstance().setUser(user);
+//                    YYDVideoServer.getInstance().getMeetingInfo().setOwner("User", getSharedPreferences("userinfo", MODE_PRIVATE).getInt("id", 0), "qqq");
+//                    YYDVideoServer.getInstance().getMeetingInfo().setVideoServer_Tcp(
+//                            mRoomID,
+//                            "120.24.242.163",
+//                            8003);
+//                    YYDVideoServer.getInstance().connect("120.24.242.163", 8003);
+//                    YYDVideoServer.getInstance().enterRoom(new CmdCallBacker() {
+//                        @Override
+//                        public void onSuccess(Object o) {
+//                            Log.i(TAG, "success");
+//                            Intent i = new Intent(InviteActivity.this, ActivityMeeting.class);
+//                            i.putExtra("EnableSend", true);
+//                            i.putExtra("EnableRecv", true);
+//                            startActivity(i);
+//                            finish();
+//                        }
+//
+//                        @Override
+//                        public void onFailed(int i) {
+//                            Log.i(TAG, "fail");
+//                        }
+//                    });
+//                }
+//            }).start();
+            String send_host = intent.getStringExtra("send_host");
+            int send_port = intent.getIntExtra("send_port", -1);
+            YYDVideoServer.getInstance().getMeetingInfo().setVideoServer_Udp(send_host, send_port);
+            YYDVideoServer.getInstance().getMeetingInfo().setAtRooming(true);
+            Intent i = new Intent(InviteActivity.this, ActivityMeeting.class);
+            i.putExtra("EnableSend", true);
+            i.putExtra("EnableRecv", true);
+            startActivity(i);
+            finish();
         }
     };
 
     BroadcastReceiver mMediaReplyBR = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Intent itt = new Intent(Constants.LOGIN_VIDEO_ROOM);
-            itt.putExtra(Constants.RoomID, mRoomID);
-            sendBroadcast(itt);
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    YYDVideoServer.getInstance().connect(
+                            mIp,
+                            mPort);
+                    Intent itt = new Intent(Constants.LOGIN_VIDEO_ROOM);
+                    itt.putExtra(Constants.RoomID, mRoomID);
+                    itt.putExtra(Constants.MediaTcpIp, mIp);
+                    itt.putExtra(Constants.MediaTcpPort, mPort);
+                    sendBroadcast(itt);
+                }
+            }).start();
+
 
         }
     };
@@ -134,6 +155,14 @@ public class InviteActivity extends BaseVideoActivity implements OnClickListener
         @Override
         public void onReceive(Context context, Intent intent) {
             mRoomID = intent.getIntExtra(Constants.RoomID, -1);
+            mIp = intent.getStringExtra(Constants.MediaTcpIp);
+            mPort = intent.getIntExtra(Constants.MediaTcpPort, -1);
+            User user = new User("User", 100227);
+          //  User user = new User("User", 100069);
+            YYDSDKHelper.getInstance().setUser(user);
+            YYDVideoServer.getInstance().getMeetingInfo().setOwner("User", getSharedPreferences("userinfo", MODE_PRIVATE).getInt("id", 0), "qqq");
+            YYDVideoServer.getInstance().getMeetingInfo().setVideoServer_Tcp(mRoomID,
+                    mIp, mPort);
         }
     };
 
@@ -176,17 +205,17 @@ public class InviteActivity extends BaseVideoActivity implements OnClickListener
     public void meetingInvite() {
         log.d(TAG, "meetingInvite()");
 
-        String numberType = null;
-        long number = 0;
-        if (mNumberType != null && mNumberType.length() > 0) {
-            numberType = mNumberType;
-            number = mNumber;
-        }
-        else if (mRole != null && mRole.length() > 0) {
-            numberType = mRole;
-            number = mId;
-        }
-        log.d(TAG, "numberType: " + numberType + ", number: " + number);
+//        String numberType = null;
+//        long number = 0;
+//        if (mNumberType != null && mNumberType.length() > 0) {
+//            numberType = mNumberType;
+//            number = mNumber;
+//        }
+//        else if (mRole != null && mRole.length() > 0) {
+//            numberType = mRole;
+//            number = mId;
+//        }
+//        log.d(TAG, "numberType: " + numberType + ", number: " + number);
 
        //TODO 发送invite请求
         Intent intent = new Intent();

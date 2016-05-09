@@ -134,8 +134,6 @@ public class WelComeActivity extends BaseActivity {
 
 										@Override
 										public void error(String errorresult) {
-											HandlerUtil.sendmsg(handler,
-													errorresult, 1);
 										}
 									}), XmlUtil.Y50B, XmlUtil.YYD);
 					getSharedPreferences("Receipt", MODE_PRIVATE).edit().putString("fota", version).apply();

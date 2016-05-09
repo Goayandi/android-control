@@ -84,9 +84,11 @@ public class ActivityMeeting extends BaseVideoActivity implements OnClickListene
 		mViews = new ArrayList<View>();
 		addCameraView();
 		addUserViews();
-		
+		User user = new User("User", 100227);
+		addUserView(user);
 		YYDSDKHelper.getInstance().registerEventListener(mEventListener);
 	}
+
 
 	@Override
 	protected void initView() {
@@ -385,6 +387,8 @@ public class ActivityMeeting extends BaseVideoActivity implements OnClickListene
 			switchMute();
 			break;
 		case R.id.btn_hangup:
+			android.os.Process.killProcess(android.os.Process.myPid());
+			System.exit(0);
 			hangUp();
 			break;
 		default:

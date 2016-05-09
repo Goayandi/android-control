@@ -100,8 +100,16 @@ public class ControlActivity extends CallActivity implements OnClickListener,
 	private int key;
 	private Timer hide_timer;
 	private HeadsetPlugReceiver headsetPlugReceiver; 
-	private String runningMode; 
-	
+	private String runningMode;
+	private BroadcastReceiver mRNameBR = new BroadcastReceiver() {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			String rname = intent.getStringExtra("rname");
+			getSharedPreferences("robotname", MODE_PRIVATE).edit()
+					.putString("name", rname).commit();
+		}
+	};
+
 	@SuppressWarnings("deprecation")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -171,6 +179,7 @@ public class ControlActivity extends CallActivity implements OnClickListener,
 			openSpeakerOn();
 		}
 		Log.e("EM", EMChat.getInstance().getVersion());
+		BroadcastReceiverRegister.reg(ControlActivity.this, new String[]{Constants.BATTERY}, mRNameBR);
 	}
 
 	private void registerHeadsetPlugReceiver() {

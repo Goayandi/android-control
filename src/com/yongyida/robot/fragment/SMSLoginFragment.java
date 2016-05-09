@@ -483,4 +483,5 @@ public class SMSLoginFragment extends BaseFragment implements View.OnClickListen
         }
 
     }
+
 }

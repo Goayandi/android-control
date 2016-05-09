@@ -24,7 +24,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="3"
             style="@style/style_et_login"
-            android:hint="请输入6-20位数字,字母或下划线(必须以字母开头)"/>
+            android:hint="请输入6-20位数字,字母(必须以字母开头)"/>
     </LinearLayout>
 
     <LinearLayout
@@ -47,7 +47,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="3"
             style="@style/style_et_login"
-            android:hint="请输入6-20位数字,字母或下划线"
+            android:hint="请输入6-20位数字,字母"
             android:password="true"/>
     </LinearLayout>
 
