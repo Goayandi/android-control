@@ -314,4 +314,5 @@
     <string name="pwd_confirm">password confirm:</string>
     <string name="input_pwd_again">input pwd again plz</string>
     <string name="battery">battery:</string>
+    <string name="account_not_exist">account is not exist</string>
 </resources>

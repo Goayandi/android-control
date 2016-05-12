@@ -283,4 +283,10 @@
         <item name="android:textColor">@android:color/white</item>
         <item name="android:textSize">18sp</item>
     </style>
+    <style name="style_bt_dial">
+        <item name="android:layout_gravity">fill</item>
+        <item name="android:textColor">#ffffff</item>
+        <item name="android:textSize">24sp</item>
+        <item name="android:background">@drawable/selector_number</item>
+    </style>
 </resources>

@@ -40,7 +40,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1" >
-        <com.yongyida.robot.video.widget.HorizontalListView
+        <com.yongyida.robot.widget.HorizontalListView
             android:id="@+id/friend_listview"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />

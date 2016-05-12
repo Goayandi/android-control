@@ -156,11 +156,11 @@ public class WelComeActivity extends BaseActivity {
 	public void initlayout(OnRefreshListener onRefreshListener) {
 		setContentView(R.layout.activity_wel_come);
 		String stateCode = getSharedPreferences("Receipt", MODE_PRIVATE).getString("state_code", null);
-		Constants.address = Constants.address_hk;
-		Constants.download_fota_address = Constants.download_fota_address_tw;
-		Constants.ip = Constants.ip_hk;
-		Constants.port = Constants.port_hk;
-		Constants.download_address = Constants.download_address_tw;
+		Constants.address = Constants.address_cn;
+		Constants.download_fota_address = Constants.download_fota_address_cn;
+		Constants.ip = Constants.ip_cn;
+		Constants.port = Constants.port_cn;
+		Constants.download_address = Constants.download_address_cn;
 //		if (Constants.HK_CODE.equals(stateCode)) {
 //			Constants.address = Constants.address_hk;
 //			Constants.download_fota_address = Constants.download_fota_address_hk;
