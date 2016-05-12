@@ -47,13 +47,7 @@ public class NetUtil {
 	// http请求方法
 	public boolean http(String url, Map<String, String> params, callback call,
 			Context context) throws SocketTimeoutException {
-		String stateCode = context.getSharedPreferences("Receipt", Context.MODE_PRIVATE).getString("state_code", null);
-		String address;
-		if (Constants.HK_CODE.equals(stateCode)) {
-			address = Constants.address_hk;
-		} else {
-			address = Constants.address;
-		}
+		String address = Constants.address;
 		try {
 			Http http = new Http(address + url);
 			http.setRequestProperty("Content-Type", "text/plain;charset=utf-8;");

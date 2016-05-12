@@ -252,8 +252,7 @@ public class ConnectActivity extends BaseActivity implements
         getSharedPreferences("userinfo", MODE_PRIVATE).edit().clear().commit();
         getSharedPreferences("huanxin", MODE_PRIVATE).edit().clear().commit();
         if (Utils.isServiceRunning(ConnectActivity.this, SocketService.class.getSimpleName())) {
-            Constants.isUserClose = true;
-            stopService(new Intent(ConnectActivity.this, SocketService.class));
+            Utils.stopSocketService(this);
         }
         StartUtil.startintent(ConnectActivity.this, NewLoginActivity.class,
                 "finish");
@@ -557,8 +556,7 @@ public class ConnectActivity extends BaseActivity implements
 
     @Override
     public void onBackPressed() {
-        Constants.isUserClose = true;
-        stopService(new Intent(this, SocketService.class));
+        Utils.stopSocketService(this);
 //		if (Constants.flag) {
 //			sendBroadcast(new Intent(Constants.Stop));
 //		}

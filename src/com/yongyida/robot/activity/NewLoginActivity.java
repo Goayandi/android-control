@@ -9,13 +9,16 @@ import android.view.View;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.RadioGroup.OnCheckedChangeListener;
+import android.widget.TextView;
 
 import com.yongyida.robot.R;
 import com.yongyida.robot.fragment.BaseFragment;
 import com.yongyida.robot.fragment.RegisterLoginFragment;
 import com.yongyida.robot.fragment.SMSLoginFragment;
+import com.yongyida.robot.service.SocketService;
 import com.yongyida.robot.utils.Constants;
 import com.yongyida.robot.utils.ToastUtil;
+import com.yongyida.robot.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,18 +35,38 @@ public class NewLoginActivity extends FragmentActivity implements OnCheckedChang
     private RadioButton mRegisterRB;
     private RadioButton mSmsRB;
     List<RadioButton> mRBList; //用于存放RadioButton 方便控制RadioButton的颜色
+    private RadioGroup mRadioGroup;
+    private TextView mLoginTitleTV;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.i(TAG, "onCreate");
         setContentView(R.layout.activity_new_login);
+        if (Utils.isServiceRunning(this, SocketService.class.getSimpleName())) {
+            Utils.stopSocketService(this);
+        }
         initView();
-        initFragment();
+        hideOtherLoginMethod(2);
+    }
+
+    /**
+     *
+     * @param i  显示第几种登录方式  0是都显示 1是短信  2是注册
+     */
+    private void hideOtherLoginMethod(int i) {
+        if(i != 0) {
+            mRadioGroup.setVisibility(View.GONE);
+            mLoginTitleTV.setVisibility(View.VISIBLE);
+            initFragment(i);
+        } else {
+            initFragment(-1);
+        }
     }
 
     private void initView() {
-        RadioGroup mRadioGroup = (RadioGroup) findViewById(R.id.rg);
+        mLoginTitleTV = (TextView) findViewById(R.id.login_title);
+        mRadioGroup = (RadioGroup) findViewById(R.id.rg);
         mRadioGroup.setOnCheckedChangeListener(this);
         mSmsRB = (RadioButton) findViewById(R.id.rb_sms);
         mRegisterRB = (RadioButton) findViewById(R.id.rb_register);
@@ -95,11 +118,20 @@ public class NewLoginActivity extends FragmentActivity implements OnCheckedChang
         });
     }
 
-    private void initFragment() {
+    /**
+     *
+     * @param i 第一次显示的是第几钟登录方式  1是短信 2是注册 -1是都显示
+     */
+    private void initFragment(int i) {
 
         SharedPreferences sharedPreferences = getSharedPreferences("login",
                 MODE_PRIVATE);
-        int method = sharedPreferences.getInt(Constants.LOGIN_METHOD, -1); //登录方式 1是短信，2是账号
+        int method;
+        if (i == -1) {
+            method = sharedPreferences.getInt(Constants.LOGIN_METHOD, -1); //登录方式 1是短信，2是账号
+        } else {
+            method = i;
+        }
         if (method == Constants.ACCOUNT_LOGIN) {
             switchFragment(Constants.ACCOUNT_LOGIN);
             setRadioButtonColor(Constants.ACCOUNT_LOGIN);

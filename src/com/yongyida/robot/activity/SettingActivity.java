@@ -24,12 +24,12 @@ import android.widget.TextView;
 import com.easemob.EMCallBack;
 import com.yongyida.robot.R;
 import com.yongyida.robot.huanxin.DemoHXSDKHelper;
-import com.yongyida.robot.service.SocketService;
 import com.yongyida.robot.utils.BroadcastReceiverRegister;
 import com.yongyida.robot.utils.Constants;
 import com.yongyida.robot.utils.StartUtil;
 import com.yongyida.robot.utils.ThreadPool;
 import com.yongyida.robot.utils.ToastUtil;
+import com.yongyida.robot.utils.Utils;
 import com.yongyida.robot.widget.SwitchButton;
 
 public class SettingActivity<AndroidLearn> extends BaseActivity implements
@@ -89,8 +89,7 @@ public class SettingActivity<AndroidLearn> extends BaseActivity implements
 									editor.clear();
 									editor.commit();
 									getSharedPreferences("huanxin", MODE_PRIVATE).edit().clear().commit();
-									Constants.isUserClose = true;
-									stopService(new Intent(SettingActivity.this, SocketService.class));
+									Utils.stopSocketService(SettingActivity.this);
 									startActivity(new Intent(
 											SettingActivity.this,
 											NewLoginActivity.class)

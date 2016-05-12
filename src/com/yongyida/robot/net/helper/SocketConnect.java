@@ -1,5 +1,7 @@
 package com.yongyida.robot.net.helper;
 
+import android.util.Log;
+
 import com.yongyida.robot.net.helper.SocketHandler.SocketHandlerListener;
 
 import org.jboss.netty.bootstrap.ClientBootstrap;
@@ -155,6 +157,7 @@ public class SocketConnect {
 
 		} catch (Throwable e) {
 			e.printStackTrace();
+			Log.e("connect", "Exception: " + e.getMessage());
 		}
 	}
 

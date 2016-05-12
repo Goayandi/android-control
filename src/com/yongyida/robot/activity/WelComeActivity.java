@@ -112,6 +112,7 @@ public class WelComeActivity extends BaseActivity {
 						}
 					} catch (NameNotFoundException e) {
 						e.printStackTrace();
+						HandlerUtil.sendmsg(handler, e.getMessage(), 1);
 					}
 
 				}
@@ -155,13 +156,26 @@ public class WelComeActivity extends BaseActivity {
 	public void initlayout(OnRefreshListener onRefreshListener) {
 		setContentView(R.layout.activity_wel_come);
 		String stateCode = getSharedPreferences("Receipt", MODE_PRIVATE).getString("state_code", null);
-		if (Constants.HK_CODE.equals(stateCode)) {
-			address = Constants.download_address_hk;
-			fotaAddress = Constants.download_fota_address_hk;
-		} else {
-			address = Constants.download_address;
-			fotaAddress = Constants.download_fota_address;
-		}
+		Constants.address = Constants.address_hk;
+		Constants.download_fota_address = Constants.download_fota_address_tw;
+		Constants.ip = Constants.ip_hk;
+		Constants.port = Constants.port_hk;
+		Constants.download_address = Constants.download_address_tw;
+//		if (Constants.HK_CODE.equals(stateCode)) {
+//			Constants.address = Constants.address_hk;
+//			Constants.download_fota_address = Constants.download_fota_address_hk;
+//			Constants.ip = Constants.ip_hk;
+//			Constants.port = Constants.port_hk;
+//			Constants.download_address = Constants.download_address_hk;
+//		} else {
+//			Constants.address = Constants.address_cn;
+//			Constants.download_fota_address = Constants.download_fota_address_cn;
+//			Constants.ip = Constants.ip_cn;
+//			Constants.port = Constants.port_cn;
+//			Constants.download_address = Constants.download_address_cn;
+//		}
+		address = Constants.download_address;
+		fotaAddress = Constants.download_fota_address;
 		Timer timer = new Timer();
 		timer.schedule(new TimerTask() {
 			@Override

@@ -1,34 +1,14 @@
 package com.yongyida.robot.activity;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.EditText;
-
-import com.yongyida.robot.R;
-import com.yongyida.robot.utils.BroadcastReceiverRegister;
-import com.yongyida.robot.utils.Constants;
-import com.yongyida.robot.utils.ToastUtil;
-import com.yongyida.robot.video.comm.log;
-import com.yongyida.robot.video.command.MeetingInviteRequest;
-import com.yongyida.robot.video.sdk.CmdCallBacker;
-import com.yongyida.robot.video.sdk.Event;
-import com.yongyida.robot.video.sdk.EventListener;
-import com.yongyida.robot.video.sdk.User;
-import com.yongyida.robot.video.sdk.YYDLogicServer;
-import com.yongyida.robot.video.sdk.YYDSDKHelper;
-import com.yongyida.robot.video.sdk.YYDVideoServer;
-import com.yongyida.robot.widget.InviteReplyDialog;
+import android.app.Activity;
 
 /**
  * Created by Administrator on 2016/4/13 0013.
  */
-public class MeetingTestActivity extends BaseVideoActivity implements OnClickListener{
+public class MeetingTestActivity extends Activity{
+
+}
+/*public class MeetingTestActivity extends BaseVideoActivity implements OnClickListener{
     public static final String TAG = "MeetingTestActivity";
     private EditText mEditUserId;
     private EditText mEditInviteeUserId;
@@ -43,20 +23,20 @@ public class MeetingTestActivity extends BaseVideoActivity implements OnClickLis
         setContentView(R.layout.activity_meeting_test);
         findViewById(R.id.bt).setOnClickListener(this);
         mEditUserId = (EditText) findViewById(R.id.edt_userid);
-        mEditUserId.setText("11073");
+        mEditUserId.setText("" + getSharedPreferences("userinfo", MODE_PRIVATE).getInt("id", 0));
         mEditInviteeUserId = (EditText) findViewById(R.id.edt_inviteeuserid);
-        mEditInviteeUserId.setText("11090");
+        mEditInviteeUserId.setText("");
         YYDSDKHelper.getInstance().registerEventListener(mEventListener);
 
-        /* /media/reply/resopnse */
+        *//* /media/reply/resopnse *//*
         BroadcastReceiverRegister.reg(this,
                 new String[]{Constants.Replay_Response}, mConnectionResponseBR);
 
-        /* /media/invite */
+        *//* /media/invite *//*
         BroadcastReceiverRegister.reg(this,
                 new String[]{Constants.VIDEO_REQUEST_FROM_OTHERS}, mVideoRequestBR);
 
-        /* 登入房间返回 */
+        *//* 登入房间返回 *//*
         BroadcastReceiverRegister.reg(this,
                 new String[]{Constants.LOGIN_VIDEO_ROOM_RESPONSE}, mLoginVideoRoomResponseBR);
     }
@@ -209,6 +189,7 @@ public class MeetingTestActivity extends BaseVideoActivity implements OnClickLis
         intent.putExtra("id", id);
         intent.putExtra("username", role + id);
         startActivity(intent);
+        finish();
     }
 
     public EventListener mEventListener = new EventListener() {
@@ -237,11 +218,11 @@ public class MeetingTestActivity extends BaseVideoActivity implements OnClickLis
                     break;
                 case EnterRoomResponse: {
                     // 收到进入房间响应后，打开视频会议 页面。
-                   /* Intent intent = new Intent(MeetingTestActivity.this, InviteActivity.class);
+                   *//* Intent intent = new Intent(MeetingTestActivity.this, InviteActivity.class);
                     intent.putExtra("EnableSend", true);
                     intent.putExtra("EnableRecv", true);
                     startActivity(intent);
-                    break;*/
+                    break;*//*
                 }
                 case CommandTimeout:
                     log.e(TAG, "CommandTimeout, cmdId: " + data);
@@ -307,4 +288,4 @@ public class MeetingTestActivity extends BaseVideoActivity implements OnClickLis
         YYDVideoServer.getInstance().disConnect();
         super.onDestroy();
     }
-}
+}*/

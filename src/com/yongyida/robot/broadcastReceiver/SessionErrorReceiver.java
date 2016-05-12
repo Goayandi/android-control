@@ -24,8 +24,7 @@ public class SessionErrorReceiver extends BroadcastReceiver {
             context.getSharedPreferences("userinfo", context.MODE_PRIVATE).edit().clear().commit();
             context.getSharedPreferences("huanxin", context.MODE_PRIVATE).edit().clear().commit();
             if (Utils.isServiceRunning(context, SocketService.class.getSimpleName())) {
-                Constants.isUserClose = true;
-                context.stopService(new Intent(context, SocketService.class));
+                Utils.stopSocketService(context);
             }
             context.startActivity(new Intent(context, NewLoginActivity.class)
                     .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK));

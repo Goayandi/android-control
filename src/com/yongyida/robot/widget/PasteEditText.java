@@ -14,17 +14,10 @@
 package com.yongyida.robot.widget;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.text.ClipboardManager;
-import android.text.TextUtils;
-import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.widget.EditText;
-import android.widget.TextView.BufferType;
-
-import com.yongyida.robot.activity.MainActivity;
 
 /**
  * 自定义的textview，用来处理复制粘贴的消息

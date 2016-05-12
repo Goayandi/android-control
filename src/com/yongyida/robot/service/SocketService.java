@@ -37,9 +37,7 @@ import com.yongyida.robot.video.av.TransferDataType;
 import com.yongyida.robot.video.av.TransferType;
 import com.yongyida.robot.video.av.VideoSizeType;
 import com.yongyida.robot.video.sdk.Role;
-import com.yongyida.robot.video.sdk.User;
 import com.yongyida.robot.video.sdk.YYDSDKHelper;
-import com.yongyida.robot.video.sdk.YYDVideoServer;
 
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.channel.ChannelHandlerContext;
@@ -75,81 +73,6 @@ public class SocketService extends Service {
 
     @Override
     public void onCreate() {
-        Log.i("SocketService", "onCreate");
-        /**
-         * socket Error 广播
-         */
-        BroadcastReceiverRegister.reg(this,
-                new String[]{Constants.Socket_Error},
-                mSocketErrorReceiver);
-
-        /**
-         * 网络状况
-         */
-        BroadcastReceiverRegister.reg(this,
-                new String[]{ConnectivityManager.CONNECTIVITY_ACTION},
-                netstate);
-
-        /**
-         *  y50b广播
-         */
-        /* 移动 */
-        BroadcastReceiverRegister.reg(this,
-                new String[]{Constants.Move_aciton}, move);
-
-        /* 语音 */
-        BroadcastReceiverRegister.reg(this,
-                new String[]{Constants.Speech_action}, speak);
-
-        /* 任务提醒 */
-        BroadcastReceiverRegister.reg(this, new String[]{
-                Constants.Task_Remove, Constants.Task_Add,
-                Constants.Task_Query, Constants.Task_Updata}, task);
-
-        /* 注销机器人连接 */
-        BroadcastReceiverRegister.reg(this,
-                new String[]{Constants.Stop}, stop);
-
-        /* 相片 */
-        BroadcastReceiverRegister.reg(this, new String[]{
-                Constants.Photo_Delete, Constants.Photo_Query,
-                Constants.Photo_Query_Name, Constants.Photo_Download}, photo);
-
-        /* 修改机器人名字 */
-        BroadcastReceiverRegister.reg(this,
-                new String[]{Constants.Robot_Info_Update}, flush);
-
-        /* 连接机器人 */
-        BroadcastReceiverRegister.reg(this,
-                new String[]{Constants.Robot_Connection}, connectRobot);
-
-        /* 退出socket登录 */
-        BroadcastReceiverRegister.reg(this,
-                new String[]{Constants.Socket_Logout}, socketLogout);
-
-        /* Fota升级 */
-        BroadcastReceiverRegister.reg(this,
-                new String[]{Constants.FOTA_UPDATE}, mFotaUpdateBR);
-
-        /**
-         * Y20广播
-         */
-        /* 建立视频房间 */
-        BroadcastReceiverRegister.reg(this, new String[]{Constants.VIDEO_REQUEST}, mVideoRequestBR);
-
-        /* 视频反馈 */
-        BroadcastReceiverRegister.reg(this, new String[]{Constants.BR_REPLY}, mVideoReplyBR);
-
-        /* 登入视频房间 */
-        BroadcastReceiverRegister.reg(this, new String[]{Constants.LOGIN_VIDEO_ROOM}, mLoginVideoRoomBR);
-        /**
-         *  建立socket连接
-         */
-        connectSocketByLanguage();
-
-        /**
-         * 发送socket心跳
-         */
     }
 
     @Override
@@ -457,17 +380,7 @@ public class SocketService extends Service {
     }
 
     public void connectSocketByLanguage(){
-        String stateCode = getSharedPreferences("Receipt", MODE_PRIVATE).getString("state_code", null);
-        String ip;
-        String port;
-        if (Constants.HK_CODE.equals(stateCode)) {
-            ip = Constants.ip_hk;
-            port = Constants.port_hk;
-        } else {
-            ip = Constants.ip;
-            port = Constants.port;
-        }
-        connectsocket(listener, ip, port);
+        connectsocket(listener, Constants.ip, Constants.port);
     }
 
     BroadcastReceiver speak = new BroadcastReceiver() {
@@ -654,10 +567,10 @@ public class SocketService extends Service {
                                         long id1 = jsonArray.getJSONObject(i).getLong("id");
                                         String role1 = jsonArray.getJSONObject(i).getString("role");
                                         String nickName1 = jsonArray.getJSONObject(i).getString("nikename");
-                                        if (id1 != YYDSDKHelper.getInstance().getUser().getId()
-                                                || !role1.equalsIgnoreCase(YYDSDKHelper.getInstance().getUser().getRole())) {
-                                            YYDVideoServer.getInstance().getMeetingInfo().addUser(new User(role1, id, nickName1));
-                                        }
+//                                        if (id1 != YYDSDKHelper.getInstance().getUser().getId()
+//                                                || !role1.equalsIgnoreCase(YYDSDKHelper.getInstance().getUser().getRole())) {
+//                                            YYDVideoServer.getInstance().getMeetingInfo().addUser(new User(role1, id, nickName1));
+//                                        }
                                     }
                                 }
                                 Intent intent = new Intent(Constants.LOGIN_VIDEO_ROOM_RESPONSE);
@@ -742,7 +655,81 @@ public class SocketService extends Service {
     @Override
     public int onStartCommand(final Intent intent, int flags, int startId) {
       //  inbackground();
+        Log.i("SocketService", "onStartCommand");
+        /**
+         * socket Error 广播
+         */
+        BroadcastReceiverRegister.reg(this,
+                new String[]{Constants.Socket_Error},
+                mSocketErrorReceiver);
 
+        /**
+         * 网络状况
+         */
+        BroadcastReceiverRegister.reg(this,
+                new String[]{ConnectivityManager.CONNECTIVITY_ACTION},
+                netstate);
+
+        /**
+         *  y50b广播
+         */
+        /* 移动 */
+        BroadcastReceiverRegister.reg(this,
+                new String[]{Constants.Move_aciton}, move);
+
+        /* 语音 */
+        BroadcastReceiverRegister.reg(this,
+                new String[]{Constants.Speech_action}, speak);
+
+        /* 任务提醒 */
+        BroadcastReceiverRegister.reg(this, new String[]{
+                Constants.Task_Remove, Constants.Task_Add,
+                Constants.Task_Query, Constants.Task_Updata}, task);
+
+        /* 注销机器人连接 */
+        BroadcastReceiverRegister.reg(this,
+                new String[]{Constants.Stop}, stop);
+
+        /* 相片 */
+        BroadcastReceiverRegister.reg(this, new String[]{
+                Constants.Photo_Delete, Constants.Photo_Query,
+                Constants.Photo_Query_Name, Constants.Photo_Download}, photo);
+
+        /* 修改机器人名字 */
+        BroadcastReceiverRegister.reg(this,
+                new String[]{Constants.Robot_Info_Update}, flush);
+
+        /* 连接机器人 */
+        BroadcastReceiverRegister.reg(this,
+                new String[]{Constants.Robot_Connection}, connectRobot);
+
+        /* 退出socket登录 */
+        BroadcastReceiverRegister.reg(this,
+                new String[]{Constants.Socket_Logout}, socketLogout);
+
+        /* Fota升级 */
+        BroadcastReceiverRegister.reg(this,
+                new String[]{Constants.FOTA_UPDATE}, mFotaUpdateBR);
+
+        /**
+         * Y20广播
+         */
+        /* 建立视频房间 */
+        BroadcastReceiverRegister.reg(this, new String[]{Constants.VIDEO_REQUEST}, mVideoRequestBR);
+
+        /* 视频反馈 */
+        BroadcastReceiverRegister.reg(this, new String[]{Constants.BR_REPLY}, mVideoReplyBR);
+
+        /* 登入视频房间 */
+        BroadcastReceiverRegister.reg(this, new String[]{Constants.LOGIN_VIDEO_ROOM}, mLoginVideoRoomBR);
+        /**
+         *  建立socket连接
+         */
+        connectSocketByLanguage();
+
+        /**
+         * 发送socket心跳
+         */
         return super.onStartCommand(intent, flags, startId);
     }
 

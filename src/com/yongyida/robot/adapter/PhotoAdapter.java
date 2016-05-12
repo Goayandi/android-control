@@ -12,7 +12,6 @@ import android.widget.TextView;
 
 import com.yongyida.robot.R;
 import com.yongyida.robot.activity.PhotoActivity;
-import com.yongyida.robot.huanxin.MessageAdapter.ViewHolder;
 import com.yongyida.robot.utils.ImageLoader;
 
 public class PhotoAdapter extends BaseAdapter {
@@ -66,25 +65,30 @@ public class PhotoAdapter extends BaseAdapter {
 		}
 		if (convertView == null) {
 			convertView = layout.inflate(R.layout.photo, null);
-		}else {  
-            holder = (ViewHolder) convertView.getTag();  
+			holder = new ViewHolder();
+			holder.iv = (ImageView) convertView.findViewById(R.id.photo_img);
+			holder.tv = (TextView) convertView.findViewById(R.id.photo_name);
+			holder.cb = (CheckBox) convertView.findViewById(R.id.check);
+			convertView.setTag(holder);
+		}else {
+            holder = (ViewHolder) convertView.getTag();
         } 
 		String convertpath = paths[position];
-		ImageView image = (ImageView) convertView.findViewById(R.id.photo_img);
-		image.setScaleType(ImageView.ScaleType.CENTER_CROP);
-		TextView text = (TextView) convertView.findViewById(R.id.photo_name);
+
+		holder.iv.setScaleType(ImageView.ScaleType.CENTER_CROP);
+
 		final String name = convertpath.substring(
 				convertpath.lastIndexOf("/") + 1, convertpath.length());
 		final int pos  = position; //pos必须声明为final
-		text.setText(name);
-		CheckBox check = (CheckBox) convertView.findViewById(R.id.check);
-		convertView.setTag(holder);
+		holder.tv.setText(name);
+
+
 		if (back.IslongClick()) {
-			check.setVisibility(View.VISIBLE);
+			holder.cb.setVisibility(View.VISIBLE);
 		} else {
-			check.setVisibility(View.GONE);
+			holder.cb.setVisibility(View.GONE);
 		}
-		check.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+		holder.cb.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 
 			@Override
 			public void onCheckedChanged(CompoundButton arg0, boolean ischecked) {
@@ -96,9 +100,15 @@ public class PhotoAdapter extends BaseAdapter {
 				}
 			}
 		});
-		check.setChecked(checks[pos]);
-		loader.loadImage(convertpath, image, false);
+		holder.cb.setChecked(checks[pos]);
+		loader.loadImage(convertpath, holder.iv, false);
 		return convertView;
+	}
+
+	public static class ViewHolder {
+		ImageView iv;
+		TextView tv;
+		CheckBox cb;
 	}
 
 	public interface callback {

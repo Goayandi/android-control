@@ -2,8 +2,11 @@ package com.yongyida.robot.utils;
 
 import android.app.ActivityManager;
 import android.content.Context;
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+
+import com.yongyida.robot.service.SocketService;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -71,7 +74,6 @@ public class Utils {
         }
 
         for (int i = 0; i < serviceList.size(); i++) {
-
             if (serviceList.get(i).service.getClassName().equals(className) == true) {
 
                 isRunning = true;
@@ -122,5 +124,23 @@ public class Utils {
             return false;
         }
         return true;
+    }
+
+    /**
+     * 开启socket服务
+     * @param context
+     */
+    public static void startSocketService(Context context) {
+        Constants.isUserClose = false;
+        context.startService(new Intent(context, SocketService.class));
+    }
+
+    /**
+     * 关闭服务
+     * @param context
+     */
+    public static void stopSocketService(Context context) {
+        Constants.isUserClose = true;
+        context.stopService(new Intent(context, SocketService.class));
     }
 }

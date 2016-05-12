@@ -37,13 +37,9 @@ import com.easemob.chat.EMChatManager;
 import com.easemob.chat.EMChatOptions;
 import com.easemob.chat.EMMessage;
 import com.easemob.chat.EMMessage.ChatType;
-import com.easemob.chat.EMMessage.Type;
 import com.easemob.util.EMLog;
 import com.easemob.util.EasyUtils;
 import com.yongyida.robot.R;
-import com.yongyida.robot.activity.ChatActivity;
-import com.yongyida.robot.activity.VideoCallActivity;
-import com.yongyida.robot.huanxin.HXNotifier.HXNotificationInfoProvider;
 
 /**
  * Demo UI HX SDK helper class which subclass HXSDKHelper
@@ -265,83 +261,7 @@ public class DemoHXSDKHelper extends HXSDKHelper{
         });
     }
 
-    /**
-     * 自定义通知栏提示内容
-     * @return
-     */
-    @Override
-    protected HXNotificationInfoProvider getNotificationListener() {
-        //可以覆盖默认的设置
-        return new HXNotificationInfoProvider() {
-            
-            @Override
-            public String getTitle(EMMessage message) {
-              //修改标题,这里使用默认
-                return null;
-            }
-            
-            @Override
-            public int getSmallIcon(EMMessage message) {
-              //设置小图标，这里为默认
-                return 0;
-            }
-            
-            @Override
-            public String getDisplayedText(EMMessage message) {
-                // 设置状态栏的消息提示，可以根据message的类型做相应提示
-                String ticker = CommonUtils.getMessageDigest(message, appContext);
-                if(message.getType() == Type.TXT){
-                    ticker = ticker.replaceAll("\\[.{2,3}\\]", "[表情]");
-                }
-                Map<String,RobotUser> robotMap=((DemoHXSDKHelper)HXSDKHelper.getInstance()).getRobotList();
-    			if(robotMap!=null&&robotMap.containsKey(message.getFrom())){
-    				String nick = robotMap.get(message.getFrom()).getNick();
-    				if(!TextUtils.isEmpty(nick)){
-    					return nick + ": " + ticker;
-    				}else{
-    					return message.getFrom() + ": " + ticker;
-    				}
-    			}else{
-    				return message.getFrom() + ": " + ticker;
-    			}
-            }
-            
-            @Override
-            public String getLatestText(EMMessage message, int fromUsersNum, int messageNum) {
-                return null;
-                // return fromUsersNum + "个基友，发来了" + messageNum + "条消息";
-            }
-            
-            @Override
-            public Intent getLaunchIntent(EMMessage message) {
-                //设置点击通知栏跳转事件
-                Intent intent = new Intent(appContext, ChatActivity.class);
-                //有电话时优先跳转到通话页面
-                if(isVideoCalling){
-                    intent = new Intent(appContext, VideoCallActivity.class);
-                
-                }else{
-                    ChatType chatType = message.getChatType();
-                    if (chatType == ChatType.Chat) { // 单聊信息
-                        intent.putExtra("userId", message.getFrom());
-                        intent.putExtra("chatType", ChatActivity.CHATTYPE_SINGLE);
-                    } else { // 群聊信息
-                        // message.getTo()为群聊id
-                        intent.putExtra("groupId", message.getTo());
-                        if(chatType == ChatType.GroupChat){
-                            intent.putExtra("chatType", ChatActivity.CHATTYPE_GROUP);
-                        }else{
-                            intent.putExtra("chatType", ChatActivity.CHATTYPE_CHATROOM);
-                        }
-                        
-                    }
-                }
-                return intent;
-            }
-        };
-    }
-    
-    
+
     
     @Override
     protected void onConnectionConflict(){

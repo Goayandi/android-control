@@ -5,25 +5,36 @@ import com.yongyida.robot.bean.Task;
 
 public class Constants {
 
+
 	// 请求地址
-	public static String address = "http://server.yydrobot.com";
+	public static String address_cn = "http://server.yydrobot.com";
 	public static String address_hk = "http://hk.server.yydrobot.com:180";
 
 	// socket ip地址
-	public static String ip = "server.yydrobot.com";
+	public static String ip_cn = "server.yydrobot.com";
 	public static String ip_hk = "hk.server.yydrobot.com";
 
 	// socket 端口号
-	public static String port = "8002";
+	public static String port_cn = "8002";
 	public static String port_hk = "18002";
 
 	// 下载地址
-	public static String download_address = "http://resource.yydrobot.com/app/app.version";
-	public static String download_address_hk = "http://hk.resource.yydrobot.com/app/app.version";
+	public static String download_address_cn = "http://resource.yydrobot.com/app/yyd/cn/app.version";
+	public static String download_address_tw = "http://resource.yydrobot.com/app/taiwan/cn/app.taiwan.version";
+	public static String download_address_hk = "http://resource.yydrobot.com/app/hk/cn/app.hk.version";
 
 	//fota下载地址
-	public static String download_fota_address = "http://resource.yydrobot.com/robot/robot.version";
-	public static String download_fota_address_hk = "http://hk.resource.yydrobot.com/robot/robot.version";
+	public static String download_fota_address_cn = "http://resource.yydrobot.com/robot/robot.version";
+	public static String download_fota_address_hk = "http://resource.yydrobot.com/robot/robot.version";
+	public static String download_fota_address_tw = "http://resource.yydrobot.com/robot/robot.version";
+
+
+	public static String address = address_cn;
+	public static String ip = ip_cn;
+	public static String port = port_cn;
+	public static String download_address = download_address_cn;
+	public static String download_fota_address = download_fota_address_cn;
+
 
 	// 任务添加操作请求码
 	public static int add_RequestCode = 888;

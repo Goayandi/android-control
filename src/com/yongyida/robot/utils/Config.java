@@ -33,6 +33,10 @@ public class Config {
     private final static String SHARED_KEY_BITRATE_TYPE = "shared_key_setting_bitrate_type";
     private final static String SHARED_KEY_FRAMERATE_TYPE = "shared_key_setting_framerate_type";
 
+    private final static String SHARED_KEY_SAMPLERATE = "shared_key_setting_sampleRate";
+    private final static String SHARED_KEY_CHANNEL = "shared_key_setting_channel";
+    private final static String SHARED_KEY_AUDIOFORMAT = "shared_key_setting_audioFormat";
+
     private static SharedPreferences mSharedPreferences;
     private static SharedPreferences.Editor mEditor;
 
@@ -104,6 +108,33 @@ public class Config {
 
     public static void setBitRateType(int value) {
         mEditor.putInt(SHARED_KEY_BITRATE_TYPE, value);
+        mEditor.commit();
+    }
+
+    public static int getSampleRate() {
+        return mSharedPreferences.getInt(SHARED_KEY_SAMPLERATE, 44100);
+    }
+
+    public static void setSampleRate(int value) {
+        mEditor.putInt(SHARED_KEY_SAMPLERATE, value);
+        mEditor.commit();
+    }
+
+    public static int getChannel() {
+        return mSharedPreferences.getInt(SHARED_KEY_CHANNEL, 16);
+    }
+
+    public static void setChannel(int value) {
+        mEditor.putInt(SHARED_KEY_CHANNEL, value);
+        mEditor.commit();
+    }
+
+    public static int getAudioFormat() {
+        return mSharedPreferences.getInt(SHARED_KEY_AUDIOFORMAT, 2);
+    }
+
+    public static void setAudioFormat(int value) {
+        mEditor.putInt(SHARED_KEY_AUDIOFORMAT, value);
         mEditor.commit();
     }
 

@@ -9,7 +9,7 @@
         android:textColor="@android:color/white"
         android:textSize="24sp"
         android:layout_marginTop="30dp"
-        android:text="注册"/>
+        android:text="@string/register"/>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -20,12 +20,12 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             style="@style/style_et_login"
-            android:text="账号:"/>
+            android:text="@string/account1"/>
         <EditText
             android:id="@+id/et_account"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:hint="请输入6-20位数字,字母(必须以字母开头)"
+            android:hint="@string/username_hint"
             style="@style/style_et_login"
             android:layout_weight="3"/>
     </LinearLayout>
@@ -39,12 +39,12 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             style="@style/style_et_login"
-            android:text="密码:"/>
+            android:text="@string/pwd"/>
         <EditText
             android:id="@+id/et_pwd"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:hint="请输入6-20位数字,字母"
+            android:hint="@string/pwd_hint2"
             android:password="true"
             style="@style/style_et_login"
             android:layout_weight="3"/>
@@ -59,13 +59,13 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             style="@style/style_et_login"
-            android:text="密码确认:"/>
+            android:text="@string/pwd_confirm"/>
         <EditText
             android:id="@+id/et_pwd_confirm"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:password="true"
-            android:hint="请再次输入密码"
+            android:hint="@string/input_pwd_again"
             style="@style/style_et_login"
             android:layout_weight="3"/>
     </LinearLayout>
@@ -80,16 +80,27 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             style="@style/style_et_login"
-            android:text="验证码"/>
+            android:text="@string/verify_title"/>
         <EditText
             android:id="@+id/et_verify_code"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:hint="请输入验证码"
+            android:hint="@string/verify_hint"
             android:inputType="number"
             android:maxLength="4"
             style="@style/style_et_login"
             android:layout_weight="2"/>
+        <TextView
+            android:id="@+id/tv_not_get"
+            android:layout_width="0dp"
+            android:layout_height="20dp"
+            android:layout_weight="1"
+            android:background="@color/white"
+            android:text="@string/refresh"
+            android:gravity="center"
+            android:textSize="12sp"
+            android:textColor="@color/red"
+            android:visibility="gone"/>
         <ImageView
             android:id="@+id/iv_verify_code"
             android:layout_width="0dp"
@@ -108,7 +119,7 @@
             android:layout_height="wrap_content"
             android:layout_alignLeft="@+id/view"
             android:layout_marginRight="50dp"
-            android:text="确认"/>
+            android:text="@string/confirm"/>
 
         <View
             android:id="@+id/view"
@@ -122,6 +133,6 @@
             android:layout_height="wrap_content"
             android:layout_alignRight="@+id/view"
             android:layout_marginLeft="50dp"
-            android:text="取消"/>
+            android:text="@string/cancel"/>
     </RelativeLayout>
 </LinearLayout>

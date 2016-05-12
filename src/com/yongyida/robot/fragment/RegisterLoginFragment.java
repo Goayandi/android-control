@@ -15,6 +15,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.easemob.EMCallBack;
@@ -25,7 +26,6 @@ import com.yongyida.robot.activity.ConnectActivity;
 import com.yongyida.robot.activity.RegisterActivity;
 import com.yongyida.robot.huanxin.CommonUtils;
 import com.yongyida.robot.huanxin.DemoApplication;
-import com.yongyida.robot.service.SocketService;
 import com.yongyida.robot.utils.Constants;
 import com.yongyida.robot.utils.HandlerUtil;
 import com.yongyida.robot.utils.NetUtil;
@@ -56,15 +56,23 @@ public class RegisterLoginFragment extends BaseFragment implements View.OnClickL
             switch (msg.what) {
                 case 1:
                     Bitmap bitmap = msg.getData().getParcelable("bitmap");
-                    mImageCode.setImageBitmap(bitmap);
-                    mImageCode.setEnabled(true);
+                    if (bitmap == null) {
+                        whetherGetVerifyCode(false);
+                    } else {
+                        whetherGetVerifyCode(true);
+                        mImageCode.setImageBitmap(bitmap);
+                    }
+                    enablleClickToGetVerifyCode(true);
+                    mNotGetVerifyTV.setText(R.string.refresh);
                     break;
                 case 2:
                     ToastUtil.showtomain(getActivity(),
                             msg.getData().getString("result"));
                     break;
                 case 3:
-                    mImageCode.setEnabled(true);
+                    whetherGetVerifyCode(false);
+                    enablleClickToGetVerifyCode(true);
+                    mNotGetVerifyTV.setText(R.string.refresh);
                     break;
             }
         }
@@ -77,6 +85,36 @@ public class RegisterLoginFragment extends BaseFragment implements View.OnClickL
     private EditText mVerifyCodeET;
     private Button mLoginBT;
     private ProgressDialog mProgress;
+    private TextView mNotGetVerifyTV;
+
+    /**
+     *   防止用户在一次请求没有完成的时候多次点击 造成输入的验证码过期等问题
+     * @param flag 是否能点击获取验证码  true 是可以
+     */
+    private void enablleClickToGetVerifyCode(boolean flag){
+        if (flag) {
+            mImageCode.setEnabled(true);
+            mNotGetVerifyTV.setEnabled(true);
+        } else {
+            mImageCode.setEnabled(false);
+            mNotGetVerifyTV.setEnabled(false);
+        }
+    }
+
+    /**
+     *
+     * @param flag  获取验证码是否成功  true 是成功
+     */
+    private void whetherGetVerifyCode(boolean flag){
+        if (flag) {
+            mImageCode.setVisibility(View.VISIBLE);
+            mNotGetVerifyTV.setVisibility(View.GONE);
+        } else {
+            mImageCode.setVisibility(View.GONE);
+            mNotGetVerifyTV.setVisibility(View.VISIBLE);
+        }
+    }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -93,6 +131,8 @@ public class RegisterLoginFragment extends BaseFragment implements View.OnClickL
         mVerifyCodeET = (EditText) v.findViewById(R.id.et_verify_code);
         mImageCode = (ImageView) v.findViewById(R.id.iv);
         mImageCode.setOnClickListener(this);
+        mNotGetVerifyTV = (TextView) v.findViewById(R.id.tv_not_get);
+        mNotGetVerifyTV.setOnClickListener(this);
         if (getActivity().getSharedPreferences("userinfo", getActivity().MODE_PRIVATE).getString(
                 "account_name", null) != null) {
             mAccountET.setText(getActivity().getSharedPreferences("userinfo", getActivity().MODE_PRIVATE)
@@ -103,7 +143,8 @@ public class RegisterLoginFragment extends BaseFragment implements View.OnClickL
     }
 
     private void getPicture() {
-        mImageCode.setEnabled(false);
+        enablleClickToGetVerifyCode(false);
+        mNotGetVerifyTV.setText(R.string.refresh_ing);
         ThreadPool.execute(new Runnable() {
             @Override
             public void run() {
@@ -163,6 +204,9 @@ public class RegisterLoginFragment extends BaseFragment implements View.OnClickL
             case R.id.bt_login:
                 inputVerifyAndCommit();
                 break;
+            case R.id.tv_not_get:
+                getPicture();
+                break;
         }
     }
 
@@ -172,23 +216,23 @@ public class RegisterLoginFragment extends BaseFragment implements View.OnClickL
         String password = mPasswordET.getText().toString();
         String verifyCode = mVerifyCodeET.getText().toString();
         if (TextUtils.isEmpty(account)){
-            ToastUtil.showtomain(getActivity(), "请输入账户");
+            ToastUtil.showtomain(getActivity(), getString(R.string.input_account));
             return;
         }
         if (TextUtils.isEmpty(password)){
-            ToastUtil.showtomain(getActivity(), "请输入密码");
+            ToastUtil.showtomain(getActivity(), getString(R.string.input_pwd));
             return;
         }
         if (TextUtils.isEmpty(verifyCode)){
-            ToastUtil.showtomain(getActivity(), "请输入验证码");
+            ToastUtil.showtomain(getActivity(), getString(R.string.input_verify));
             return;
         }
         if (!Utils.isAccount(account)) {
-            Toast.makeText(getActivity(), "账号请输入6-20位数字,字母(必须以字母开头)", Toast.LENGTH_LONG).show();
+            Toast.makeText(getActivity(), getString(R.string.account_hint), Toast.LENGTH_LONG).show();
             return;
         }
         if (!Utils.isPassword(password)) {
-            Toast.makeText(getActivity(), "密码请输入6-20位数字,字母", Toast.LENGTH_LONG).show();
+            Toast.makeText(getActivity(), getString(R.string.pwd_hint), Toast.LENGTH_LONG).show();
             return;
         }
 
@@ -197,7 +241,7 @@ public class RegisterLoginFragment extends BaseFragment implements View.OnClickL
 
     private void login(final String account, final String password, final String verifyCode) {
         mProgress = new ProgressDialog(getActivity());
-        mProgress.setMessage("登录中");
+        mProgress.setMessage(getString(R.string.login_ing));
         mProgress.setCancelable(false);
         mProgress.show();
         ThreadPool.execute(new Runnable() {
@@ -219,28 +263,25 @@ public class RegisterLoginFragment extends BaseFragment implements View.OnClickL
                                     case 0:
                                         into(json);
                                         huanxinlogin(json.getString("id"), json.getString("id"));
-                                        Constants.isUserClose = false;
-                                        if (!Utils.isServiceRunning(getActivity(), SocketService.class.getSimpleName())) {
-                                            getActivity().startService(new Intent(getActivity(), SocketService.class));
-                                        }
+                                        Utils.startSocketService(getActivity());
                                         StartUtil.startintent(getActivity(), ConnectActivity.class,
                                                 "finish");
                                         break;
                                     case -1:
-                                        HandlerUtil.sendmsg(mHandler, "传入参数为空", 2);
+                                        HandlerUtil.sendmsg(mHandler, getString(R.string.argu_null), 2);
                                         break;
                                     case 1:
-                                        HandlerUtil.sendmsg(mHandler, "验证码已过期", 2);
+                                        HandlerUtil.sendmsg(mHandler, getString(R.string.verify_expire), 2);
                                         getPicture();
                                         break;
                                     case 2:
-                                        HandlerUtil.sendmsg(mHandler, "账号信息不存在", 2);
+                                        HandlerUtil.sendmsg(mHandler, getString(R.string.account_exist), 2);
                                         break;
                                     case 3:
-                                        HandlerUtil.sendmsg(mHandler, "密码错误", 2);
+                                        HandlerUtil.sendmsg(mHandler, getString(R.string.pwd_wrong), 2);
                                         break;
                                     case 4:
-                                        HandlerUtil.sendmsg(mHandler, "密码未设置，请设置密码", 2);
+                                        HandlerUtil.sendmsg(mHandler, getString(R.string.pwd_not_set), 2);
                                         break;
                                 }
                                 if (mProgress != null) {

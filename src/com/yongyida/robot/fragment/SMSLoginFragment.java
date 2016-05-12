@@ -26,7 +26,6 @@ import com.yongyida.robot.activity.ConnectActivity;
 import com.yongyida.robot.activity.StateActivity;
 import com.yongyida.robot.huanxin.CommonUtils;
 import com.yongyida.robot.huanxin.DemoApplication;
-import com.yongyida.robot.service.SocketService;
 import com.yongyida.robot.utils.BroadcastReceiverRegister;
 import com.yongyida.robot.utils.Constants;
 import com.yongyida.robot.utils.HandlerUtil;
@@ -347,11 +346,7 @@ public class SMSLoginFragment extends BaseFragment implements View.OnClickListen
                                                                     .getText().toString(),
                                                             edit_phonenum.getText()
                                                                     .toString());
-                                                    Constants.isUserClose = false;
-                                                    if (!Utils.isServiceRunning(getActivity(), SocketService.class.getSimpleName())) {
-                                                        getActivity().startService(new Intent(getActivity(), SocketService.class));
-                                                    }
-
+                                                    Utils.startSocketService(getActivity());
                                                     if (timer != null) {
                                                         timer.cancel();
                                                     }

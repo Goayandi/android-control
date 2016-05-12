@@ -15,7 +15,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             style="@style/style_et_login"
-            android:text="用户名:"
+            android:text="@string/username"
             />
 
         <EditText
@@ -24,7 +24,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="3"
             style="@style/style_et_login"
-            android:hint="请输入6-20位数字,字母(必须以字母开头)"/>
+            android:hint="@string/username_hint"/>
     </LinearLayout>
 
     <LinearLayout
@@ -39,7 +39,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             style="@style/style_et_login"
-            android:text="密码:"/>
+            android:text="@string/pwd"/>
 
         <EditText
             android:id="@+id/et_pwd"
@@ -47,7 +47,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="3"
             style="@style/style_et_login"
-            android:hint="请输入6-20位数字,字母"
+            android:hint="@string/pwd_hint2"
             android:password="true"/>
     </LinearLayout>
 
@@ -63,7 +63,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             style="@style/style_et_login"
-            android:text="验证码:" />
+            android:text="@string/verify_title" />
 
         <EditText
             android:id="@+id/et_verify_code"
@@ -73,7 +73,19 @@
             android:inputType="number"
             android:maxLength="4"
             style="@style/style_et_login"
-            android:hint="请输入验证码"/>
+            android:hint="@string/verify_hint"/>
+
+        <TextView
+            android:id="@+id/tv_not_get"
+            android:layout_width="0dp"
+            android:layout_height="20dp"
+            android:layout_weight="1"
+            android:background="@color/white"
+            android:gravity="center"
+            android:text="@string/refresh"
+            android:textSize="12sp"
+            android:textColor="@color/red"
+            android:visibility="gone"/>
 
         <ImageView
             android:id="@+id/iv"
@@ -94,7 +106,7 @@
             android:layout_height="wrap_content"
             android:layout_alignLeft="@+id/view"
             android:layout_marginRight="50dp"
-            android:text="注册" />
+            android:text="@string/register" />
 
         <View
             android:id="@+id/view"
@@ -108,6 +120,6 @@
             android:layout_height="wrap_content"
             android:layout_alignRight="@+id/view"
             android:layout_marginLeft="50dp"
-            android:text="登录" />
+            android:text="@string/login_title" />
     </RelativeLayout>
 </LinearLayout>

@@ -112,7 +112,7 @@ public class PowerListActivity extends BaseActivity implements OnClickListener {
 		} else {
 			mBattery.setTextColor(getResources().getColor(R.color.white));
 		}
-		mBattery.setText("电量:" + battery + "%");
+		mBattery.setText(getString(R.string.battery) + battery + "%");
 	}
 
 	@Override
@@ -219,8 +219,8 @@ public class PowerListActivity extends BaseActivity implements OnClickListener {
 
 		switch (v.getId()) {
 		case R.id.more:
-		//	ToastUtil.showtomain(this, getString(R.string.waitting));
-			startActivity(new Intent(this, MeetingTestActivity.class));
+			ToastUtil.showtomain(this, getString(R.string.waitting));
+		//	startActivity(new Intent(this, MeetingTestActivity.class));
 		//	startActivity(new Intent(PowerListActivity.this,FriendsActivity.class));
 			break;
 		case R.id.power_title:

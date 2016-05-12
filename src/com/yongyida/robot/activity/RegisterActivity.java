@@ -2,7 +2,6 @@ package com.yongyida.robot.activity;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -15,6 +14,7 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.easemob.EMCallBack;
@@ -63,19 +63,56 @@ public class RegisterActivity extends Activity implements OnClickListener{
             switch (msg.what) {
                 case 1:
                     Bitmap bitmap = msg.getData().getParcelable("bitmap");
-                    mVerifyCodeIV.setImageBitmap(bitmap);
-                    mVerifyCodeIV.setEnabled(true);
+                    if (bitmap == null) {
+                        whetherGetVerifyCode(false);
+                    } else {
+                        whetherGetVerifyCode(true);
+                        mVerifyCodeIV.setImageBitmap(bitmap);
+                    }
+                    enablleClickToGetVerifyCode(true);
+                    mNotGetVerifyTV.setText(R.string.refresh);
                     break;
                 case 2:
                     ToastUtil.showtomain(RegisterActivity.this,
                             msg.getData().getString("result"));
                     break;
                 case 3:
-                    mVerifyCodeIV.setEnabled(true);
+                    whetherGetVerifyCode(false);
+                    enablleClickToGetVerifyCode(true);
+                    mNotGetVerifyTV.setText(R.string.refresh);
                     break;
             }
         }
     };
+    private TextView mNotGetVerifyTV;
+
+    /**
+     *   防止用户在一次请求没有完成的时候多次点击 造成输入的验证码过期等问题
+     * @param flag 是否能点击获取验证码  true 是可以
+     */
+    private void enablleClickToGetVerifyCode(boolean flag){
+        if (flag) {
+            mVerifyCodeIV.setEnabled(true);
+            mNotGetVerifyTV.setEnabled(true);
+        } else {
+            mVerifyCodeIV.setEnabled(false);
+            mNotGetVerifyTV.setEnabled(false);
+        }
+    }
+
+    /**
+     *
+     * @param flag  获取验证码是否成功  true 是成功
+     */
+    private void whetherGetVerifyCode(boolean flag){
+        if (flag) {
+            mVerifyCodeIV.setVisibility(View.VISIBLE);
+            mNotGetVerifyTV.setVisibility(View.GONE);
+        } else {
+            mVerifyCodeIV.setVisibility(View.GONE);
+            mNotGetVerifyTV.setVisibility(View.VISIBLE);
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,6 +132,8 @@ public class RegisterActivity extends Activity implements OnClickListener{
         mConfirmBT.setOnClickListener(this);
         mCancelBT = (Button) findViewById(R.id.bt_cancel);
         mCancelBT.setOnClickListener(this);
+        mNotGetVerifyTV = (TextView) findViewById(R.id.tv_not_get);
+        mNotGetVerifyTV.setOnClickListener(this);
         getPicture();
     }
 
@@ -110,11 +149,15 @@ public class RegisterActivity extends Activity implements OnClickListener{
             case R.id.iv_verify_code:
                 getPicture();
                 break;
+            case R.id.tv_not_get:
+                getPicture();
+                break;
         }
     }
 
     private void getPicture() {
-        mVerifyCodeIV.setEnabled(false);
+        enablleClickToGetVerifyCode(false);
+        mNotGetVerifyTV.setText(R.string.refresh_ing);
         ThreadPool.execute(new Runnable() {
             @Override
             public void run() {
@@ -168,27 +211,27 @@ public class RegisterActivity extends Activity implements OnClickListener{
         String passwordConfirm = mPasswordConfirmET.getText().toString();
         String verifyCode = mVerifyCodeET.getText().toString();
         if (TextUtils.isEmpty(account)){
-            ToastUtil.showtomain(RegisterActivity.this, "请输入账户");
+            ToastUtil.showtomain(RegisterActivity.this, getString(R.string.input_account));
             return;
         }
         if (TextUtils.isEmpty(password)){
-            ToastUtil.showtomain(RegisterActivity.this, "请输入密码");
+            ToastUtil.showtomain(RegisterActivity.this, getString(R.string.input_pwd));
             return;
         }
         if (TextUtils.isEmpty(verifyCode)){
-            ToastUtil.showtomain(RegisterActivity.this, "请输入验证码");
+            ToastUtil.showtomain(RegisterActivity.this, getString(R.string.input_verify));
             return;
         }
         if (!password.equals(passwordConfirm)) {
-            ToastUtil.showtomain(RegisterActivity.this, "两次密码不一致");
+            ToastUtil.showtomain(RegisterActivity.this, getString(R.string.pwd_not_consistent));
             return;
         }
         if (!Utils.isAccount(account)) {
-            Toast.makeText(RegisterActivity.this, "账号请输入6-20位数字,字母(必须以字母开头)", Toast.LENGTH_LONG).show();
+            Toast.makeText(RegisterActivity.this, R.string.account_hint, Toast.LENGTH_LONG).show();
             return;
         }
         if (!Utils.isPassword(password)) {
-            Toast.makeText(RegisterActivity.this, "密码请输入6-20位数字,字母", Toast.LENGTH_LONG).show();
+            Toast.makeText(RegisterActivity.this, R.string.pwd_hint, Toast.LENGTH_LONG).show();
             return;
         }
         register(account, password, verifyCode);
@@ -213,7 +256,7 @@ public class RegisterActivity extends Activity implements OnClickListener{
 
     private void register(final String account, final String password, final String verifyCode){
         mProgress = new ProgressDialog(this);
-        mProgress.setMessage("注册中");
+        mProgress.setMessage(getString(R.string.register_ing));
         mProgress.setCancelable(false);
         mProgress.show();
         ThreadPool.execute(new Runnable() {
@@ -238,23 +281,23 @@ public class RegisterActivity extends Activity implements OnClickListener{
                                         into(json);
                                         huanxinlogin(json.getString("id"), json.getString("id"));
                                         if (!Utils.isServiceRunning(RegisterActivity.this, SocketService.class.getSimpleName())) {
-                                            startService(new Intent(RegisterActivity.this, SocketService.class));
+                                            Utils.startSocketService(RegisterActivity.this);
                                         }
                                         StartUtil.startintent(RegisterActivity.this, ConnectActivity.class,
                                                 "finish");
                                         break;
                                     case -1:
-                                        HandlerUtil.sendmsg(mHandler, "传入参数为空", 2);
+                                        HandlerUtil.sendmsg(mHandler, getString(R.string.argu_null), 2);
                                         break;
                                     case 1:
-                                        HandlerUtil.sendmsg(mHandler, "验证码已过期", 2);
+                                        HandlerUtil.sendmsg(mHandler, getString(R.string.verify_expire), 2);
                                         getPicture();
                                         break;
                                     case 2:
-                                        HandlerUtil.sendmsg(mHandler, "账号已经存在", 2);
+                                        HandlerUtil.sendmsg(mHandler, getString(R.string.account_exist), 2);
                                         break;
                                     case 3:
-                                        HandlerUtil.sendmsg(mHandler, "账号只能是字母下划线和数字", 2);
+                                        HandlerUtil.sendmsg(mHandler, getString(R.string.account_format_error), 2);
                                         break;
                                 }
                             } catch (JSONException e) {
