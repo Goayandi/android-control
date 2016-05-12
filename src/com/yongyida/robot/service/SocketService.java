@@ -960,6 +960,9 @@ public class SocketService extends Service {
             if (mLoginVideoRoomBR != null) {
                 unregisterReceiver(mLoginVideoRoomBR);
             }
+            if (mFotaUpdateBR != null) {
+                unregisterReceiver(mFotaUpdateBR);
+            }
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
         }

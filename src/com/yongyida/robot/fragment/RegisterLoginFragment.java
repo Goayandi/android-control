@@ -275,7 +275,7 @@ public class RegisterLoginFragment extends BaseFragment implements View.OnClickL
                                         getPicture();
                                         break;
                                     case 2:
-                                        HandlerUtil.sendmsg(mHandler, getString(R.string.account_exist), 2);
+                                        HandlerUtil.sendmsg(mHandler, getString(R.string.account_not_exist), 2);
                                         break;
                                     case 3:
                                         HandlerUtil.sendmsg(mHandler, getString(R.string.pwd_wrong), 2);

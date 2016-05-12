@@ -314,4 +314,5 @@
     <string name="pwd_confirm">密碼確認:</string>
     <string name="input_pwd_again">請再次輸入密碼</string>
     <string name="battery">電量:</string>
+    <string name="account_not_exist">賬號不存在</string>
 </resources>
