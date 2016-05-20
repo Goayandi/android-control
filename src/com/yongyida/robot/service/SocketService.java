@@ -36,8 +36,11 @@ import com.yongyida.robot.video.av.FrameRateType;
 import com.yongyida.robot.video.av.TransferDataType;
 import com.yongyida.robot.video.av.TransferType;
 import com.yongyida.robot.video.av.VideoSizeType;
+import com.yongyida.robot.video.command.RoomUser;
+import com.yongyida.robot.video.sdk.MeetingInfo;
 import com.yongyida.robot.video.sdk.Role;
 import com.yongyida.robot.video.sdk.YYDSDKHelper;
+import com.yongyida.robot.video.sdk.YYDVideoServer;
 
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.channel.ChannelHandlerContext;
@@ -66,7 +69,8 @@ public class SocketService extends Service {
 
     private Timer time;
     boolean the = true;
-    private ChannelHandlerContext ctx;
+    private ChannelHandlerContext ctx;          //用于发送一般的socket请求
+    private ChannelHandlerContext mMediaCtx;    //用于发送视频部分 进入房间之后的请求
     private NetStateBroadcastReceiver netstate = new NetStateBroadcastReceiver();
     private String size = "";
     private SocketErrorReceiver mSocketErrorReceiver = new SocketErrorReceiver();
@@ -112,42 +116,33 @@ public class SocketService extends Service {
                 String cmd = Result.getString("cmd");
                 if (Constants.CMD_MEDIA_INVITE.equals(cmd)) {      //视频请求响应
                     int ret = Result.getInt(Constants.RET);
-                    String mediaTcpIp = Result.getString("media_tcp_ip");
-                    int mediaTcpPort = Result.getInt("media_tcp_port");
-                    int roomId = Result.getInt("room_id");
-                    Log.i("Message", "ret:" + ret);
-                    Log.i("Message", "mediaTcpIp:" + mediaTcpIp);
-                    Log.i("Message", "mediaTcpPort:" + mediaTcpPort);
-                    Log.i("Message", "roomId:" + roomId);
                     Intent intent = new Intent(Constants.CONNECTION_REQUEST);
-                    intent.putExtra(Constants.MediaTcpIp, mediaTcpIp);
-                    intent.putExtra(Constants.MediaTcpPort, mediaTcpPort);
-                    intent.putExtra(Constants.RoomID, roomId);
+                    intent.putExtra(Constants.RET, ret);
+                    if (ret == 0) {
+                        String mediaTcpIp = Result.getString("media_tcp_ip");
+                        int mediaTcpPort = Result.getInt("media_tcp_port");
+                        int roomId = Result.getInt("room_id");
+                        intent.putExtra(Constants.MediaTcpIp, mediaTcpIp);
+                        intent.putExtra(Constants.MediaTcpPort, mediaTcpPort);
+                        intent.putExtra(Constants.RoomID, roomId);
+                    }
                     sendBroadcast(intent);
                 } else if (Constants.CMD_MEDIA_CANCEL.equals(cmd)) {
                     int ret = Result.getInt("ret");
-                    //TODO
+                    Intent intent = new Intent(Constants.MEDIA_INVITE_CANCEL);
+                    intent.putExtra(Constants.RET, ret);
+                    sendBroadcast(intent);
                 } else if (Constants.CMD_MEDIA_REPLY.equals(cmd)) {
                     int ret = Result.getInt("ret");
                     String mediaTcpIp = Result.getString("media_tcp_ip");
                     int mediaTcpPort = Result.getInt("media_tcp_port");
                     int roomId = Result.getInt("room_id");
-                    Log.i("Message", "ret:" + ret);
-                    Log.i("Message", "mediaTcpIp:" + mediaTcpIp);
-                    Log.i("Message", "mediaTcpPort:" + mediaTcpPort);
-                    Log.i("Message", "roomId:" + roomId);
                     Intent intent = new Intent(Constants.Replay_Response);
                     intent.putExtra(Constants.MediaTcpIp, mediaTcpIp);
                     intent.putExtra(Constants.MediaTcpPort, mediaTcpPort);
                     intent.putExtra(Constants.RoomID, roomId);
                     sendBroadcast(intent);
-                } else if (Constants.CMD_MEDIA_LOGIN.equals(cmd)) {
-                    String UserMedias = Result.getString("UserMedias");
-                } else if (Constants.CMD_MEDIA_LOGOUT.equals(cmd)) {
-
-                } else if (Constants.CMD_MEDIA_JOIN.equals(cmd)) {
-
-                } else if (Constants.CMD_MEDIA_CALLBACK.equals(cmd)) {
+                }  else if (Constants.CMD_MEDIA_CALLBACK.equals(cmd)) {
                     String command = Result.getString("command");
 
                 } else if (Constants.CMD_MEDIA_IVT.equals(cmd)) {
@@ -155,7 +150,19 @@ public class SocketService extends Service {
                     Intent intent = new Intent(Constants.VIDEO_REQUEST_FROM_OTHERS);
                     sendBroadcast(intent);
                 } else if (Constants.CMD_MEDIA_REPLY_NEW.equals(cmd)) {
+                    int reply = Result.getInt("reply");
                     Intent intent = new Intent(Constants.MEDIA_REPLY);
+                    if (reply != 0) {
+                        String invite_type = Result.getString("invite_type");
+                        int invite_id = Result.getInt("invite_id");
+                        String role = Result.getString("role");
+                        int id = Result.getInt("id");
+                        intent.putExtra("invite_type", invite_type);
+                        intent.putExtra("role", role);
+                        intent.putExtra("invite_id", invite_id);
+                        intent.putExtra("id", id);
+                    }
+                    intent.putExtra("reply", reply);
                     sendBroadcast(intent);
                 }
             }
@@ -487,6 +494,15 @@ public class SocketService extends Service {
         }
     };
 
+    BroadcastReceiver mCancelDialBR = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            long id = intent.getIntExtra("id", -1);
+            String role = intent.getStringExtra("role");
+            NetUtil.socketY20MediaCancel(id, role, ctx);
+        }
+    };
+
     BroadcastReceiver mVideoReplyBR = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -496,13 +512,24 @@ public class SocketService extends Service {
         }
     };
 
+    BroadcastReceiver mLogoutVideoRoomBR = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String id = intent.getStringExtra("id");
+            String role = intent.getStringExtra("role");
+            int room_id = intent.getIntExtra("room_id", -1);
+            NetUtil.socketY20MediaLogout(id, role, room_id, mMediaCtx);
+        }
+    };
+
     BroadcastReceiver mLoginVideoRoomBR = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            final int id = getSharedPreferences("userinfo", MODE_PRIVATE).getInt("id", 0);
+            final int id = intent.getIntExtra(Constants.ID, -1);
             final int roomId = intent.getIntExtra(Constants.RoomID, -1);
             final String ip = intent.getStringExtra(Constants.MediaTcpIp);
             final int port = intent.getIntExtra(Constants.MediaTcpPort, -1);
+            final String role = intent.getStringExtra(Constants.TypeRole);
             connectVideoSocket(new SocketListener() {
                 @Override
                 public void connectFail() {
@@ -512,7 +539,18 @@ public class SocketService extends Service {
                 @Override
                 public void connectSuccess(ChannelHandlerContext ctx, ChannelStateEvent e) {
                     Log.i("Message", "connectSuccess");
-                    NetUtil.socketY20MediaLogin(id + "", Role.User, roomId, ctx);
+                    MeetingInfo info = YYDVideoServer.getInstance().getMeetingInfo();
+                    int videowidth = info.VideoWidth;
+                    int videoheight = info.VideoHeight;
+                    int framerate = info.FrameRate;
+                    int bitrate = info.BitRate;
+                    int samplerate = info.SampleRate;
+                    int channel = info.Channel;
+                    int audioformat = info.AudioFormat;
+                    NetUtil.socketY20MediaLogin(id + "", role, roomId, videowidth, videoheight,
+                            framerate, bitrate, samplerate, channel, audioformat,
+                            ctx);
+                    mMediaCtx = ctx;
                 }
 
                 @Override
@@ -550,33 +588,57 @@ public class SocketService extends Service {
                         if (o instanceof JSONObject) {
                             Result = (JSONObject) o;
 
-
                         } else if (o instanceof MeetingVideoDecoder.Result2) {
                             MeetingVideoDecoder.Result2 result = ((MeetingVideoDecoder.Result2) o);
                             String cmd = result.json.getString("cmd");
                             if (Constants.CMD_MEDIA_LOGIN.equals(cmd)) {
-                                String userMedia = result.json.getString("UserMedia");
-                                JSONObject jsonObject = new JSONObject(userMedia);
-                                String send_host = jsonObject.getString("send_host");
-                                int send_port = jsonObject.getInt("send_port");
-                                String userMedias = result.json.getString("UserMedias");
-                                JSONArray jsonArray = new JSONArray(userMedias);
-                                Log.e("Message", "length:" + jsonArray.length());
-                                if (jsonArray.length() > 0) {
-                                    for (int i = 0; i < jsonArray.length(); i++) {
-                                        long id1 = jsonArray.getJSONObject(i).getLong("id");
-                                        String role1 = jsonArray.getJSONObject(i).getString("role");
-                                        String nickName1 = jsonArray.getJSONObject(i).getString("nikename");
-//                                        if (id1 != YYDSDKHelper.getInstance().getUser().getId()
-//                                                || !role1.equalsIgnoreCase(YYDSDKHelper.getInstance().getUser().getRole())) {
-//                                            YYDVideoServer.getInstance().getMeetingInfo().addUser(new User(role1, id, nickName1));
-//                                        }
+                                int ret = result.json.getInt("ret");
+                                if (ret == 0) {
+                                    String userMedia = result.json.getString("UserMedia");
+                                    JSONObject jsonObject = new JSONObject(userMedia);
+                                    String send_host = jsonObject.getString("send_host");
+                                    int send_port = jsonObject.getInt("send_port");
+                                    String userMedias = result.json.getString("UserMedias");
+                                    JSONArray jsonArray = new JSONArray(userMedias);
+                                    Log.e("Message", userMedias);
+                                    YYDVideoServer.getInstance().getMeetingInfo().setVideoServer_Udp(send_host, send_port);
+                                    YYDVideoServer.getInstance().getMeetingInfo().setAtRooming(true);
+                                    if (jsonArray.length() > 0) {
+                                        for (int i = 0; i < jsonArray.length(); i++) {
+                                            long id1 = jsonArray.getJSONObject(i).getLong("id");
+                                            String role1 = jsonArray.getJSONObject(i).getString("role");
+                                            String nickName1 = jsonArray.getJSONObject(i).getString("nikename");
+                                            if (id1 != YYDSDKHelper.getInstance().getUser().getId()
+                                                    || !role1.equalsIgnoreCase(YYDSDKHelper.getInstance().getUser().getRole())) {
+                                                YYDVideoServer.getInstance().getMeetingInfo().addRoomUser(new RoomUser(role1, id1, nickName1));
+                                            }
+                                        }
                                     }
                                 }
                                 Intent intent = new Intent(Constants.LOGIN_VIDEO_ROOM_RESPONSE);
-                                intent.putExtra("send_host", send_host);
-                                intent.putExtra("send_port", send_port);
+                                intent.putExtra(Constants.RET, ret);
                                 sendBroadcast(intent);
+                            } else if (Constants.CMD_MEDIA_JOIN_ROOM.equals(cmd)) {
+                                int ret = result.json.getInt("ret");
+                                if (ret == 0) {
+                                    String userMedias = result.json.getString("UserMedias");
+                                    JSONArray jsonArray = new JSONArray(userMedias);
+                                    if (jsonArray.length() > 0) {
+                                        for (int i = 0; i < jsonArray.length(); i++) {
+                                            long id1 = jsonArray.getJSONObject(i).getLong("id");
+                                            String role1 = jsonArray.getJSONObject(i).getString("role");
+                                            String nickName1 = jsonArray.getJSONObject(i).getString("nikename");
+                                            if (id1 != YYDSDKHelper.getInstance().getUser().getId()
+                                                    || !role1.equalsIgnoreCase(YYDSDKHelper.getInstance().getUser().getRole())) {
+                                                YYDVideoServer.getInstance().getMeetingInfo().addRoomUser(new RoomUser(role1, id1, nickName1));
+                                            }
+                                        }
+                                    }
+                                }
+                                Intent intent2 = new Intent(Constants.MEDIA_JOIN_ROOM);
+                                sendBroadcast(intent2);
+                            }else if (Constants.CMD_MEDIA_LOGOUT.equals(cmd)) {
+                                sendBroadcast(new Intent(Constants.LOGIN_VIDEO_ROOM_LOGOUT_RESPONSE));
                             }
                         }
                     } catch (JSONException e1) {
@@ -597,12 +659,28 @@ public class SocketService extends Service {
     BroadcastReceiver mVideoRequestBR = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            int id = getSharedPreferences("userinfo", MODE_PRIVATE).getInt("id", 0);
-            String robotId = getSharedPreferences("Receipt", MODE_PRIVATE).getString("robotid", null);
-            NetUtil.socketY20MediaInvite(id, Role.User, "User" + id, "", NetUtil.NumberType.Phone, 18664920330l, ctx);
+            int id = intent.getIntExtra("id", 0);
+            String role = intent.getStringExtra("role");
+            String picture = intent.getStringExtra("picture");
+            if (picture == null) {
+                picture = "";
+            }
+            String numberType = intent.getStringExtra("numberType");
+            long number = intent.getLongExtra("number", 0);
+            String nickname = intent.getStringExtra("nickname");
+            MeetingInfo info = YYDVideoServer.getInstance().getMeetingInfo();
+            int videowidth = info.VideoWidth;
+            int videoheight = info.VideoHeight;
+            int framerate = info.FrameRate;
+            int bitrate = info.BitRate;
+            int samplerate = info.SampleRate;
+            int channel = info.Channel;
+            int audioformat = info.AudioFormat;
+            NetUtil.socketY20MediaInvite(id, role, nickname, picture, numberType, number,
+                    videowidth, videoheight, framerate, bitrate, samplerate, channel, audioformat,
+                    ctx);
         }
     };
-
     /**
      * 连接机器人
      * @param ctx
@@ -720,8 +798,14 @@ public class SocketService extends Service {
         /* 视频反馈 */
         BroadcastReceiverRegister.reg(this, new String[]{Constants.BR_REPLY}, mVideoReplyBR);
 
+        /* 视频请求取消,取消当前拨号 */
+        BroadcastReceiverRegister.reg(this, new String[]{Constants.BR_CANCEL_DIAL}, mCancelDialBR);
+
         /* 登入视频房间 */
         BroadcastReceiverRegister.reg(this, new String[]{Constants.LOGIN_VIDEO_ROOM}, mLoginVideoRoomBR);
+
+        /* 登出视频房间 */
+        BroadcastReceiverRegister.reg(this, new String[]{Constants.LOGOUT_VIDEO_ROOM}, mLogoutVideoRoomBR);
         /**
          *  建立socket连接
          */
@@ -825,13 +909,15 @@ public class SocketService extends Service {
     private void initVideo(){
         YYDSDKHelper.getInstance().init(this);
         YYDSDKHelper.getInstance().setRole(Role.User);
+
         Config.init(this);
-        Config.setTransferDataType(TransferDataType.VIDEO);
+        Config.setTransferDataType(TransferDataType.AUDIOVIDEO);
         Config.setTransferType(TransferType.RTPOVERUDP);
         Config.setEncoderType(EncoderType.HARD_ENCODER);
-        Config.setVideoSizeType(VideoSizeType.SIZE_320X240);
+        Config.setVideoSizeType(VideoSizeType.SIZE_640X480);
         Config.setFrameRateType(FrameRateType.LOW);
         Config.setBitRateType(BitrateType.LOW);
+
     }
 
     private void logUpload(){
@@ -962,6 +1048,9 @@ public class SocketService extends Service {
             }
             if (mFotaUpdateBR != null) {
                 unregisterReceiver(mFotaUpdateBR);
+            }
+            if (mCancelDialBR != null) {
+                unregisterReceiver(mCancelDialBR);
             }
         } catch (IllegalArgumentException e) {
             e.printStackTrace();

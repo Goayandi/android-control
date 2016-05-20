@@ -168,8 +168,32 @@ public class NetUtil {
 	 * @param number  请求拨号
 	 * @param handler
 	 */
+
+	/**
+	 * socket视频请求
+	 * @param id   数字id
+	 * @param role    角色
+	 *                 Robot
+	 *                 User
+	 * @param nickname  昵称
+	 * @param pic       图片url
+	 * @param type      Robot 小勇号
+	 *                  Room房间号
+	 *                  Phone 手机号
+	 * @param number    请求拨号
+	 * @param videowidth
+	 * @param videoheight
+	 * @param framerate
+	 * @param bitrate
+	 * @param samplerate
+	 * @param channel
+	 * @param audioformat
+	 * @param handler
+	 */
 	public static void socketY20MediaInvite(long id, String role, String nickname,
 											String pic, String type, long number,
+											int videowidth, int videoheight, int framerate, int bitrate,
+											int samplerate, int channel, int audioformat,
 											ChannelHandlerContext handler){
 		try {
 			JSONObject jsonObject = new JSONObject();
@@ -179,6 +203,13 @@ public class NetUtil {
 			jsonObject.put("pic", pic);
 			jsonObject.put("type", type);
 			jsonObject.put("number", number);
+			jsonObject.put("videowidth", videowidth);
+			jsonObject.put("videoheight", videoheight);
+			jsonObject.put("framerate", framerate);
+			jsonObject.put("bitrate", bitrate);
+			jsonObject.put("samplerate", samplerate);
+			jsonObject.put("channel", channel);
+			jsonObject.put("audioformat", audioformat);
 			socketY20(jsonObject, Command.MEDIA_REQUEST, handler);
 		} catch (JSONException e) {
 			e.printStackTrace();
@@ -241,15 +272,31 @@ public class NetUtil {
 						手机    User
 						机器人  Robot
 	 * @param room_id  房间id
+	 *                 * @param videowidth
+	 * @param videoheight
+	 * @param framerate
+	 * @param bitrate
+	 * @param samplerate
+	 * @param channel
+	 * @param audioformat
 	 * @param handler
 	 */
 	public static void socketY20MediaLogin(String id, String role, int room_id,
+										   int videowidth, int videoheight, int framerate, int bitrate,
+										   int samplerate, int channel, int audioformat,
 										   ChannelHandlerContext handler){
 		try {
 			JSONObject jsonObject = new JSONObject();
 			jsonObject.put("id", id);
 			jsonObject.put("role", role);
 			jsonObject.put("room_id", room_id);
+			jsonObject.put("videowidth", videowidth);
+			jsonObject.put("videoheight", videoheight);
+			jsonObject.put("framerate", framerate);
+			jsonObject.put("bitrate", bitrate);
+			jsonObject.put("samplerate", samplerate);
+			jsonObject.put("channel", channel);
+			jsonObject.put("audioformat", audioformat);
 			socketY20(jsonObject, Command.MEDIA_LOGIN, handler);
 		} catch (JSONException e) {
 			e.printStackTrace();
@@ -305,6 +352,13 @@ public class NetUtil {
 							+ "\",\"pic\":\"" + params.getString("pic")
 							+ "\",\"type\":\"" + params.getString("type")
 							+ "\",\"number\":\"" + params.getLong("number")
+							+ "\",\"videowidth\":\"" + params.getInt("videowidth")
+							+ "\",\"videoheight\":\"" + params.getInt("videoheight")
+							+ "\",\"framerate\":\"" + params.getInt("framerate")
+							+ "\",\"bitrate\":\"" + params.getInt("bitrate")
+							+ "\",\"samplerate\":\"" + params.getInt("samplerate")
+							+ "\",\"channel\":\"" + params.getInt("channel")
+							+ "\",\"audioformat\":\"" + params.getInt("audioformat")
 							+ "\",\"cmd\":\"/media/invite\"}";
 				} catch (JSONException e) {
 					e.printStackTrace();
@@ -315,7 +369,6 @@ public class NetUtil {
 				try {
 					str = "{\"id\":\""+ params.getLong("id")
 							+ "\",\"role\":\"" + params.getString("role")
-				//			+ "\",\"session\":\"" + params.getString("session")
 							+ "\",\"cmd\":\"/media/cancel\"}";
 				} catch (JSONException e) {
 					e.printStackTrace();
@@ -324,7 +377,6 @@ public class NetUtil {
 			case MEDIA_PUSH:
 				try {
 					str = "{\"command\":\""+ params.getString("command")
-				//			+ "\",\"session\":\"" + params.getString("session")
 							+ "\",\"cmd\":\"/media/push\"}";
 				} catch (JSONException e) {
 					e.printStackTrace();
@@ -337,7 +389,6 @@ public class NetUtil {
 							+ "\",\"invite_type\":\"" + params.getString("invite_type")
 							+ "\",\"invite_id\":\"" + params.getString("invite_id")
 							+ "\",\"reply\":\"" + params.getInt("reply")
-							//		+ "\",\"session\":\"" + params.getString("session")
 							+ "\",\"cmd\":\"/media/reply\"}";
 				} catch (JSONException e) {
 					e.printStackTrace();
@@ -348,7 +399,13 @@ public class NetUtil {
 					str = "{\"id\":\""+ params.getString("id")
 							+ "\",\"room_id\":\"" + params.getInt("room_id")
 							+ "\",\"role\":\"" + params.getString("role")
-				//			+ "\",\"session\":\"" + params.getString("session")
+							+ "\",\"videowidth\":\"" + params.getInt("videowidth")
+							+ "\",\"videoheight\":\"" + params.getInt("videoheight")
+							+ "\",\"framerate\":\"" + params.getInt("framerate")
+							+ "\",\"bitrate\":\"" + params.getInt("bitrate")
+							+ "\",\"samplerate\":\"" + params.getInt("samplerate")
+							+ "\",\"channel\":\"" + params.getInt("channel")
+							+ "\",\"audioformat\":\"" + params.getInt("audioformat")
 							+ "\",\"cmd\":\"/media/room/login\"}";
 				} catch (JSONException e) {
 					e.printStackTrace();
@@ -359,7 +416,6 @@ public class NetUtil {
 					str = "{\"id\":\""+ params.getString("id")
 							+ "\",\"room_id\":\"" + params.getInt("room_id")
 							+ "\",\"role\":\"" + params.getString("role")
-							+ "\",\"session\":\"" + params.getString("session")
 							+ "\",\"cmd\":\"/media/room/logout\"}";
 				} catch (JSONException e) {
 					e.printStackTrace();

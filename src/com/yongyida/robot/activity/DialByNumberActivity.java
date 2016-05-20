@@ -2,8 +2,6 @@ package com.yongyida.robot.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
@@ -11,10 +9,9 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.yongyida.robot.R;
-import com.yongyida.robot.adapter.CallHistoryAdapter;
 import com.yongyida.robot.video.comm.log;
 import com.yongyida.robot.video.sdk.CallHistory;
-import com.yongyida.robot.video.sdk.YYDSDKHelper;
+import com.yongyida.robot.video.sdk.Role;
 
 import java.util.List;
 
@@ -43,15 +40,13 @@ public class DialByNumberActivity extends BaseVideoActivity implements OnClickLi
     }
 
     private void initHistoryList() {
-        mCallHistoryList = YYDSDKHelper.getInstance().getCallHistoryList();
-        mLvHistory = (ListView) findViewById(R.id.friend_listview);
-        mLvHistory.setAdapter(new CallHistoryAdapter(this, mCallHistoryList));
-        mLvHistory.setOnItemClickListener(new OnItemClickListenerImpl());
+//        mCallHistoryList = YYDSDKHelper.getInstance().getCallHistoryList();
+//        mLvHistory = (ListView) findViewById(R.id.friend_listview);
+//        mLvHistory.setAdapter(new CallHistoryAdapter(this, mCallHistoryList));
+//        mLvHistory.setOnItemClickListener(new OnItemClickListenerImpl());
     }
 
     private void initDialPlate() {
-        RecyclerView mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
-        mRecyclerView.setLayoutManager(new GridLayoutManager(this, 4));
         mTvNumber = (TextView) findViewById(R.id.tv_number);
         findViewById(R.id.btn_back).setOnClickListener(backClick);
         findViewById(R.id.btn_robotid).setOnClickListener(numberTypeClick);
@@ -148,6 +143,8 @@ public class DialByNumberActivity extends BaseVideoActivity implements OnClickLi
         intent.putExtra("numbertype", numberType);
         intent.putExtra("number", number);
         intent.putExtra("username", numberType + number);
+        intent.putExtra("role", Role.User);
+        intent.putExtra("id", getSharedPreferences("userinfo", MODE_PRIVATE).getInt("id", 0));
         startActivity(intent);
     }
 }

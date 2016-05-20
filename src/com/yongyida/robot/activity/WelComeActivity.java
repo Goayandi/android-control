@@ -151,29 +151,56 @@ public class WelComeActivity extends BaseActivity {
 		getMenuInflater().inflate(R.menu.wel_come, menu);
 		return true;
 	}
+	private final static int CN = 0;
+	private final static int TEST = 1;
+	private final static int HK = 2;
+	private final static int TW = 3;
+
+	public void switchServer(int area){
+		switch (area) {
+			case CN:
+				Constants.address = Constants.address_cn;
+				Constants.download_fota_address = Constants.download_fota_address_cn;
+				Constants.ip = Constants.ip_cn;
+				Constants.port = Constants.port_cn;
+				Constants.download_address = Constants.download_address_cn;
+				break;
+			case TEST:
+				Constants.address = Constants.address_test;
+				Constants.download_fota_address = Constants.download_fota_address_test;
+				Constants.ip = Constants.ip_test;
+				Constants.port = Constants.port_test;
+				Constants.download_address = Constants.download_address_test;
+				break;
+			case HK:
+				Constants.address = Constants.address_hk;
+				Constants.download_fota_address = Constants.download_fota_address_hk;
+				Constants.ip = Constants.ip_hk;
+				Constants.port = Constants.port_hk;
+				Constants.download_address = Constants.download_address_hk;
+				break;
+			case TW:
+				Constants.address = Constants.address_tw;
+				Constants.download_fota_address = Constants.download_fota_address_tw;
+				Constants.ip = Constants.ip_tw;
+				Constants.port = Constants.port_tw;
+				Constants.download_address = Constants.download_address_tw;
+				break;
+		}
+	}
 
 	@Override
 	public void initlayout(OnRefreshListener onRefreshListener) {
 		setContentView(R.layout.activity_wel_come);
-		String stateCode = getSharedPreferences("Receipt", MODE_PRIVATE).getString("state_code", null);
-		Constants.address = Constants.address_cn;
-		Constants.download_fota_address = Constants.download_fota_address_cn;
-		Constants.ip = Constants.ip_cn;
-		Constants.port = Constants.port_cn;
-		Constants.download_address = Constants.download_address_cn;
-//		if (Constants.HK_CODE.equals(stateCode)) {
-//			Constants.address = Constants.address_hk;
-//			Constants.download_fota_address = Constants.download_fota_address_hk;
-//			Constants.ip = Constants.ip_hk;
-//			Constants.port = Constants.port_hk;
-//			Constants.download_address = Constants.download_address_hk;
-//		} else {
-//			Constants.address = Constants.address_cn;
-//			Constants.download_fota_address = Constants.download_fota_address_cn;
-//			Constants.ip = Constants.ip_cn;
-//			Constants.port = Constants.port_cn;
-//			Constants.download_address = Constants.download_address_cn;
-//		}
+//		String stateCode = getSharedPreferences("Receipt", MODE_PRIVATE).getString("state_code", null);
+//		if (Constants.HK_CODE.equals(stateCode))
+		String serverState = getSharedPreferences("net_state", MODE_PRIVATE).getString("state",null);
+		if (serverState != null && !serverState.equals("official")){
+			switchServer(TEST);
+		} else {
+			switchServer(CN);
+		}
+
 		address = Constants.download_address;
 		fotaAddress = Constants.download_fota_address;
 		Timer timer = new Timer();

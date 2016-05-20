@@ -59,15 +59,6 @@ public class DemoApplication extends Application {
 		if (net_state == null) {
 			getSharedPreferences("net_state", MODE_PRIVATE).edit()
 					.putString("state", "official").commit();
-		} else {
-			if (!getSharedPreferences("net_state", MODE_PRIVATE).getString(
-					"state", "official").equals("official")) {
-				Constants.address = getString(R.string.test_url);
-				Constants.ip = getString(R.string.test_ip);
-			} else {
-				Constants.address = getString(R.string.url);
-				Constants.ip = getString(R.string.ip);
-			}
 		}
 		/**
 		 * this function will initialize the HuanXin SDK

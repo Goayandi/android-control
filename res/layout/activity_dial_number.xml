@@ -125,108 +125,118 @@
                 android:background="@drawable/selector_backspace" />
 
         </LinearLayout>
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/recycler_view"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_centerHorizontal="true">
-            <Button
-                android:id="@+id/btn_number_one"
-                android:layout_height="wrap_content"
-                android:layout_width="wrap_content"
-                style="@style/style_bt_dial"
-                android:text="@string/number_one"
-                android:tag="1" />
-            <Button
-                android:id="@+id/btn_number_two"
-                android:layout_height="wrap_content"
-                android:layout_width="wrap_content"
-                style="@style/style_bt_dial"
-                android:text="@string/number_two"
-                android:tag="2" />
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:orientation="horizontal">
+                <Button
+                    android:id="@+id/btn_number_one"
+                    android:layout_height="wrap_content"
+                    style="@style/style_bt_dial"
+                    android:text="@string/number_one"
+                    android:tag="1" />
+                <Button
+                    android:id="@+id/btn_number_two"
+                    android:layout_height="wrap_content"
+                    style="@style/style_bt_dial"
+                    android:text="@string/number_two"
+                    android:tag="2" />
 
-            <Button
-                android:id="@+id/btn_number_three"
-                android:layout_height="wrap_content"
-                android:layout_width="wrap_content"
-                style="@style/style_bt_dial"
-                android:text="@string/number_three"
-                android:tag="3" />
+                <Button
+                    android:id="@+id/btn_number_three"
+                    android:layout_height="wrap_content"
+                    style="@style/style_bt_dial"
+                    android:text="@string/number_three"
+                    android:tag="3" />
 
-            <Button
-                android:id="@+id/btn_dial"
-                android:layout_height="wrap_content"
-                android:layout_width="wrap_content"
-                style="@style/style_bt_dial"
-                android:layout_marginLeft="10dp"
-                android:layout_marginBottom="3dp"
-                android:layout_gravity="bottom" />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:orientation="horizontal">
+                <Button
+                    android:id="@+id/btn_number_four"
+                    android:layout_height="wrap_content"
+                    style="@style/style_bt_dial"
+                    android:text="@string/number_four"
+                    android:tag="4" />
+                <Button
+                    android:id="@+id/btn_number_five"
+                    android:layout_height="wrap_content"
+                    style="@style/style_bt_dial"
+                    android:text="@string/number_five"
+                    android:tag="5" />
+                <Button
+                    android:id="@+id/btn_number_six"
+                    android:layout_height="wrap_content"
+                    style="@style/style_bt_dial"
+                    android:text="@string/number_six"
+                    android:tag="6" />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:orientation="horizontal">
+                <Button
+                    android:id="@+id/btn_number_seven"
+                    android:layout_height="wrap_content"
+                    style="@style/style_bt_dial"
+                    android:text="@string/number_seven"
+                    android:tag="7" />
+                <Button
+                    android:id="@+id/btn_number_eight"
+                    android:layout_height="wrap_content"
+                    style="@style/style_bt_dial"
+                    android:text="@string/number_eight"
+                    android:tag="8" />
+                <Button
+                    android:id="@+id/btn_number_nine"
+                    android:layout_height="wrap_content"
+                    style="@style/style_bt_dial"
+                    android:text="@string/number_nine"
+                    android:tag="9" />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:orientation="horizontal">
+                <Button
+                    android:id="@+id/btn_number_asterisk"
+                    android:layout_height="wrap_content"
+                    style="@style/style_bt_dial"
+                    android:text="@string/number_asterisk"
+                    android:tag="*" />
+                <Button
+                    android:id="@+id/btn_number_zero"
+                    android:layout_height="wrap_content"
+                    style="@style/style_bt_dial"
+                    android:text="@string/number_zero"
+                    android:tag="0" />
+                <Button
+                    android:id="@+id/btn_number_pound"
+                    android:layout_height="wrap_content"
+                    style="@style/style_bt_dial"
+                    android:text="@string/number_pound"
+                    android:tag="#" />
+            </LinearLayout>
+        </LinearLayout>
 
-            <Button
-                android:id="@+id/btn_number_four"
-                android:layout_height="wrap_content"
-                android:layout_width="wrap_content"
-                style="@style/style_bt_dial"
-                android:text="@string/number_four"
-                android:tag="4" />
-            <Button
-                android:id="@+id/btn_number_five"
-                android:layout_height="wrap_content"
-                android:layout_width="wrap_content"
-                style="@style/style_bt_dial"
-                android:text="@string/number_five"
-                android:tag="5" />
-            <Button
-                android:id="@+id/btn_number_six"
-                android:layout_height="wrap_content"
-                android:layout_width="wrap_content"
-                style="@style/style_bt_dial"
-                android:text="@string/number_six"
-                android:tag="6" />
-            <Button
-                android:id="@+id/btn_number_seven"
-                android:layout_height="wrap_content"
-                android:layout_width="wrap_content"
-                style="@style/style_bt_dial"
-                android:text="@string/number_seven"
-                android:tag="7" />
-            <Button
-                android:id="@+id/btn_number_eight"
-                android:layout_height="wrap_content"
-                android:layout_width="wrap_content"
-                style="@style/style_bt_dial"
-                android:text="@string/number_eight"
-                android:tag="8" />
-            <Button
-                android:id="@+id/btn_number_nine"
-                android:layout_height="wrap_content"
-                android:layout_width="wrap_content"
-                style="@style/style_bt_dial"
-                android:text="@string/number_nine"
-                android:tag="9" />
-            <Button
-                android:id="@+id/btn_number_asterisk"
-                android:layout_height="wrap_content"
-                android:layout_width="wrap_content"
-                style="@style/style_bt_dial"
-                android:text="@string/number_asterisk"
-                android:tag="*" />
-            <Button
-                android:id="@+id/btn_number_zero"
-                android:layout_height="wrap_content"
-                android:layout_width="wrap_content"
-                style="@style/style_bt_dial"
-                android:text="@string/number_zero"
-                android:tag="0" />
-            <Button
-                android:id="@+id/btn_number_pound"
-                android:layout_height="wrap_content"
-                android:layout_width="wrap_content"
-                style="@style/style_bt_dial"
-                android:text="@string/number_pound"
-                android:tag="#" />
-
-        </android.support.v7.widget.RecyclerView>
+        <Button
+            android:id="@+id/btn_dial"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:textColor="#ffffff"
+            android:textSize="24sp"
+            android:background="@drawable/selector_number"
+            android:layout_gravity="bottom" />
     </LinearLayout>
 
 </LinearLayout>

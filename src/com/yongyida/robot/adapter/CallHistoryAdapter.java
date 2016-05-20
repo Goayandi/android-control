@@ -79,7 +79,7 @@ public class CallHistoryAdapter extends BaseAdapter {
 		else
 			((TextView) convertView.findViewById(R.id.ch_time)).setText(new java.text.SimpleDateFormat("h:mm").format(date));
 
-		convertView.findViewById(R.id.recycler_view).setOnClickListener(new Button.OnClickListener() {
+		convertView.findViewById(R.id.ll).setOnClickListener(new Button.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				if (mOnListItemClickListener != null) {

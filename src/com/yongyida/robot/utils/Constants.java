@@ -8,32 +8,39 @@ public class Constants {
 
 	// 请求地址
 	public static String address_cn = "http://server.yydrobot.com";
+	public static String address_test = "http://120.24.242.163:81";
 	public static String address_hk = "http://hk.server.yydrobot.com:180";
+	public static String address_tw = "http://hk.server.yydrobot.com:180";
 
 	// socket ip地址
 	public static String ip_cn = "server.yydrobot.com";
+	public static String ip_test = "120.24.242.163";
 	public static String ip_hk = "hk.server.yydrobot.com";
+	public static String ip_tw = "hk.server.yydrobot.com";
 
 	// socket 端口号
 	public static String port_cn = "8002";
+	public static String port_test = "8002";
 	public static String port_hk = "18002";
+	public static String port_tw = "18002";
 
 	// 下载地址
 	public static String download_address_cn = "http://resource.yydrobot.com/app/yyd/cn/app.version";
-	public static String download_address_tw = "http://resource.yydrobot.com/app/taiwan/cn/app.taiwan.version";
+	public static String download_address_test = "http://resource.yydrobot.com/app/yyd/cn/app.version";
 	public static String download_address_hk = "http://resource.yydrobot.com/app/hk/cn/app.hk.version";
+	public static String download_address_tw = "http://resource.yydrobot.com/app/taiwan/cn/app.taiwan.version";
 
 	//fota下载地址
 	public static String download_fota_address_cn = "http://resource.yydrobot.com/robot/robot.version";
+	public static String download_fota_address_test = "http://resource.yydrobot.com/robot/robot.version";
 	public static String download_fota_address_hk = "http://resource.yydrobot.com/robot/robot.version";
 	public static String download_fota_address_tw = "http://resource.yydrobot.com/robot/robot.version";
 
-
-	public static String address = address_cn;
-	public static String ip = ip_cn;
-	public static String port = port_cn;
-	public static String download_address = download_address_cn;
-	public static String download_fota_address = download_fota_address_cn;
+	public static String address;
+	public static String ip;
+	public static String port;
+	public static String download_address;
+	public static String download_fota_address;
 
 
 	// 任务添加操作请求码
@@ -160,7 +167,9 @@ public class Constants {
 
 	public static final String CMD_MEDIA_LOGIN = "/media/room/login/response";
 
-	public static final String CMD_MEDIA_LOGOUT = "/media/room/login/response";
+	public static final String CMD_MEDIA_JOIN_ROOM = "/media/room/join";
+
+	public static final String CMD_MEDIA_LOGOUT = "/media/room/logout/response";
 
 	public static final String CMD_MEDIA_JOIN = "/media/room/join";
 
@@ -190,11 +199,21 @@ public class Constants {
 
 	public static final String BR_REPLY = "br_reply";
 
+	public static final String BR_CANCEL_DIAL = "br_cancel_dial";
+
 	public static final String MEDIA_REPLY = "media_reply";
+
+	public static final String MEDIA_INVITE_CANCEL = "media_invite_cancel";
 
 	public static final String LOGIN_VIDEO_ROOM = "login_video_room";
 
+	public static final String LOGOUT_VIDEO_ROOM = "logout_video_room";
+
 	public static final String LOGIN_VIDEO_ROOM_RESPONSE = "login_video_room_response";
+
+	public static final String LOGIN_VIDEO_ROOM_LOGOUT_RESPONSE = "login_video_room_logout_response";
+
+	public static final String MEDIA_JOIN_ROOM = "join_room";
 
 	public static final String INVITE_ID = "invite_id";
 
@@ -215,6 +234,8 @@ public class Constants {
 	public static final String MediaTcpIp = "media_tcp_ip";
 
 	public static final String MediaTcpPort = "media_tcp_port";
+
+	public static final String TypeRole = "role";
 
 	public interface Role{
 		String Robot = "Robot";

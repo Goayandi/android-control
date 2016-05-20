@@ -320,4 +320,8 @@
     <string name="input_pwd_again">请再次输入密码</string>
     <string name="battery">电量:</string>
     <string name="account_not_exist">账号不存在</string>
+    <string name="not_online_opposite">对方不在线</string>
+    <string name="room_not_exist">房间不存在</string>
+    <string name="some_request_not_handle">有未处理的视频请求</string>
+    <string name="hang_up_opposite">对方挂断</string>
 </resources>

@@ -7,6 +7,8 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -15,17 +17,26 @@ import com.yongyida.robot.R;
 import com.yongyida.robot.utils.BroadcastReceiverRegister;
 import com.yongyida.robot.utils.Config;
 import com.yongyida.robot.utils.Constants;
+import com.yongyida.robot.utils.NetUtil;
+import com.yongyida.robot.utils.ThreadPool;
+import com.yongyida.robot.utils.ToastUtil;
 import com.yongyida.robot.video.av.VideoSizeType;
 import com.yongyida.robot.video.comm.Size;
 import com.yongyida.robot.video.comm.Utils;
 import com.yongyida.robot.video.comm.log;
-import com.yongyida.robot.video.sdk.CmdCallBacker;
-import com.yongyida.robot.video.sdk.YYDLogicServer;
+import com.yongyida.robot.video.command.User;
+import com.yongyida.robot.video.sdk.YYDSDKHelper;
 import com.yongyida.robot.video.sdk.YYDVideoServer;
 import com.yongyida.robot.widget.CircleImageView;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.net.SocketTimeoutException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by Administrator on 2016/5/11 0011.
@@ -38,12 +49,31 @@ public class InviteDialActivity extends BaseVideoActivity implements View.OnClic
     private TextView mTvMessage;
     private Button mHangup;
     private Handler mHandler = new Handler();
-    private String mRole;
-    private long mId;
-    private String mUserName;
+    private String mUserName;   //接听方的昵称
+    private String mNumberType;  //接听方的类型
+    private long mNumber;     // 接听方的号
+    private String mRole;   //拨打方的角色
+    private int mId;        //拨打方的id
     private String mPicture;
-    private String mNumberType;
-    private long mNumber;
+    private int mRoomID;
+    private String mIp;
+    private int mPort;
+    private int mReply;
+    private final static int HANG_UP = 0;
+    private final static int BOTH_VIDEO_AND_AUDIO = 1;
+    private final static int AUDIO_ONLY = 2;
+    private final static int VIDEO_ONLY = 3;
+    private Handler mReplyHandler = new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case HANG_UP:
+                    ToastUtil.showtomain(InviteDialActivity.this, getString(R.string.hang_up_opposite));
+                    finish();
+                    break;
+            }
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,17 +84,23 @@ public class InviteDialActivity extends BaseVideoActivity implements View.OnClic
 
         Intent intent = getIntent();
         mRole = intent.getStringExtra("role");
-        mId = intent.getLongExtra("id", 0);
+        mId = intent.getIntExtra("id", 0);
         mUserName = intent.getStringExtra("username");
         mPicture = intent.getStringExtra("picture");
         mNumberType = intent.getStringExtra("numbertype");
         mNumber = intent.getLongExtra("number", 0);
 
-//         /* /media/invite/response */
-//        BroadcastReceiverRegister.reg(this, new String[]{Constants.CONNECTION_REQUEST}, mConnectionResponseBR);
-//
-//        /* /media/reply */
-//        BroadcastReceiverRegister.reg(this, new String[]{Constants.MEDIA_REPLY}, mMediaReplyBR);
+        User user = new User("User", getSharedPreferences("userinfo", MODE_PRIVATE).getInt("id", 0));
+        YYDSDKHelper.getInstance().setUser(user);
+
+         /* /media/invite/response */
+        BroadcastReceiverRegister.reg(this, new String[]{Constants.CONNECTION_REQUEST}, mConnectionResponseBR);
+
+        /* /media/reply */
+        BroadcastReceiverRegister.reg(this, new String[]{Constants.MEDIA_REPLY}, mMediaReplyBR);
+
+        /* /media/cancel/response 取消邀请 */
+        BroadcastReceiverRegister.reg(this, new String[]{Constants.MEDIA_INVITE_CANCEL}, mMediaInviteCancelBR);
 
         /* 登入房间返回 */
         BroadcastReceiverRegister.reg(this,
@@ -73,55 +109,181 @@ public class InviteDialActivity extends BaseVideoActivity implements View.OnClic
         meetingInvite();
     }
 
-//    BroadcastReceiver mConnectionResponseBR = new BroadcastReceiver() {
-//        @Override
-//        public void onReceive(Context context, Intent intent) {
-//            mRoomID = intent.getIntExtra(Constants.RoomID, -1);
-//            mIp = intent.getStringExtra(Constants.MediaTcpIp);
-//            mPort = intent.getIntExtra(Constants.MediaTcpPort, -1);
-//            User user = new User("User", 100227);
-//            //  User user = new User("User", 100069);
-//            YYDSDKHelper.getInstance().setUser(user);
-//            YYDVideoServer.getInstance().getMeetingInfo().setOwner("User", 100069, "qqq");
-//            YYDVideoServer.getInstance().getMeetingInfo().addUser(new User("User", 100069));
-//            YYDVideoServer.getInstance().getMeetingInfo().setVideoServer_Tcp(mRoomID,
-//                    mIp, mPort);
-//        }
-//    };
-//
-//    BroadcastReceiver mMediaReplyBR = new BroadcastReceiver() {
-//        @Override
-//        public void onReceive(Context context, Intent intent) {
-//            new Thread(new Runnable() {
-//                @Override
-//                public void run() {
-//                    YYDVideoServer.getInstance().connect(
-//                            mIp,
-//                            mPort);
-//                    Intent itt = new Intent(Constants.LOGIN_VIDEO_ROOM);
-//                    itt.putExtra(Constants.RoomID, mRoomID);
-//                    itt.putExtra(Constants.MediaTcpIp, mIp);
-//                    itt.putExtra(Constants.MediaTcpPort, mPort);
-//                    sendBroadcast(itt);
-//                }
-//            }).start();
-//
-//
-//        }
-//    };
+    private void addFriend() {
+        addRobotFriend(getSharedPreferences("userinfo", MODE_PRIVATE).getInt("id", 0),
+                mNumber, getSharedPreferences("userinfo", MODE_PRIVATE).getString("session", null));
+    }
+
+    /**
+     * 添加好友
+     *
+     * @param id
+     * @param frid
+     * @param session
+     */
+    public void addRobotFriend(final int id, final Long frid, final String session) {
+        ThreadPool.execute(new Runnable() {
+            @Override
+            public void run() {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("id", id + "");
+                params.put("frid", frid + "");
+                params.put("session", session);
+                try {
+                    NetUtil.getinstance().http(Constants.ADD_ROBOT_FRIEND, params, new NetUtil.callback() {
+                        @Override
+                        public void success(JSONObject json) {
+                            Log.i(TAG, json.toString());
+                            try {
+                                int ret = json.getInt("ret");
+                                switch (ret) {
+                                    case -1:
+                                        Log.i(TAG, "传入用户信息不存在");
+                                        break;
+                                    case 0:
+                                        Log.i(TAG, "成功");
+                                        break;
+                                    case 1:
+                                        Log.i(TAG, "用户信息为空");
+                                        break;
+                                    case 2:
+                                        Log.i(TAG, "机器人信息为空");
+                                        break;
+                                    case 3:
+                                        Log.i(TAG, "机器人id或序列号不存在");
+                                        break;
+                                    case 4:
+                                        Log.i(TAG, "超过最大好友数(默认1000个)");
+                                        break;
+                                    case 5:
+                                        Log.i(TAG, "手机用户已经添加该机器人为好友");
+                                        break;
+                                    default:
+                                        break;
+                                }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+
+                        }
+
+                        @Override
+                        public void error(String errorresult) {
+
+                        }
+                    }, InviteDialActivity.this);
+                } catch (SocketTimeoutException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+    BroadcastReceiver mConnectionResponseBR = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            int ret = intent.getIntExtra(Constants.RET, -1);
+            switch (ret) {
+                case 0:
+                    mRoomID = intent.getIntExtra(Constants.RoomID, -1);
+                    mIp = intent.getStringExtra(Constants.MediaTcpIp);
+                    mPort = intent.getIntExtra(Constants.MediaTcpPort, -1);
+                    if (!YYDVideoServer.getInstance().isVideoing()) {
+                        Log.e(TAG, "isVideoing");
+                        // 设置会议发起人为用户自己
+                        YYDVideoServer.getInstance().getMeetingInfo().setOriginator(
+                                YYDSDKHelper.getInstance().getUser(),
+                                YYDSDKHelper.getInstance().getUser());
+
+                        // 保存房间roomId和视频服务器VideoServerIp, VideoServerPort
+                        YYDVideoServer.getInstance().getMeetingInfo().setVideoServer_Tcp(mRoomID,
+                                mIp, mPort);
+                    }
+                    break;
+                case 1:
+                    ToastUtil.showtomain(InviteDialActivity.this, getString(R.string.not_online_opposite));
+                    Log.i(TAG, getString(R.string.not_online_opposite));
+                    finish();
+                    break;
+                case 2:
+                    ToastUtil.showtomain(InviteDialActivity.this, getString(R.string.room_not_exist));
+                    Log.i(TAG, getString(R.string.room_not_exist));
+                    finish();
+                    break;
+                case 3:
+                    ToastUtil.showtomain(InviteDialActivity.this, getString(R.string.some_request_not_handle));
+                    Log.i(TAG, getString(R.string.some_request_not_handle));
+                    finish();
+                    break;
+            }
+
+
+        }
+    };
+
+    BroadcastReceiver mMediaReplyBR = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, final Intent intent) {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    int reply = intent.getIntExtra("reply", -1);
+                    if (reply != -1) {
+                        mReply = reply;
+                    }
+                    switch (reply) {
+                        case HANG_UP:
+                            mReplyHandler.sendEmptyMessage(HANG_UP);
+                            break;
+                        case BOTH_VIDEO_AND_AUDIO:
+                        case AUDIO_ONLY:
+                        case VIDEO_ONLY:
+                            addFriend();
+                            YYDVideoServer.getInstance().connect(
+                                    mIp,
+                                    mPort);
+                            Intent itt = new Intent(Constants.LOGIN_VIDEO_ROOM);
+                            itt.putExtra(Constants.ID, intent.getIntExtra("invite_id", -1));
+                            itt.putExtra(Constants.RoomID, mRoomID);
+                            itt.putExtra(Constants.MediaTcpIp, mIp);
+                            itt.putExtra(Constants.MediaTcpPort, mPort);
+                            itt.putExtra(Constants.TypeRole, mRole);
+                            sendBroadcast(itt);
+                            break;
+                    }
+                }
+            }).start();
+
+        }
+    };
+
+    BroadcastReceiver mMediaInviteCancelBR = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            int ret = intent.getIntExtra(Constants.RET, -1);
+            if (ret == 0) {
+                finish();
+            }
+        }
+    };
 
     BroadcastReceiver mLoginVideoRoomResponseBR = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            String send_host = intent.getStringExtra("send_host");
-            int send_port = intent.getIntExtra("send_port", -1);
-            YYDVideoServer.getInstance().getMeetingInfo().setVideoServer_Udp(send_host, send_port);
-            YYDVideoServer.getInstance().getMeetingInfo().setAtRooming(true);
-            Intent i = new Intent(InviteDialActivity.this, ActivityMeeting.class);
-            i.putExtra("EnableSend", true);
-            i.putExtra("EnableRecv", true);
-            startActivity(i);
-            finish();
+            int ret = intent.getIntExtra(Constants.RET, -1);
+            if (ret == 0) {
+                Intent i = new Intent(InviteDialActivity.this, ActivityMeeting.class);
+                i.putExtra("EnableSend", true);
+                i.putExtra("EnableRecv", true);
+                i.putExtra("id", mId);
+                i.putExtra("role", mRole);
+                i.putExtra("room_id", mRoomID);
+                startActivity(i);
+                finish();
+            } else {
+                ToastUtil.showtomain(InviteDialActivity.this, "进入房间出错");
+                finish();
+            }
         }
     };
 
@@ -168,19 +330,6 @@ public class InviteDialActivity extends BaseVideoActivity implements View.OnClic
     }
 
     public void meetingInvite() {
-        log.d(TAG, "meetingInvite()");
-
-        String numberType = null;
-        long number = 0;
-        if (mNumberType != null && mNumberType.length() > 0) {
-            numberType = mNumberType;
-            number = mNumber;
-        }
-        else if (mRole != null && mRole.length() > 0) {
-            numberType = mRole;
-            number = mId;
-        }
-        log.d(TAG, "numberType: " + numberType + ", number: " + number);
 
         // 根据用户配置项返回视频大小
         Size videoSize = VideoSizeType.getVideoSize(Config.getVideoSizeType());
@@ -193,24 +342,16 @@ public class InviteDialActivity extends BaseVideoActivity implements View.OnClic
 
         Intent intent = new Intent();
         intent.setAction(Constants.VIDEO_REQUEST);
+        intent.putExtra("id", mId);
+        intent.putExtra("role", mRole);
+        if (mPicture != null) {
+            intent.putExtra("picture", mPicture);
+        }
+        intent.putExtra("numberType", mNumberType);
+        intent.putExtra("number", mNumber);
+        intent.putExtra("nickname", mUserName);
         sendBroadcast(intent);
 
-        YYDLogicServer.getInstance().meetingInvite("视频会议", //会议名称
-                numberType,
-                number,
-                true, // enableAudio
-                true, // enableVideo
-                new CmdCallBacker() {
-                    public void onSuccess(Object arg) {
-                        log.d(TAG, "meetingInvite success");
-                    }
-
-                    public void onFailed(int error) {
-                        log.d(TAG, "meetingInvite failed, error: " + error);
-                    }
-                });
-
-        //10秒无人接听自动挂断
         timerCancel(INVITE_DURATION_TIME);
     }
 
@@ -243,37 +384,36 @@ public class InviteDialActivity extends BaseVideoActivity implements View.OnClic
         mHandler.postDelayed(timerCancelRunnable, delay);
     }
 
+    /**
+     * 取消邀请
+     */
     public void inviteCancel() {
-        log.d(TAG, "inviteCancel()");
-
-        String numberType = null;
-        long number = 0;
-        if (mNumberType != null && mNumberType.length() > 0) {
-            numberType = mNumberType;
-            number = mNumber;
-        }
-        else if (mRole != null && mRole.length() > 0) {
-            numberType = mRole;
-            number = mId;
-        }
-
-        YYDLogicServer.getInstance().meetingInviteCancel(numberType, number, new CmdCallBacker() {
-            public void onSuccess(Object arg) {
-                log.d(TAG, "meetingInviteCancel success");
-                finish();
-            }
-
-            public void onFailed(int error) {
-                log.d(TAG, "meetingInviteCancel failed, error: " + error);
-                // 挂 断失败1秒后重试
-                timerCancel(1000);
-            }
-        });
+        Intent intent = new Intent(Constants.BR_CANCEL_DIAL);
+        intent.putExtra("id", mId);
+        intent.putExtra("role", mRole);
+        sendBroadcast(intent);
     }
 
     @Override
     protected void onDestroy() {
         log.d(TAG, "onDestroy()");
+        try {
+            if (mConnectionResponseBR != null) {
+                unregisterReceiver(mConnectionResponseBR);
+            }
+            if (mMediaReplyBR != null) {
+                unregisterReceiver(mMediaReplyBR);
+            }
+            if (mLoginVideoRoomResponseBR != null) {
+                unregisterReceiver(mLoginVideoRoomResponseBR);
+            }
+            if (mMediaInviteCancelBR != null) {
+                unregisterReceiver(mMediaInviteCancelBR);
+            }
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        }
+
         super.onDestroy();
     }
 

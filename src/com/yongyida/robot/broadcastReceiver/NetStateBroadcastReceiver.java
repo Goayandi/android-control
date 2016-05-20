@@ -11,6 +11,7 @@ import com.yongyida.robot.activity.ConnectActivity;
 import com.yongyida.robot.huanxin.DemoHXSDKHelper;
 import com.yongyida.robot.utils.Constants;
 import com.yongyida.robot.utils.ToastUtil;
+import com.yongyida.robot.utils.Utils;
 
 /**
  * Created by Administrator on 2015/10/12 0012.
@@ -18,23 +19,25 @@ import com.yongyida.robot.utils.ToastUtil;
 public class NetStateBroadcastReceiver extends BroadcastReceiver {
 	@Override
 	public void onReceive(Context context, Intent intent) {
-		ConnectivityManager connect = (ConnectivityManager) context
-				.getSystemService(context.CONNECTIVITY_SERVICE);
+		if (!Utils.isBackground(context)) {
+			ConnectivityManager connect = (ConnectivityManager) context
+					.getSystemService(context.CONNECTIVITY_SERVICE);
 
-		NetworkInfo mobile= connect.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
-		NetworkInfo wifi=connect.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-		if(mobile != null){
-			if (!mobile.isConnected()&&!wifi.isConnected()) {
-				back(context);
-				ToastUtil.showtomain(context, context.getString(R.string.please_connect_net));
-			} else if (!mobile.isAvailable()&&!wifi.isAvailable()) {
-				back(context);
-				ToastUtil.showtomain(context, context.getString(R.string.please_connect_net));
-			}
-		} else {
-			if(!wifi.isConnected()){
-				back(context);
-				ToastUtil.showtomain(context, context.getString(R.string.please_connect_net));
+			NetworkInfo mobile = connect.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+			NetworkInfo wifi = connect.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+			if (mobile != null) {
+				if (!mobile.isConnected() && !wifi.isConnected()) {
+					back(context);
+					ToastUtil.showtomain(context, context.getString(R.string.please_connect_net));
+				} else if (!mobile.isAvailable() && !wifi.isAvailable()) {
+					back(context);
+					ToastUtil.showtomain(context, context.getString(R.string.please_connect_net));
+				}
+			} else {
+				if (!wifi.isConnected()) {
+					back(context);
+					ToastUtil.showtomain(context, context.getString(R.string.please_connect_net));
+				}
 			}
 		}
 	}
