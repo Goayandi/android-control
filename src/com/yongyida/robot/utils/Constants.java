@@ -237,6 +237,8 @@ public class Constants {
 
 	public static final String TypeRole = "role";
 
+	public static final String LOG_ERROR = "yyderror";
+
 	public interface Role{
 		String Robot = "Robot";
 		String User = "User";

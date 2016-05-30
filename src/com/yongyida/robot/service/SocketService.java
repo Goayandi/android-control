@@ -12,8 +12,6 @@ import android.graphics.Matrix;
 import android.net.ConnectivityManager;
 import android.os.Environment;
 import android.os.IBinder;
-import android.text.TextUtils;
-import android.util.Log;
 
 import com.yongyida.robot.R;
 import com.yongyida.robot.bean.Result;
@@ -67,6 +65,7 @@ import java.util.TimerTask;
 
 public class SocketService extends Service {
 
+    private static final String TAG = "SocketService";
     private Timer time;
     boolean the = true;
     private ChannelHandlerContext ctx;          //用于发送一般的socket请求
@@ -201,9 +200,6 @@ public class SocketService extends Service {
         }
 
         if (o instanceof JSONObject) {
-            if (!TextUtils.isEmpty(e.getMessage().toString())) {
-                Log.i("Message", e.getMessage().toString());
-            }
             try {
                 Result = (JSONObject) o;
                 callback = Result.getString("cmd");
@@ -264,7 +260,6 @@ public class SocketService extends Service {
                 } else if (callback.equals("/user/login")) {
                     sendBroadcast(new Intent(Constants.LOGIN).putExtra(
                             "ret", Result.getInt("ret")));
-                    Log.i("SocketService", "login");
                     return;
                 } else if (callback.equals("/robot/controll")) {
                     ret = Result.getInt("ret");
@@ -324,7 +319,6 @@ public class SocketService extends Service {
             }
 
         } else if (o instanceof Decoder.Result2) {
-            Log.i("Success", "收到图片");
             final Decoder.Result2 res = (Decoder.Result2) o;
             com.yongyida.robot.bean.Result result = new Result();
             result.setDw(BitmapFactory.decodeByteArray(res.datas,
@@ -396,18 +390,36 @@ public class SocketService extends Service {
         public void onReceive(Context arg0, Intent intent) {
 
             if (intent.getAction().equals(Constants.Speech_action)) {
-                JSONObject params = new JSONObject();
-                NetUtil.Scoket(params, 2, ctx);
+                if (ctx != null) {
+                    JSONObject params = new JSONObject();
+                    NetUtil.Scoket(params, 2, ctx);
+                } else {
+                    handleError();
+                }
             }
         }
     };
+
+    private void handleError() {
+        Constants.address = Constants.address_cn;
+        Constants.download_fota_address = Constants.download_fota_address_cn;
+        Constants.ip = Constants.ip_cn;
+        Constants.port = Constants.port_cn;
+        Constants.download_address = Constants.download_address_cn;
+        connectSocketByLanguage();
+    }
+
     BroadcastReceiver move = new BroadcastReceiver() {
 
         @Override
         public void onReceive(Context arg0, Intent intent) {
             if (intent.getAction().equals(Constants.Move_aciton)) {
-                JSONObject params = new JSONObject();
-                NetUtil.Scoket(params, 1, ctx);
+                if (ctx != null) {
+                    JSONObject params = new JSONObject();
+                    NetUtil.Scoket(params, 1, ctx);
+                } else {
+                    handleError();
+                }
 
             }
         }
@@ -417,7 +429,11 @@ public class SocketService extends Service {
     BroadcastReceiver task = new BroadcastReceiver() {
         @Override
         public void onReceive(Context arg0, Intent intent) {
-            NetUtil.socket(ctx, intent);
+            if (ctx != null) {
+                NetUtil.socket(ctx, intent);
+            } else {
+                handleError();
+            }
         }
     };
     BroadcastReceiver stop = new BroadcastReceiver() {
@@ -432,9 +448,6 @@ public class SocketService extends Service {
                         jsonObject.put("id",
                                 getSharedPreferences("userinfo", MODE_PRIVATE)
                                         .getInt("id", 0));
-                        Log.i("id",
-                                getSharedPreferences("userinfo", MODE_PRIVATE)
-                                        .getInt("id", 0) + "");
                         jsonObject.put("session",
                                 getSharedPreferences("userinfo", MODE_PRIVATE)
                                         .getString("session", null));
@@ -451,6 +464,8 @@ public class SocketService extends Service {
                     NetUtil.Scoket(jsonObject, 4, ctx);
                     flag = 0;
                     Constants.flag = false;
+                } else {
+                    handleError();
                 }
             }
         }
@@ -459,66 +474,98 @@ public class SocketService extends Service {
 
         @Override
         public void onReceive(Context arg0, Intent intent) {
-            NetUtil.photo_socket(ctx, intent);
+            if (ctx != null) {
+                NetUtil.photo_socket(ctx, intent);
+            } else {
+                handleError();
+            }
         }
     };
     BroadcastReceiver flush = new BroadcastReceiver() {
         @Override
         public void onReceive(Context arg0, Intent intent) {
-            NetUtil.robotinfoupdate(ctx, intent);
+            if (ctx != null) {
+                NetUtil.robotinfoupdate(ctx, intent);
+            } else {
+                handleError();
+            }
         }
     };
 
     BroadcastReceiver connectRobot = new BroadcastReceiver() {
         @Override
         public void onReceive(Context arg0, Intent intent) {
-            control(ctx);
+            if (ctx != null) {
+                control(ctx);
+            } else {
+                handleError();
+            }
         }
     };
 
     BroadcastReceiver socketLogout = new BroadcastReceiver() {
         @Override
         public void onReceive(Context arg0, Intent intent) {
-            NetUtil.logoutSocket(getSharedPreferences("userinfo", MODE_PRIVATE).getInt("id",0),
-                    getSharedPreferences("userinfo", MODE_PRIVATE).getString("session",""),
-                    ctx);
+            if (ctx != null) {
+                NetUtil.logoutSocket(getSharedPreferences("userinfo", MODE_PRIVATE).getInt("id", 0),
+                        getSharedPreferences("userinfo", MODE_PRIVATE).getString("session", ""),
+                        ctx);
+            } else {
+                handleError();
+            }
         }
     };
 
     BroadcastReceiver mFotaUpdateBR = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            String robotVersion = intent.getStringExtra("robotVersion");
-            String newVersion = intent.getStringExtra("newVersion");
-            NetUtil.fotaUpdate(robotVersion, newVersion, ctx);
+            if (ctx != null) {
+                String robotVersion = intent.getStringExtra("robotVersion");
+                String newVersion = intent.getStringExtra("newVersion");
+                NetUtil.fotaUpdate(robotVersion, newVersion, ctx);
+            } else {
+                handleError();
+            }
         }
     };
 
     BroadcastReceiver mCancelDialBR = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            long id = intent.getIntExtra("id", -1);
-            String role = intent.getStringExtra("role");
-            NetUtil.socketY20MediaCancel(id, role, ctx);
+            if (ctx != null) {
+                long id = intent.getIntExtra("id", -1);
+                String role = intent.getStringExtra("role");
+                NetUtil.socketY20MediaCancel(id, role, ctx);
+            } else {
+                handleError();
+            }
         }
     };
 
     BroadcastReceiver mVideoReplyBR = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Long invite_id = intent.getLongExtra(Constants.INVITE_ID, -1);
-            int id = getSharedPreferences("userinfo", MODE_PRIVATE).getInt("id", 0);
-            NetUtil.socketY20MediaReply(id, NetUtil.NumberType.Phone, Role.User, 100069 + "", 1, ctx);
+            if (ctx != null) {
+                Long invite_id = intent.getLongExtra(Constants.INVITE_ID, -1);
+                int id = getSharedPreferences("userinfo", MODE_PRIVATE).getInt("id", 0);
+                NetUtil.socketY20MediaReply(id, NetUtil.NumberType.Phone, Role.User, 100069 + "", 1, ctx);
+            } else {
+                handleError();
+            }
         }
     };
 
     BroadcastReceiver mLogoutVideoRoomBR = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            String id = intent.getStringExtra("id");
-            String role = intent.getStringExtra("role");
-            int room_id = intent.getIntExtra("room_id", -1);
-            NetUtil.socketY20MediaLogout(id, role, room_id, mMediaCtx);
+            if (ctx != null) {
+                String id = intent.getStringExtra("id");
+                String role = intent.getStringExtra("role");
+                int room_id = intent.getIntExtra("room_id", -1);
+                NetUtil.socketY20MediaLogout(id, role, room_id, mMediaCtx);
+            } else {
+                handleError();
+            }
         }
     };
 
@@ -538,7 +585,6 @@ public class SocketService extends Service {
 
                 @Override
                 public void connectSuccess(ChannelHandlerContext ctx, ChannelStateEvent e) {
-                    Log.i("Message", "connectSuccess");
                     MeetingInfo info = YYDVideoServer.getInstance().getMeetingInfo();
                     int videowidth = info.VideoWidth;
                     int videoheight = info.VideoHeight;
@@ -565,7 +611,6 @@ public class SocketService extends Service {
 
                 @Override
                 public void receiveSuccess(ChannelHandlerContext ctx, MessageEvent e) {
-                    Log.i("Message", e.getMessage().toString());
                     Object o = e.getMessage();
                     Object obj;
                     JSONObject Result;
@@ -600,7 +645,6 @@ public class SocketService extends Service {
                                     int send_port = jsonObject.getInt("send_port");
                                     String userMedias = result.json.getString("UserMedias");
                                     JSONArray jsonArray = new JSONArray(userMedias);
-                                    Log.e("Message", userMedias);
                                     YYDVideoServer.getInstance().getMeetingInfo().setVideoServer_Udp(send_host, send_port);
                                     YYDVideoServer.getInstance().getMeetingInfo().setAtRooming(true);
                                     if (jsonArray.length() > 0) {
@@ -659,26 +703,30 @@ public class SocketService extends Service {
     BroadcastReceiver mVideoRequestBR = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            int id = intent.getIntExtra("id", 0);
-            String role = intent.getStringExtra("role");
-            String picture = intent.getStringExtra("picture");
-            if (picture == null) {
-                picture = "";
+            if (ctx != null) {
+                int id = intent.getIntExtra("id", 0);
+                String role = intent.getStringExtra("role");
+                String picture = intent.getStringExtra("picture");
+                if (picture == null) {
+                    picture = "";
+                }
+                String numberType = intent.getStringExtra("numberType");
+                long number = intent.getLongExtra("number", 0);
+                String nickname = intent.getStringExtra("nickname");
+                MeetingInfo info = YYDVideoServer.getInstance().getMeetingInfo();
+                int videowidth = info.VideoWidth;
+                int videoheight = info.VideoHeight;
+                int framerate = info.FrameRate;
+                int bitrate = info.BitRate;
+                int samplerate = info.SampleRate;
+                int channel = info.Channel;
+                int audioformat = info.AudioFormat;
+                NetUtil.socketY20MediaInvite(id, role, nickname, picture, numberType, number,
+                        videowidth, videoheight, framerate, bitrate, samplerate, channel, audioformat,
+                        ctx);
+            } else {
+                handleError();
             }
-            String numberType = intent.getStringExtra("numberType");
-            long number = intent.getLongExtra("number", 0);
-            String nickname = intent.getStringExtra("nickname");
-            MeetingInfo info = YYDVideoServer.getInstance().getMeetingInfo();
-            int videowidth = info.VideoWidth;
-            int videoheight = info.VideoHeight;
-            int framerate = info.FrameRate;
-            int bitrate = info.BitRate;
-            int samplerate = info.SampleRate;
-            int channel = info.Channel;
-            int audioformat = info.AudioFormat;
-            NetUtil.socketY20MediaInvite(id, role, nickname, picture, numberType, number,
-                    videowidth, videoheight, framerate, bitrate, samplerate, channel, audioformat,
-                    ctx);
         }
     };
     /**
@@ -695,8 +743,6 @@ public class SocketService extends Service {
                         "id",
                         getSharedPreferences("userinfo", MODE_PRIVATE).getInt(
                                 "id", 0));
-                Log.i("id", getSharedPreferences("userinfo", MODE_PRIVATE)
-                        .getInt("id", 0) + "");
                 jsonObject.put("session",
                         getSharedPreferences("userinfo", MODE_PRIVATE)
                                 .getString("session", null));
@@ -733,7 +779,6 @@ public class SocketService extends Service {
     @Override
     public int onStartCommand(final Intent intent, int flags, int startId) {
       //  inbackground();
-        Log.i("SocketService", "onStartCommand");
         /**
          * socket Error 广播
          */
@@ -849,7 +894,7 @@ public class SocketService extends Service {
         @Override
         public void writeData(final ChannelHandlerContext handler,
                               final MessageEvent event) {
-             Object message = event.getMessage();
+            Object message = event.getMessage();
             ChannelBuffer buffer;
             if (message instanceof ChannelBuffer) {
                 buffer = ((ChannelBuffer) message);
@@ -868,14 +913,18 @@ public class SocketService extends Service {
         public void connectSuccess(final ChannelHandlerContext ctx,
                                    final ChannelStateEvent e) {
             setCtx(ctx);
-            NetUtil.loginSocket(getSharedPreferences("userinfo", MODE_PRIVATE).getInt("id",0),
-                    getSharedPreferences("userinfo", MODE_PRIVATE).getString("session",""),
+            NetUtil.loginSocket(getSharedPreferences("userinfo", MODE_PRIVATE).getInt("id", 0),
+                    getSharedPreferences("userinfo", MODE_PRIVATE).getString("session", ""),
                     ctx);
             time = new Timer();
             time.schedule(new TimerTask() {
                 @Override
                 public void run() {
-                    NetUtil.Scoket(new JSONObject(), 3, ctx);
+                    if (ctx != null) {
+                        NetUtil.Scoket(new JSONObject(), 3, ctx);
+                    } else {
+                        handleError();
+                    }
                 }
             }, new Date(), 9000);
             initVideo();
@@ -884,7 +933,6 @@ public class SocketService extends Service {
 
         @Override
         public void connectFail() {
-            Log.i("Connect", "connectFail");
         }
 
         @Override
@@ -893,12 +941,15 @@ public class SocketService extends Service {
 //            Intent connectCloseIntent = new Intent(Constants.Socket_Error);
 //            connectCloseIntent.putExtra("content", getString(R.string.connection_off));
 //            sendBroadcast(connectCloseIntent);
+            if (time != null) {
+                time.cancel();
+                time = null;
+            }
             if (!Constants.isUserClose) {
                 connectSocketByLanguage();
             } else {
                 Constants.isUserClose = false;
             }
-            Log.i("Connect", "connectClose");
         }
     };
 
@@ -1003,7 +1054,6 @@ public class SocketService extends Service {
 
     @Override
     public void onDestroy() {
-        Log.i("SocketService","onDestroy");
         try {
             if (netstate != null) {
                 unregisterReceiver(netstate);
@@ -1058,9 +1108,12 @@ public class SocketService extends Service {
 
         if (time != null) {
             time.cancel();
+            time = null;
         }
 
-        ctx.getChannel().close();
+        if (ctx != null) {
+            ctx.getChannel().close();
+        }
 
         super.onDestroy();
     }

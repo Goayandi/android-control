@@ -31,6 +31,8 @@ import java.util.Map;
 
 public class NetUtil {
 
+	private static final String TAG = "NetUtil";
+
 	public NetUtil() {
 		super();
 		httputil = this;
@@ -47,6 +49,18 @@ public class NetUtil {
 	// http请求方法
 	public boolean http(String url, Map<String, String> params, callback call,
 			Context context) throws SocketTimeoutException {
+		if (Constants.address == null) {
+			Log.e(TAG, "constants:" + Constants.address);
+			Log.e(TAG, "constants:" + Constants.download_fota_address);
+			Log.e(TAG, "constants:" + Constants.ip);
+			Log.e(TAG, "constants:" + Constants.port);
+			Log.e(TAG, "constants:" + Constants.download_address);
+			Constants.address = Constants.address_cn;
+			Constants.download_fota_address = Constants.download_fota_address_cn;
+			Constants.ip = Constants.ip_cn;
+			Constants.port = Constants.port_cn;
+			Constants.download_address = Constants.download_address_cn;
+		}
 		String address = Constants.address;
 		try {
 			Http http = new Http(address + url);
@@ -65,6 +79,7 @@ public class NetUtil {
 
 		} catch (Exception e) {
 			if (isConnect(context)) {
+				Log.e(TAG, "Exception:" + e.getMessage());
 				call.error(context.getString(R.string.net_connection_timeout));
 			} else {
 				call.error(context.getString(R.string.net_connection_invisible));

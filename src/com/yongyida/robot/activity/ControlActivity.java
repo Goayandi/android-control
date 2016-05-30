@@ -36,7 +36,6 @@ import android.widget.ImageView;
 import com.easemob.EMCallBack;
 import com.easemob.chat.CmdMessageBody;
 import com.easemob.chat.EMCallStateChangeListener;
-import com.easemob.chat.EMChat;
 import com.easemob.chat.EMChatManager;
 import com.easemob.chat.EMMessage;
 import com.easemob.chat.EMMessage.Type;
@@ -74,6 +73,7 @@ import java.util.UUID;
 public class ControlActivity extends CallActivity implements OnClickListener,
 		OnTouchListener {
 
+	private static final String TAG = "ControlActivity";
 	private SurfaceView localSurface;
 	private SurfaceHolder localSurfaceHolder;
 	private static SurfaceView oppositeSurface;
@@ -156,35 +156,30 @@ public class ControlActivity extends CallActivity implements OnClickListener,
 		runningMode = getIntent().getExtras().getString("mode");
 		if (runningMode.equals("control")) {
 			localSurface.setVisibility(View.INVISIBLE);
-			audioManager.setMicrophoneMute(!audioManager.isMicrophoneMute());
-			findViewById(R.id.mictoggole).setVisibility(View.GONE);
-		} else {
-			audioManager.setMicrophoneMute(!audioManager.isMicrophoneMute());
 		}
+		audioManager.setMicrophoneMute(true);
+		//	registerHeadsetPlugReceiver();
 		if (audioManager.isWiredHeadsetOn()) {
-	//		registerHeadsetPlugReceiver();
-			Intent headsetPluggedIntent = new Intent(Intent.ACTION_HEADSET_PLUG);
-			headsetPluggedIntent.putExtra("state", 1);
-			headsetPluggedIntent.putExtra("microphone", 1);
-			headsetPluggedIntent.putExtra("name", "");
+//			Intent headsetPluggedIntent = new Intent(Intent.ACTION_HEADSET_PLUG);
+//			headsetPluggedIntent.putExtra("state", 1);
+//			headsetPluggedIntent.putExtra("microphone", 1);
+//			headsetPluggedIntent.putExtra("name", "");
+			//TODO
 			closeSpeakerOn() ;
 		} else {
-	//		registerHeadsetPlugReceiver();
-			Intent headsetUnpluggedIntent = new Intent(
-					Intent.ACTION_HEADSET_PLUG);
-			headsetUnpluggedIntent.putExtra("state", 0);
-			headsetUnpluggedIntent.putExtra("microphone", 0);
-			headsetUnpluggedIntent.putExtra("name", "");
+//			Intent headsetUnpluggedIntent = new Intent(
+//					Intent.ACTION_HEADSET_PLUG);
+//			headsetUnpluggedIntent.putExtra("state", 0);
+//			headsetUnpluggedIntent.putExtra("microphone", 0);
+//			headsetUnpluggedIntent.putExtra("name", "");
 			// 打开扬声器
 			openSpeakerOn();
 		}
-		Log.e("EM", EMChat.getInstance().getVersion());
 		BroadcastReceiverRegister.reg(ControlActivity.this, new String[]{Constants.BATTERY}, mRNameBR);
 	}
 
 	private void registerHeadsetPlugReceiver() {
-		// TODO Auto-generated method stub
-		headsetPlugReceiver = new HeadsetPlugReceiver();   
+		headsetPlugReceiver = new HeadsetPlugReceiver();
         IntentFilter intentFilter = new IntentFilter();  
         intentFilter.addAction("android.intent.action.HEADSET_PLUG");  
         registerReceiver(headsetPlugReceiver, intentFilter);  
@@ -224,12 +219,10 @@ public class ControlActivity extends CallActivity implements OnClickListener,
 								// 通知cameraHelper可以写入数据
 								cameraHelper.startCapture();
 							}
-							Log.e("username", username);
 						} else {
 							huanxinLogin();
 						}
 					} catch (EMServiceNotReadyException e) {
-						Log.i("EMChatManager", "exception:"+e.getMessage());
 						huanxinLogin();
 					}
 				}
@@ -262,7 +255,6 @@ public class ControlActivity extends CallActivity implements OnClickListener,
 		if (EMChatManager.getInstance().isConnected()) {
 			EMChatManager.getInstance().sendMessage(msg, mCallBack);
 		} else {
-			Log.e("ControlActivity","连接失败");
 			ToastUtil.showtomain(ControlActivity.this, getString(R.string.initialize_fail));
 			EMChatManager.getInstance().login(
 					getSharedPreferences("huanxin", MODE_PRIVATE)
@@ -295,7 +287,6 @@ public class ControlActivity extends CallActivity implements OnClickListener,
 		try {
 			EMChatManager.getInstance().sendMessage(msg);
 		} catch (EaseMobException e) {
-			Log.e("ControlActivity",e.getMessage());
 			e.printStackTrace();
 		}
 	}
@@ -313,7 +304,6 @@ public class ControlActivity extends CallActivity implements OnClickListener,
 		try {
 			EMChatManager.getInstance().sendMessage(msg);
 		} catch (EaseMobException e) {
-			Log.e("ControlActivity",e.getMessage());
 			e.printStackTrace();
 		}
 	}
@@ -339,7 +329,6 @@ public class ControlActivity extends CallActivity implements OnClickListener,
 	public boolean onTouch(final View v, MotionEvent event) {
 		if (event.getAction() == MotionEvent.ACTION_DOWN) {
 			speak.setEnabled(false);
-			Log.i("Touch", "Down");
 			sendcmd("start", v);
 			starttime = System.currentTimeMillis();
 			move++;
@@ -355,14 +344,11 @@ public class ControlActivity extends CallActivity implements OnClickListener,
 				}
 			}, 1000, 1000);
 		} else if (event.getAction() == MotionEvent.ACTION_MOVE) {
-			Log.i("Touch", "Move");
 		} else if (event.getAction() == MotionEvent.ACTION_UP) {
-			Log.i("Touch", "Up");
 			speak.setEnabled(true);
 			sendcmd("stop", v);
 			flag = true;
 		} else if (event.getAction() == MotionEvent.ACTION_CANCEL){
-			Log.i("Touch", "Cancel");
 			speak.setEnabled(true);
 			sendcmd("stop", v);
 			flag = true;
@@ -511,7 +497,6 @@ public class ControlActivity extends CallActivity implements OnClickListener,
 		Intent intent = new Intent();
 		intent.setAction("move");
 		sendBroadcast(intent);
-		Log.i("execute", execode);
 	}
 
 	/**
@@ -523,18 +508,15 @@ public class ControlActivity extends CallActivity implements OnClickListener,
 		@Override
 		public void surfaceCreated(SurfaceHolder holder) {
 			// cameraHelper.startCapture();
-			Log.i("holder", "local surfaceCreated");
 		}
 
 		@Override
 		public void surfaceChanged(SurfaceHolder holder, int format, int width,
 				int height) {
-			Log.i("holder", "local surfaceChanged");
 		}
 
 		@Override
 		public void surfaceDestroyed(SurfaceHolder holder) {
-			Log.i("holder", "local surfaceDestroyed");
 			holder.removeCallback(this);
 		}
 	}
@@ -609,7 +591,6 @@ public class ControlActivity extends CallActivity implements OnClickListener,
 			public void onCallStateChanged(CallState callState, CallError error) {
 				switch (callState) {
 				case IDLE:
-					Log.i("callState", "IDLE");
 					break;
 				case CONNECTING: // 正在连接对方
 					enHandler.sendEmptyMessage(7);
@@ -632,17 +613,28 @@ public class ControlActivity extends CallActivity implements OnClickListener,
 							key++;
 						}
 					}, new Date(), 1000);
-
-					if (EMVideoCallHelper.getInstance().getVideoHeight() == 320
-							&& EMVideoCallHelper.getInstance().getVideoWidth() == 240) {
-						EMChatManager.getInstance().endCall();
-						saveCallRecord(1);
-						ToastUtil.showtomain(ControlActivity.this, getString(R.string.connect_error_retry));
-						cameraHelper.stopCapture(oppositeSurfaceHolder);
-					}
-
+					new Timer().schedule(new TimerTask() {
+						@Override
+						public void run() {
+							runOnUiThread(new Runnable() {
+								@Override
+								public void run() {
+									if (EMVideoCallHelper.getInstance().getVideoHeight() == 320
+											&& EMVideoCallHelper.getInstance().getVideoWidth() == 240) {
+										EMChatManager.getInstance().endCall();
+										saveCallRecord(1);
+										ToastUtil.showtomain(ControlActivity.this, getString(R.string.connect_error_retry));
+										cameraHelper.stopCapture(oppositeSurfaceHolder);
+										toggle();
+										play.setBackgroundResource(R.drawable.bofang);
+									}
+								}
+							});
+						}
+					}, 1000);
 					break;
 				case DISCONNNECTED: // 电话断了
+
 					if (progress != null) {
 						progress.dismiss();
 					}
@@ -711,7 +703,7 @@ public class ControlActivity extends CallActivity implements OnClickListener,
 					break;
 				}
 				if(!error.equals(CallError.ERROR_NONE)){
-					Log.e("EMCall",error.toString());
+					Log.e("EMCall","error:" + error.toString());
 				}
 			}
 		};
@@ -744,6 +736,8 @@ public class ControlActivity extends CallActivity implements OnClickListener,
 		switch (v.getId()) {
 		case R.id.play:
 			if (!cameraHelper.isStarted()) {
+				audioManager.setMicrophoneMute(true);
+				findViewById(R.id.mictoggole).setBackgroundResource(R.drawable.icon_mute_on);
 				sendmsg(runningMode,getSharedPreferences("Receipt", MODE_PRIVATE).getString(
 						"username", null));
 			} else {
@@ -794,13 +788,8 @@ public class ControlActivity extends CallActivity implements OnClickListener,
 			}
 			break;
 		case R.id.speak:
-			if (!getIntent().getExtras().getString("mode").equals("control")
-					&& audioManager.isMicrophoneMute()) {
-				ToastUtil.showtomain(this, getString(R.string.please_open_microphone));
-				return;
-			} else {
-				audioManager
-						.setMicrophoneMute(!audioManager.isSpeakerphoneOn());
+			if (audioManager.isMicrophoneMute()) {
+				audioManager.setMicrophoneMute(false);
 			}
 			speak.setEnabled(false);
 			audioManager.setSpeakerphoneOn(false);
@@ -836,7 +825,7 @@ public class ControlActivity extends CallActivity implements OnClickListener,
 
 				@Override
 				public void onResult(RecognizerResult result, boolean arg1) {
-					Log.i("Result", result.getResultString());
+					Log.i("Result", "result:" + result.getResultString());
 					try {
 						JSONObject jo = new JSONObject(result.getResultString());
 						String text = jo.getString("text");
@@ -847,14 +836,12 @@ public class ControlActivity extends CallActivity implements OnClickListener,
 					} catch (JSONException e) {
 						e.printStackTrace();
 					}
-					EMChatManager.getInstance().resumeVoiceTransfer();
 					enHandler.sendEmptyMessage(5);
-					mDialog.setCancelable(true);
 				}
 
 				@Override
 				public void onError(SpeechError error) {
-					Log.i("errorXF", error.getErrorDescription());
+					Log.i("errorXF", "errorXF:" + error.getErrorDescription());
 					enHandler.sendEmptyMessage(5);
 				}
 			});
@@ -883,7 +870,6 @@ public class ControlActivity extends CallActivity implements OnClickListener,
 	}
 
 	private void huanxinLogin() {
-		Log.e("ControlActivity","huanxinLogin");
 		EMChatManager.getInstance().login(
 				getSharedPreferences("huanxin", MODE_PRIVATE)
 						.getString("username", null),
@@ -920,9 +906,9 @@ public class ControlActivity extends CallActivity implements OnClickListener,
 			head_down.setVisibility(View.GONE);
 			head_right.setVisibility(View.GONE);
 			speak.setVisibility(View.GONE);
-			if (!getIntent().getExtras().getString("mode").equals("control")) {
+		//	if (!getIntent().getExtras().getString("mode").equals("control")) {
 				findViewById(R.id.mictoggole).setVisibility(View.GONE);
-			}
+		//	}
 			play.setVisibility(View.GONE);
 			findViewById(R.id.move).setVisibility(View.GONE);
 			findViewById(R.id.head).setVisibility(View.GONE);
@@ -936,9 +922,9 @@ public class ControlActivity extends CallActivity implements OnClickListener,
 			head_down.setVisibility(View.VISIBLE);
 			head_right.setVisibility(View.VISIBLE);
 			speak.setVisibility(View.VISIBLE);
-			if (!getIntent().getExtras().getString("mode").equals("control")) {
+	//		if (!getIntent().getExtras().getString("mode").equals("control")) {
 				findViewById(R.id.mictoggole).setVisibility(View.VISIBLE);
-			}
+	//		}
 			play.setVisibility(View.VISIBLE);
 			findViewById(R.id.move).setVisibility(View.VISIBLE);
 			findViewById(R.id.head).setVisibility(View.VISIBLE);
@@ -950,13 +936,22 @@ public class ControlActivity extends CallActivity implements OnClickListener,
 		speak.setImageResource(R.drawable.speech);
 		audioManager.setSpeakerphoneOn(true);
 		if (getIntent().getExtras().getString("mode").equals("control")) {
-			audioManager.setMicrophoneMute(audioManager.isSpeakerphoneOn());
+			audioManager.setMicrophoneMute(true);
+		} else {
+			audioManager.setMicrophoneMute(controlMute);
 		}
 		mDialog.setCancelable(true);
+		EMChatManager.getInstance().resumeVoiceTransfer();
 	}
 
-	private boolean controlMute = true; //监控静音标识
+	private boolean controlMute = true; //监控静音标识 true表示静音状态
 
+
+	/**
+	 * 视频状态下 静音按钮控制机器人和手机端麦克风同时静音或者不静音
+	 * 监控状态下 手机端除了讲话的时候以外都是静音的  按钮只控制机器人端静音与否
+	 * @param view
+	 */
 	public void toggle_speak(View view) {
 		if (runningMode.equals("control")) {
 			if (controlMute) {
@@ -966,9 +961,8 @@ public class ControlActivity extends CallActivity implements OnClickListener,
 				sendMuteMsg(true);
 				view.setBackgroundResource(R.drawable.icon_mute_on);
 			}
-			controlMute= !controlMute;
 		} else {
-			if (audioManager.isMicrophoneMute()) {
+			if (controlMute) {
 				audioManager.setMicrophoneMute(false);
 				sendMuteMsg(false);
 				view.setBackgroundResource(R.drawable.icon_mute_normal);
@@ -978,6 +972,7 @@ public class ControlActivity extends CallActivity implements OnClickListener,
 				view.setBackgroundResource(R.drawable.icon_mute_on);
 			}
 		}
+		controlMute= !controlMute;
 	}
 
 	
@@ -985,7 +980,7 @@ public class ControlActivity extends CallActivity implements OnClickListener,
 	@Override
 	protected void onDestroy() {
 		HXSDKHelper.getInstance().isVideoCalling = false;
-		
+
 		if (time != null) {
 			time.cancel();
 		}
@@ -998,7 +993,17 @@ public class ControlActivity extends CallActivity implements OnClickListener,
 			saveCallRecord(1);
 		} catch (Exception e) {
 		}
-		unregisterReceiver(neterror);
+		try {
+			if (neterror != null) {
+				unregisterReceiver(neterror);
+			}
+			if (mRNameBR != null) {
+				unregisterReceiver(mRNameBR);
+			}
+		} catch (IllegalArgumentException e) {
+			e.printStackTrace();
+		}
+
 	//	unregisterReceiver(headsetPlugReceiver);  
 		super.onDestroy();
 

@@ -1,43 +1,158 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/qav_gaudio_bg" >
+    android:background="@color/black_deep"
+    android:animateLayoutChanges="true"
+    >
 
-    <include
-        android:id="@+id/av_video_layer_ui"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        layout="@layout/qav_video_layer_ui" />
+    <SurfaceView
+        android:id="@+id/opposite_surface"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:visibility="gone"/>
 
-     <TextView 
-        android:id="@+id/qav_tips_msg"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"   
-        android:layout_marginTop="100dp"
-        android:textSize="12sp"
-        android:singleLine="false"
-        android:maxLength="2000"
-		android:layout_alignParentLeft="true"
-  	/>  
-  	
-     <TextView 
-        android:id="@+id/qav_show_tips"
-        android:layout_width="50dp"
-        android:layout_height="20dp"   
-        android:layout_marginTop="100dp"
-        android:textSize="12sp"
-        android:singleLine="false"
-        android:background="#00000000"
-		android:layout_alignParentRight="true"
-  	/>       
-    
-    <include
-        android:id="@+id/qav_bottom_bar"
-        android:layout_alignParentBottom="true"
-        layout="@layout/qav_bottom_bar" />
-    
+    <SurfaceView
+        android:id="@+id/local_surface"
+        android:layout_width="65dp"
+        android:layout_height="65dp"
+        android:layout_gravity="right|top" />
 
+    <Button
+        android:id="@+id/back"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:background="@android:color/transparent"
+        android:drawableStart="@drawable/back"
+        android:text="@string/return1"
+        android:textColor="@color/white" />
 
-</RelativeLayout>
+    <ImageView
+        android:id="@+id/speak"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal|bottom"
+        android:layout_marginBottom="10dp"
+        android:src="@drawable/speech" />
+
+    <TableLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left|bottom"
+        android:layout_margin="10dp" >
+
+        <TableRow>
+
+            <ImageView
+                android:id="@+id/up"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_column="1"
+                android:src="@drawable/up" />
+        </TableRow>
+
+        <TableRow>
+
+            <ImageView
+                android:id="@+id/left"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/left" />
+
+            <TextView
+                android:id="@+id/move"
+                android:layout_width="wrap_content"
+                android:layout_height="fill_parent"
+                android:background="@drawable/cz"
+                android:gravity="center"
+                android:textColor="@color/btn_white_normal" />
+
+            <ImageView
+                android:id="@+id/right"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/right" />
+        </TableRow>
+
+        <TableRow>
+
+            <ImageView
+                android:id="@+id/down"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_column="1"
+                android:src="@drawable/down" />
+        </TableRow>
+    </TableLayout>
+
+    <TableLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right|bottom"
+        android:layout_margin="10dp" >
+
+        <TableRow>
+
+            <ImageView
+                android:id="@+id/head_up"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_column="1"
+                android:src="@drawable/up" />
+        </TableRow>
+
+        <TableRow>
+
+            <ImageView
+                android:id="@+id/head_left"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/left" />
+
+            <TextView
+                android:id="@+id/head"
+                android:layout_width="wrap_content"
+                android:layout_height="fill_parent"
+                android:background="@drawable/tou"
+                android:gravity="center"
+                android:textColor="@color/btn_white_normal" />
+
+            <ImageView
+                android:id="@+id/head_right"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/right" />
+        </TableRow>
+
+        <TableRow>
+
+            <ImageView
+                android:id="@+id/head_down"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_column="1"
+                android:src="@drawable/down" />
+        </TableRow>
+    </TableLayout>
+
+    <Button
+        android:id="@+id/play"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_gravity="center"
+        android:background="@drawable/bofang"
+        android:textColor="@color/white" />
+
+    <Button
+        android:id="@+id/mictoggole"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_gravity="right"
+        android:background="@drawable/icon_mute_on"
+        android:onClick="toggle_speak"
+        android:layout_marginTop="110dp"
+        />
+
+</FrameLayout>

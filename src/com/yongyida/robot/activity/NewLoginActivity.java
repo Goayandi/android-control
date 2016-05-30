@@ -47,12 +47,12 @@ public class NewLoginActivity extends FragmentActivity implements OnCheckedChang
             Utils.stopSocketService(this);
         }
         initView();
-        hideOtherLoginMethod(2);
+        hideOtherLoginMethod(1);
     }
 
     /**
      *
-     * @param i  显示第几种登录方式  0是都显示 1是短信  2是注册
+     * @param i  显示第几种登录方式  -1是都显示 1是短信  2是注册
      */
     private void hideOtherLoginMethod(int i) {
         if(i != 0) {

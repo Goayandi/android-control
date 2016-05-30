@@ -16,6 +16,7 @@ import android.graphics.Color;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -69,7 +70,7 @@ public class ActivityMeeting extends BaseVideoActivity{
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        log.d(TAG, "onCreate()");
+        log.e(TAG, "onCreate()");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_meeting2);
 
@@ -588,6 +589,7 @@ public class ActivityMeeting extends BaseVideoActivity{
 
     @Override
     protected void onDestroy() {
+        Log.e(TAG, "onDestroy");
         try {
             if (mMediaJoinRoomBR != null) {
                 unregisterReceiver(mMediaJoinRoomBR);

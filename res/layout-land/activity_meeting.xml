@@ -1,6 +1,7 @@
 <com.layout.utils.PercentRelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/root_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
     <FrameLayout
@@ -34,7 +35,6 @@
         android:layout_height="0dp"
         android:layout_width="0dp"
         android:layout_alignParentRight="true"
-        android:visibility="gone"
         app:layout_heightPercent="100%"
         app:layout_widthPercent="15%">
         <Button
@@ -82,7 +82,8 @@
             android:layout_centerHorizontal="true"
             app:layout_heightPercent="70%"
             app:layout_widthPercent="80%"
-            app:layout_marginTopPercent="8%"/>
+            app:layout_marginTopPercent="8%"
+            />
         <Button
             android:id="@+id/bt_cancel"
             android:layout_width="0dp"

@@ -123,7 +123,7 @@ public class DialByContactsActivity extends BaseVideoActivity implements View.On
                     NetUtil.getinstance().http(Constants.FIND_ROBOT_FRIEND, params, new NetUtil.callback() {
                         @Override
                         public void success(JSONObject json) {
-                            Log.i(TAG, json.toString());
+                            Log.e(TAG, json.toString());
                             try {
                                 int ret = json.getInt("ret");
                                 switch (ret) {

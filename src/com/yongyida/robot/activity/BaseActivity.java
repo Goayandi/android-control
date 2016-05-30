@@ -9,7 +9,7 @@ import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 public abstract class BaseActivity extends Activity {
 
 	public  void setadapter(){
-		
+
 	};
 
 	@Override

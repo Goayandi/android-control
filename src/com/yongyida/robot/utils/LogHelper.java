@@ -114,7 +114,12 @@ public class LogHelper {
 					if (line.length() == 0) {
 						continue;
 					}
-					if (out != null && line.contains(mPID)) {
+					if (out != null && line.contains(mPID)
+							&& !line.contains("println needs a message")
+							&& !line.contains("SMACK-Voe")
+							&& !line.contains("boolean org.jboss.netty.channel.Channel.isConnected()")
+							&& !line.contains("Reading a NULL string not supported here")
+							) {
 						out.write((System.currentTimeMillis() + "  " + line + "\n")
 								.getBytes());
 					}

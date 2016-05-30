@@ -315,4 +315,8 @@
     <string name="input_pwd_again">input pwd again plz</string>
     <string name="battery">battery:</string>
     <string name="account_not_exist">account is not exist</string>
+    <string name="not_online_opposite">not online there</string>
+    <string name="room_not_exist">room not exist</string>
+    <string name="some_request_not_handle">some request not handle</string>
+    <string name="hang_up_opposite">hang up there</string>
 </resources>

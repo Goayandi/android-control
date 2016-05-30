@@ -9,10 +9,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.yongyida.robot.R;
@@ -26,18 +25,17 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.net.SocketTimeoutException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
  * Created by Administrator on 2016/4/14 0014.
  */
-public class FriendsActivity extends BaseVideoActivity {
+public class FriendsActivity extends BaseVideoActivity implements View.OnClickListener {
     private static String TAG = "FriendsActivity";
     private RecyclerView mRecycleView;
     private MyRecycleViewAdapter mAdapter;
+    private int mId;
     private Handler mHandler = new Handler(){
         @Override
         public void handleMessage(Message msg) {
@@ -53,16 +51,20 @@ public class FriendsActivity extends BaseVideoActivity {
             }
         }
     };
+    private String mSession;
+    private EditText mEditText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_friends);
         initView();
+        mId = getSharedPreferences("userinfo", MODE_PRIVATE).getInt("id", 0);
+        mSession = getSharedPreferences("userinfo", MODE_PRIVATE).getString("session", null);
 //        addRobotFriend(getSharedPreferences("userinfo", MODE_PRIVATE).getInt("id", 0),
 //                1038L, getSharedPreferences("userinfo", MODE_PRIVATE).getString("session", null));
         findRobotFriend(getSharedPreferences("userinfo", MODE_PRIVATE).getInt("id", 0),
-                getSharedPreferences("userinfo", MODE_PRIVATE).getString("session", null));
+                 getSharedPreferences("userinfo", MODE_PRIVATE).getString("session", null));
 //        deleteRobotFriend(getSharedPreferences("userinfo", MODE_PRIVATE).getInt("id", 0),
 //                1038L, getSharedPreferences("userinfo", MODE_PRIVATE).getString("session", null));
 //        findRobotFriend(getSharedPreferences("userinfo", MODE_PRIVATE).getInt("id", 0),
@@ -155,6 +157,8 @@ public class FriendsActivity extends BaseVideoActivity {
                                         Log.i("AddFriendsActivity", "缺少参数");
                                         break;
                                     case 0:
+                                        String dataString = json.getString("Robots");
+                                        HandlerUtil.sendmsg(mHandler, dataString, 1);
                                         Log.i("AddFriendsActivity", "成功");
                                         break;
                                     case 1:
@@ -218,8 +222,8 @@ public class FriendsActivity extends BaseVideoActivity {
                                         Log.i("AddFriendsActivity", "传入用户信息不存在");
                                         break;
                                     case 0:
-                                        JSONArray data = json.getJSONArray("Robots");
-                                        setAdapterData(data);
+                                        String dataString = json.getString("Robots");
+                                        HandlerUtil.sendmsg(mHandler, dataString, 1);
                                         Log.i("AddFriendsActivity", "成功");
                                         break;
                                     case 1:
@@ -277,25 +281,33 @@ public class FriendsActivity extends BaseVideoActivity {
     protected void initView() {
         mRecycleView = (RecyclerView) findViewById(R.id.recycler_view);
         mRecycleView.setLayoutManager(new GridLayoutManager(this, 2));
+        mEditText = (EditText) findViewById(R.id.et);
+        findViewById(R.id.bt_add).setOnClickListener(this);
+        findViewById(R.id.bt_refresh).setOnClickListener(this);
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.bt_add:
+                Long rid = Long.parseLong(mEditText.getText().toString().trim());
+                addRobotFriend(mId, rid, mSession);
+                break;
+            case R.id.bt_refresh:
+                findRobotFriend(mId, mSession);
+                break;
+        }
     }
 
     class MyRecycleViewAdapter extends RecyclerView.Adapter<MyRecycleViewAdapter.MyViewHolder> {
         private JSONArray data;
-        private List<Boolean> checkList;  //checkBox的状态
 
         public MyRecycleViewAdapter(JSONArray data) {
             this.data = data;
-            checkList = new ArrayList<Boolean>();
-            for (int i = 0; i < data.length(); i++) {
-                checkList.add(false);
-            }
         }
 
         public void setAdapterData(JSONArray data) {
             this.data = data;
-            for (int i = 0; i < data.length(); i++) {
-                checkList.add(false);
-            }
         }
 
         @Override
@@ -308,13 +320,13 @@ public class FriendsActivity extends BaseVideoActivity {
         public void onBindViewHolder(MyViewHolder myViewHolder, final int i) {
 
             try {
-                String s = data.getJSONObject(i).getString("rname");
-                myViewHolder.tv.setText(s);
-                myViewHolder.cb.setChecked(checkList.get(i));
-                myViewHolder.cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                String rname = data.getJSONObject(i).getString("rname");
+                final Long rid = data.getJSONObject(i).getLong("rid");
+                myViewHolder.tv.setText(rname);
+                myViewHolder.bt.setOnClickListener(new View.OnClickListener() {
                     @Override
-                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                        checkList.set(i, isChecked);
+                    public void onClick(View v) {
+                        deleteRobotFriend(mId, rid , mSession);
                     }
                 });
             } catch (JSONException e) {
@@ -331,15 +343,13 @@ public class FriendsActivity extends BaseVideoActivity {
         public class MyViewHolder extends RecyclerView.ViewHolder {
             TextView tv;
             ImageView iv;
-            LinearLayout ll;
-            CheckBox cb;
+            Button bt;
 
             public MyViewHolder(View itemView) {
                 super(itemView);
                 tv = ((TextView) itemView.findViewById(R.id.tv));
                 iv = ((ImageView) itemView.findViewById(R.id.iv));
-                ll = ((LinearLayout) itemView.findViewById(R.id.ll));
-                cb = ((CheckBox) itemView.findViewById(R.id.cb));
+                bt = ((Button) itemView.findViewById(R.id.bt));
             }
         }
     }

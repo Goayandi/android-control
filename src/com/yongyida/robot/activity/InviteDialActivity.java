@@ -194,7 +194,11 @@ public class InviteDialActivity extends BaseVideoActivity implements View.OnClic
                         YYDVideoServer.getInstance().getMeetingInfo().setOriginator(
                                 YYDSDKHelper.getInstance().getUser(),
                                 YYDSDKHelper.getInstance().getUser());
-
+//                        YYDVideoServer.getInstance().getMeetingInfo().addRoomUser(new RoomUser(
+//                                YYDSDKHelper.getInstance().getUser().getRole(),
+//                                YYDSDKHelper.getInstance().getUser().getId(),
+//                                YYDSDKHelper.getInstance().getUser().getUserName()
+//                        ));
                         // 保存房间roomId和视频服务器VideoServerIp, VideoServerPort
                         YYDVideoServer.getInstance().getMeetingInfo().setVideoServer_Tcp(mRoomID,
                                 mIp, mPort);
@@ -272,7 +276,7 @@ public class InviteDialActivity extends BaseVideoActivity implements View.OnClic
         public void onReceive(Context context, Intent intent) {
             int ret = intent.getIntExtra(Constants.RET, -1);
             if (ret == 0) {
-                Intent i = new Intent(InviteDialActivity.this, ActivityMeeting.class);
+                Intent i = new Intent(InviteDialActivity.this, MeetingActivity.class);
                 i.putExtra("EnableSend", true);
                 i.putExtra("EnableRecv", true);
                 i.putExtra("id", mId);

@@ -12,7 +12,6 @@ import android.os.Bundle;
 import android.os.Message;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -67,6 +66,7 @@ public class ConnectActivity extends BaseActivity implements
     private ImageView findrobot;
     private SharedPreferences sharedPreferences;
     private static List<Robot> list_robots;
+    private static List<Robot> list_robots2;
     private SwipeRefreshLayout refreshableView;
     private ImageView setting;
     private long time;
@@ -120,15 +120,15 @@ public class ConnectActivity extends BaseActivity implements
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        Log.i(TAG, "onNewIntent");
     }
 
     @Override
     protected void onResume() {
-        Log.i(TAG, "onResume");
         if (Constants.flag) {
             sendBroadcast(new Intent(Constants.Stop));
         }
+        robot = new RobotAdapter(this, new ArrayList<Robot>());
+        robots_bind.setAdapter(robot);
         getrobotinfo();
         time = 0;
         super.onResume();
@@ -137,15 +137,17 @@ public class ConnectActivity extends BaseActivity implements
     @Override
     protected void onPause() {
         time = 0;
+        handler.removeMessages(2);
         super.onPause();
     }
 
+    private Byte[] b1 = new Byte[0];
     public void getrobotinfo() {
         ThreadPool.execute(new Runnable() {
 
             @Override
             public void run() {
-                synchronized (ConnectActivity.this) {
+                synchronized (b1) {
                     Map<String, String> params = new HashMap<String, String>();
                     params.put("id", sharedPreferences.getInt("id", 0) + "");
                     params.put("session",
@@ -174,7 +176,6 @@ public class ConnectActivity extends BaseActivity implements
 
                                         @Override
                                         public void error(String errorresult) {
-                                            Log.i("net", "e");
                                             HandlerUtil.sendmsg(handler,
                                                     errorresult, 5);
                                         }
@@ -188,7 +189,6 @@ public class ConnectActivity extends BaseActivity implements
                         }
 
                     }
-
                 }
             }
         });
@@ -210,12 +210,15 @@ public class ConnectActivity extends BaseActivity implements
                 ToastUtil.showtomain(ConnectActivity.this, getString(R.string.connect_fail));
                 break;
             case 5:
-                if (refreshableView.isRefreshing()) {
-                    refreshableView.setRefreshing(false);
-                }
                 if (unbind != null) {
                     list_robots.add(unbind);
                     handler.sendEmptyMessage(2);
+                    unbind = null;
+                } else {
+                    if (refreshableView.isRefreshing()) {
+                        refreshableView.setRefreshing(false);
+                    }
+                    refreshableView.setEnabled(true);
                 }
                 ToastUtil.showtomain(ConnectActivity.this,
                         msg.getData().getString("result"));
@@ -285,21 +288,21 @@ public class ConnectActivity extends BaseActivity implements
         @Override
         public void onItemClick(AdapterView<?> parent, final View view,
                                 int position, long id) {
-            if (!list_robots.get(position).isOnline()) {
+            if (!list_robots2.get(position).isOnline()) {
                 ToastUtil.showtomain(ConnectActivity.this, getString(R.string.robot_not_online));
                 return;
-            } else if (list_robots.get(position).getController() != 0) {
+            } else if (list_robots2.get(position).getController() != 0) {
                 ToastUtil.showtomain(ConnectActivity.this, getString(R.string.already_controlled));
                 return;
             }
-            String username = list_robots.get(position).getId();
+            String username = list_robots2.get(position).getId();
             getSharedPreferences("Receipt", MODE_PRIVATE)
                     .edit()
                     .putString("username", username)
                     .putString("robotid",
-                            list_robots.get(position).getRid() + "").commit();
+                            list_robots2.get(position).getRid() + "").commit();
             getSharedPreferences("robotname", MODE_PRIVATE).edit()
-                    .putString("name", list_robots.get(position).getRname())
+                    .putString("name", list_robots2.get(position).getRname())
                     .commit();
             Intent intent = new Intent();
             intent.setAction(Constants.Robot_Connection);
@@ -309,7 +312,7 @@ public class ConnectActivity extends BaseActivity implements
             pro = new ProgressDialog(ConnectActivity.this);
             pro.setMessage(getString(R.string.connecting));
             pro.show();
-            mBattery = list_robots.get(position).getBattery();
+            mBattery = list_robots2.get(position).getBattery();
         }
     };
     // 接收soket返回状态
@@ -422,8 +425,8 @@ public class ConnectActivity extends BaseActivity implements
 
     // 适配listview
     public void setadapter() {
-        list_robots = sortAllType(list_robots);
-        robot = new RobotAdapter(this, list_robots);
+        list_robots2 = sortAllType(list_robots);
+        robot = new RobotAdapter(this, list_robots2);
 
         SwipeMenuCreator creator = new SwipeMenuCreator() {
 
@@ -473,7 +476,7 @@ public class ConnectActivity extends BaseActivity implements
 
                     @Override
                     public void onAnimationEnd(Animation animation) {
-                        unbind = list_robots.get(position);
+                        unbind = list_robots2.get(position);
 
                         // 解除绑定
                         final Map<String, String> param = new HashMap<String, String>();
@@ -487,7 +490,7 @@ public class ConnectActivity extends BaseActivity implements
                                 + "");
                         param.put("robot_serial", list_robots.get(position)
                                 .getRobot_serial());
-                        list_robots.remove(position);
+                        list_robots2.remove(position);
                         robot.notifyDataSetChanged();
                         ThreadPool.execute(new Runnable() {
 
@@ -500,9 +503,6 @@ public class ConnectActivity extends BaseActivity implements
                                                 @Override
                                                 public void success(
                                                         JSONObject json) {
-
-                                                    Log.i("Success",
-                                                            json.toString());
                                                     getrobotinfo();
                                                     refreshableView
                                                             .setRefreshing(false);
@@ -514,7 +514,6 @@ public class ConnectActivity extends BaseActivity implements
                                                     HandlerUtil.sendmsg(
                                                             handler,
                                                             errorresult, 5);
-                                                    Log.i("Error", "Error");
                                                 }
                                             }, ConnectActivity.this);
                                 } catch (SocketTimeoutException e) {
@@ -530,14 +529,9 @@ public class ConnectActivity extends BaseActivity implements
                 v.startAnimation(set);
             }
         });
-
-        synchronized (this) {
-            robots_bind.setAdapter(robot);
-        }
-
+        robots_bind.setAdapter(robot);
     }
 
-    ;
 
     @Override
     protected void onStart() {
@@ -556,10 +550,9 @@ public class ConnectActivity extends BaseActivity implements
 
     @Override
     public void onBackPressed() {
-        Utils.stopSocketService(this);
-//		if (Constants.flag) {
-//			sendBroadcast(new Intent(Constants.Stop));
-//		}
+        if (Utils.isServiceRunning(ConnectActivity.this, SocketService.class.getSimpleName())) {
+            Utils.stopSocketService(this);
+        }
         super.onBackPressed();
     }
 

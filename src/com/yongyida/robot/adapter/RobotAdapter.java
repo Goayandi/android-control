@@ -21,9 +21,7 @@ public class RobotAdapter extends BaseAdapter {
 	public RobotAdapter(Context context, List<Robot> robots) {
 		super();
 		this.context = context;
-		synchronized (robots) {
-			this.robots = robots;
-		}
+		this.robots = robots;
 
 	}
 

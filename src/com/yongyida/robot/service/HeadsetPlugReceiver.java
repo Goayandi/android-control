@@ -13,10 +13,10 @@ public class HeadsetPlugReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {  
           if (intent.hasExtra("state")){  
                if (intent.getIntExtra("state", 0) == 0){      
-                   Toast.makeText(context, "headset not connected", Toast.LENGTH_LONG).show();  
+                   Toast.makeText(context, "headset not connected", Toast.LENGTH_LONG).show();
                }  
                else if (intent.getIntExtra("state", 0) == 1){  
-                   Toast.makeText(context, "headset connected", Toast.LENGTH_LONG).show();  
+                   Toast.makeText(context, "headset connected", Toast.LENGTH_LONG).show();
                }  
           }  
           

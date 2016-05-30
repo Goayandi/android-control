@@ -219,10 +219,9 @@ public class PowerListActivity extends BaseActivity implements OnClickListener {
 
 		switch (v.getId()) {
 		case R.id.more:
-		//	ToastUtil.showtomain(this, getString(R.string.waitting));
-		//	startActivity(new Intent(this, MeetingTestActivity.class));
+			ToastUtil.showtomain(this, getString(R.string.waitting));
 		//	startActivity(new Intent(PowerListActivity.this,FriendsActivity.class));
-			startActivity(new Intent(this, DialByContactsActivity.class));
+		//	startActivity(new Intent(this, DialByContactsActivity.class));
 			break;
 		case R.id.power_title:
 			onBackPressed();

@@ -3,12 +3,18 @@ package com.yongyida.robot.utils;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.util.Log;
+import android.view.View;
 
 import com.yongyida.robot.service.SocketService;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
@@ -177,5 +183,96 @@ public class Utils {
     public static void stopSocketService(Context context) {
         Constants.isUserClose = true;
         context.stopService(new Intent(context, SocketService.class));
+    }
+
+    /**
+     * 获取view的bitmap
+     * @param v
+     * @return
+     */
+    public static Bitmap getViewBitmap(View v) {
+
+        v.clearFocus(); //
+
+        v.setPressed(false); //
+
+        // 能画缓存就返回false
+
+        boolean willNotCache = v.willNotCacheDrawing();
+
+        v.setWillNotCacheDrawing(false);
+
+        int color = v.getDrawingCacheBackgroundColor();
+
+        v.setDrawingCacheBackgroundColor(0);
+
+        if (color != 0) {
+
+            v.destroyDrawingCache();
+
+        }
+
+        v.buildDrawingCache();
+
+        Bitmap cacheBitmap = v.getDrawingCache();
+
+        if (cacheBitmap == null) {
+
+            return null;
+
+        }
+
+        Bitmap bitmap = Bitmap.createBitmap(cacheBitmap);
+
+        // Restore the view
+
+        v.destroyDrawingCache();
+
+        v.setWillNotCacheDrawing(willNotCache);
+
+        v.setDrawingCacheBackgroundColor(color);
+
+        return bitmap;
+
+    }
+
+    /**
+     * 保存bitmap到本地
+     * @param bitmap
+     * @param filename
+     */
+    public static void saveFile(Bitmap bitmap, String filename) {
+
+        FileOutputStream fileOutputStream = null;
+        File folder = new File(filename.substring(0,filename.lastIndexOf("/")));
+        if (!folder.exists()) {
+            folder.mkdir();
+        }
+        try {
+
+            fileOutputStream = new FileOutputStream(filename);
+
+            if (fileOutputStream != null) {
+
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 90, fileOutputStream);
+
+                fileOutputStream.flush();
+
+                fileOutputStream.close();
+
+            }
+
+        } catch (FileNotFoundException e) {
+
+
+            e.printStackTrace();
+
+        } catch (IOException e) {
+
+
+            e.printStackTrace();
+
+        }
+
     }
 }
