@@ -9,6 +9,7 @@ import android.net.NetworkInfo;
 import com.yongyida.robot.R;
 import com.yongyida.robot.activity.ConnectActivity;
 import com.yongyida.robot.huanxin.DemoHXSDKHelper;
+import com.yongyida.robot.utils.Constants;
 import com.yongyida.robot.utils.ToastUtil;
 import com.yongyida.robot.utils.Utils;
 
@@ -28,18 +29,26 @@ public class NetStateBroadcastReceiver extends BroadcastReceiver {
 				if (!mobile.isConnected() && !wifi.isConnected()) {
 					back(context);
 					ToastUtil.showtomain(context, context.getString(R.string.please_connect_net));
+					return;
 				} else if (!mobile.isAvailable() && !wifi.isAvailable()) {
 					back(context);
 					ToastUtil.showtomain(context, context.getString(R.string.please_connect_net));
+					return;
 				}
 			} else {
 				if (!wifi.isConnected()) {
 					back(context);
 					ToastUtil.showtomain(context, context.getString(R.string.please_connect_net));
+					return;
 				}
 			}
+			Intent i = new Intent();
+			i.setAction(Constants.NET_SUCCESS);
+			context.sendBroadcast(i);
 		}
 	}
+
+
 
 	public void back(Context context) {
 		if (DemoHXSDKHelper.getInstance().isLogined()) {

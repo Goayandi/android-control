@@ -2,6 +2,7 @@ package com.yongyida.robot.activity;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -13,23 +14,26 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
-import android.widget.EditText;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.easemob.EMCallBack;
 import com.yongyida.robot.R;
 import com.yongyida.robot.huanxin.DemoHXSDKHelper;
+import com.yongyida.robot.ronglianyun.SDKCoreHelper;
 import com.yongyida.robot.utils.BroadcastReceiverRegister;
 import com.yongyida.robot.utils.Constants;
 import com.yongyida.robot.utils.StartUtil;
 import com.yongyida.robot.utils.ThreadPool;
 import com.yongyida.robot.utils.ToastUtil;
 import com.yongyida.robot.utils.Utils;
+import com.yongyida.robot.widget.ModifyRobotNameDialog;
 import com.yongyida.robot.widget.SwitchButton;
 
 public class SettingActivity<AndroidLearn> extends BaseActivity implements
@@ -41,11 +45,12 @@ public class SettingActivity<AndroidLearn> extends BaseActivity implements
 	private SwitchButton wifi;
 	private Button back;
 	private TextView edit;
-	private EditText robotname;
 	private TextView versionname;
-	private TextView contact;
+	private RelativeLayout contact;
 	private TextView upgrade;
 	private String versionRobot;
+	private Dialog mModifyNameDialog;
+	private String mNewName;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -112,6 +117,8 @@ public class SettingActivity<AndroidLearn> extends BaseActivity implements
 							});
 				}
 			});
+			SDKCoreHelper.logout(false);
+//			ECDevice.unInitial();
 			break;
 		case R.id.setting_back:
 			this.onBackPressed();
@@ -128,14 +135,14 @@ public class SettingActivity<AndroidLearn> extends BaseActivity implements
 			sendBroadcast(intent);
 			break;
 		case R.id.contact:
-			AlertDialog.Builder dialog = new AlertDialog.Builder(SettingActivity.this);  
+			final AlertDialog.Builder dialog = new AlertDialog.Builder(SettingActivity.this);
 //          dialog.setIcon(R.drawable.ic_launcher);//窗口头图标  
             dialog.setTitle(R.string.reminder);//窗口名
-            dialog.setMessage(R.string.service_number);
+            dialog.setMessage(getString(R.string.service_number) + getString(R.string.contact_number) + "  ");
             dialog.setPositiveButton(R.string.confirm,new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int which) {  
                     // TODO Auto-generated method stub  
-                	Intent intent = new Intent(Intent.ACTION_CALL,Uri.parse("tel:400-9696488"));  
+                	Intent intent = new Intent(Intent.ACTION_CALL,Uri.parse("tel:"+ getString(R.string.contact_number)));
                     startActivity(intent); 
                 }  
             });  
@@ -148,24 +155,16 @@ public class SettingActivity<AndroidLearn> extends BaseActivity implements
             dialog.show();
 			break;
 		case R.id.editname:
-			if (edit.getText().toString().equals(getString(R.string.edit))) {
-				edit.setText(R.string.complete);
-				robotname.setEnabled(true);
-				robotname.requestFocus();
-			} else if (edit.getText().toString().equals(getString(R.string.complete))) {
-				String name = robotname.getText().toString().trim();
-				if (name.equals("")) {
-					ToastUtil.showtomain(this, getString(R.string.name_cant_null));
-					return;
+			mModifyNameDialog = new ModifyRobotNameDialog(SettingActivity.this, new ModifyRobotNameDialog.OnSaveListener() {
+				@Override
+				public void save(String name) {
+					mNewName = name;
+					getSharedPreferences("robotname", MODE_PRIVATE).edit().putString("name", name).commit();
+					sendBroadcast(new Intent(Constants.Robot_Info_Update).putExtra("name", name));
+					mModifyNameDialog.dismiss();
 				}
-				getSharedPreferences("robotname", MODE_PRIVATE).edit()
-						.putString("name", name).commit();
-				sendBroadcast(new Intent(Constants.Robot_Info_Update).putExtra(
-						"name", name));
-				edit.setText(getString(R.string.edit));
-				robotname.setEnabled(false);
-			}
-
+			}, edit.getText().toString());
+			mModifyNameDialog.show();
 			break;
 		}
 	}
@@ -175,6 +174,9 @@ public class SettingActivity<AndroidLearn> extends BaseActivity implements
 		public void onReceive(Context arg0, Intent intent) {
 			int ret = intent.getIntExtra("ret", -1);
 			if (ret == 0) {
+				if (!TextUtils.isEmpty(mNewName)) {
+					edit.setText(mNewName);
+				}
 				ToastUtil.showtomain(SettingActivity.this, getString(R.string.modify_success));
 			} else {
 				ToastUtil.showtomain(SettingActivity.this, getString(R.string.modify_fail));
@@ -215,7 +217,7 @@ public class SettingActivity<AndroidLearn> extends BaseActivity implements
 		}
 		upgrade=(TextView)findViewById(R.id.upgrade);
 		upgrade.setOnClickListener(this);
-		contact=(TextView)findViewById(R.id.contact);
+		contact=(RelativeLayout)findViewById(R.id.contact);
 		contact.setOnClickListener(this);
 		about = (TextView) findViewById(R.id.about);
 		about.setOnClickListener(this);
@@ -226,8 +228,6 @@ public class SettingActivity<AndroidLearn> extends BaseActivity implements
 		back.setOnClickListener(this);
 		edit = (TextView) findViewById(R.id.editname);
 		edit.setOnClickListener(this);
-		robotname = (EditText) findViewById(R.id.robotname);
-
 		int method = getSharedPreferences("login",
 				MODE_PRIVATE).getInt(Constants.LOGIN_METHOD, -1);
 		int userId = getSharedPreferences("userinfo", MODE_PRIVATE)
@@ -263,7 +263,7 @@ public class SettingActivity<AndroidLearn> extends BaseActivity implements
 		}
 		if (getIntent().getExtras().getString("flag").equals("main")) {
 			(findViewById(R.id.robot_name)).setVisibility(View.VISIBLE);
-			robotname.setText(getSharedPreferences("robotname", MODE_PRIVATE)
+			edit.setText(getSharedPreferences("robotname", MODE_PRIVATE)
 					.getString("name", null));
 			versionRobot = getIntent().getStringExtra("version");
 			String versionNew = getSharedPreferences("Receipt", MODE_PRIVATE).getString("fota", "");

@@ -169,7 +169,7 @@
     <string name="initialize_fail">初始化失败，请重试</string>
     <string name="waitting">敬请期待</string>
     <string name="reminder">提示</string>
-    <string name="service_number">"是否拨打客服电话:400-9696488 "</string>
+    <string name="service_number">"是否拨打客服电话:"</string>
     <string name="confirm">确定</string>
     <string name="edit">编辑</string>
     <string name="complete">完成</string>
@@ -223,7 +223,7 @@
     <string name="contact">联系电话</string>
     <string name="remind_alarm">任务提醒</string>
     <string name="add">添加</string>
-    <string name="login_out">退出帐号</string>
+    <string name="login_out">退出登陆</string>
     <string name="alarm">闹钟</string>
     <string name="choose_time1">选择时间</string>
     <string name="choose_week1">请选择星期：</string>
@@ -324,4 +324,16 @@
     <string name="room_not_exist">房间不存在</string>
     <string name="some_request_not_handle">有未处理的视频请求</string>
     <string name="hang_up_opposite">对方挂断</string>
+    <string name="zhinengjiating">智能家庭</string>
+    <string name="cancel_publish">取消发布</string>
+    <string name="alert_and_remind">闹钟提醒</string>
+    <string name="tpty">同屏投影</string>
+    <string name="everyday">每天</string>
+    <string name="save">保存</string>
+    <string name="yongyida_robot">勇艺达机器人</string>
+    <string name="contact_number">400-9696488</string>
+    <string name="remind_time">提醒时间</string>
+    <string name="remind_title">标题</string>
+    <string name="remind_content">提醒内容</string>
+    <string name="remind_date">提醒日期</string>
 </resources>

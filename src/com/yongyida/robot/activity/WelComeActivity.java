@@ -14,6 +14,7 @@ import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.view.Menu;
 
 import com.yongyida.robot.R;
+import com.yongyida.robot.ronglianyun.SDKCoreHelper;
 import com.yongyida.robot.service.UpdateService;
 import com.yongyida.robot.utils.Constants;
 import com.yongyida.robot.utils.HandlerUtil;
@@ -21,6 +22,7 @@ import com.yongyida.robot.utils.NetUtil;
 import com.yongyida.robot.utils.NetUtil.callback;
 import com.yongyida.robot.utils.StartUtil;
 import com.yongyida.robot.utils.ThreadPool;
+import com.yongyida.robot.utils.Utils;
 import com.yongyida.robot.utils.XmlUtil;
 
 import org.json.JSONObject;
@@ -29,11 +31,13 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class WelComeActivity extends BaseActivity {
+	private static final String TAG = "WelComeActivity";
 	private String address;
 	private String fotaAddress;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		SDKCoreHelper.init(this);
 	}
 
 	private AlertDialog alert;
@@ -151,43 +155,7 @@ public class WelComeActivity extends BaseActivity {
 		getMenuInflater().inflate(R.menu.wel_come, menu);
 		return true;
 	}
-	private final static int CN = 0;
-	private final static int TEST = 1;
-	private final static int HK = 2;
-	private final static int TW = 3;
 
-	public void switchServer(int area){
-		switch (area) {
-			case CN:
-				Constants.address = Constants.address_cn;
-				Constants.download_fota_address = Constants.download_fota_address_cn;
-				Constants.ip = Constants.ip_cn;
-				Constants.port = Constants.port_cn;
-				Constants.download_address = Constants.download_address_cn;
-				break;
-			case TEST:
-				Constants.address = Constants.address_test;
-				Constants.download_fota_address = Constants.download_fota_address_test;
-				Constants.ip = Constants.ip_test;
-				Constants.port = Constants.port_test;
-				Constants.download_address = Constants.download_address_test;
-				break;
-			case HK:
-				Constants.address = Constants.address_hk;
-				Constants.download_fota_address = Constants.download_fota_address_hk;
-				Constants.ip = Constants.ip_hk;
-				Constants.port = Constants.port_hk;
-				Constants.download_address = Constants.download_address_hk;
-				break;
-			case TW:
-				Constants.address = Constants.address_tw;
-				Constants.download_fota_address = Constants.download_fota_address_tw;
-				Constants.ip = Constants.ip_tw;
-				Constants.port = Constants.port_tw;
-				Constants.download_address = Constants.download_address_tw;
-				break;
-		}
-	}
 
 	@Override
 	public void initlayout(OnRefreshListener onRefreshListener) {
@@ -196,9 +164,9 @@ public class WelComeActivity extends BaseActivity {
 //		if (Constants.HK_CODE.equals(stateCode))
 		String serverState = getSharedPreferences("net_state", MODE_PRIVATE).getString("state",null);
 		if (serverState != null && !serverState.equals("official")){
-			switchServer(TEST);
+			Utils.switchServer(Utils.TEST);
 		} else {
-			switchServer(CN);
+			Utils.switchServer(Utils.CN);
 		}
 
 		address = Constants.download_address;

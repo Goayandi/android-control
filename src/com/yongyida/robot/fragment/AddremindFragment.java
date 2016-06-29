@@ -51,12 +51,6 @@ public class AddremindFragment extends Fragment implements onChooseListener {
 		if (state.equals(Constants.Update)) {
 			task = getActivity().getIntent().getParcelableExtra("task");
 			settime = Calendar.getInstance();
-//			SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm:ss");
-//			try {
-//				settime.setTime(simpleDateFormat.parse(task.getSettime()));
-//			} catch (ParseException e) {
-//				e.printStackTrace();
-//			}
 			settime.setTimeInMillis(Long.parseLong(task.getSettime()));
 			edit_title.setText(task.getTitle());
 			if (settime.get(Calendar.MONTH)>= 9

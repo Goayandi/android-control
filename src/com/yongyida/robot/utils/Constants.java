@@ -239,6 +239,34 @@ public class Constants {
 
 	public static final String LOG_ERROR = "yyderror";
 
+	public static final String HOST = "host";
+
+	public static final String CONFERENCE_ID = "conference_id";
+
+	public static final String NET_SUCCESS = "net_success";
+
+	public static final String INVITE_REJECT = "reject";
+
+	public static final String INVITE_ACCEPT = "accept";
+
+	public static final String MEETING_INVITE_REPLY = "meetingInviteReply";
+
+	public static final String CALL_ID = "call_id";
+
+	public static final String CALL_NAME = "call_name";
+
+	public static final String UNRELEASE_MEETING_NO = "unrelease_meeting_no";
+
+	public static final String TO_MEETING_NO = "to_meeting_no";
+
+	public static final String INVITE_MESSAGE = "meetingInvite";
+
+	public static final String CALL_NO = "call_no";
+
+	public static final String MESSAGE_PREFIX = "msgType://";
+
+	public static final String MEETING_CANCEL_INVITE = "meetingCancelInvite";
+
 	public interface Role{
 		String Robot = "Robot";
 		String User = "User";

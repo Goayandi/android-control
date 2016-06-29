@@ -1,123 +1,146 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.layout.utils.PercentRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/title_shape">
+    android:orientation="vertical"
+    android:paddingLeft="15dp"
+    android:paddingRight="15dp">
     <LinearLayout
-        android:id="@+id/ll_state"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:orientation="horizontal"
-        app:layout_heightPercent="5%"
-        app:layout_marginLeftPercent="4%"
-        app:layout_marginRightPercent="4%"
-        app:layout_marginTopPercent="6%"
-        app:layout_widthPercent="100%" />
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@drawable/selector_task_adapter">
+        <LinearLayout
+            android:id="@+id/ll_state"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="15dp"
+            android:paddingBottom="15dp"
+            android:orientation="horizontal"
+            android:visibility="gone"
+            android:gravity="center_vertical" >
+            <TextView
+                android:id="@+id/tv_state_num"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="+86"
+                android:gravity="center"
+                android:textColor="@android:color/white"
+                />
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/edit_left"/>
+            <TextView
+                android:id="@+id/tv_state"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="3"
+                android:paddingLeft="20dp"
+                android:textColor="@android:color/white"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="10dp"
+                android:text="@string/china"/>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="15dp"
+            android:paddingBottom="15dp"
+            android:orientation="horizontal">
+            <RelativeLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1">
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:src="@drawable/phonenumber"/>
+            </RelativeLayout>
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/edit_left"/>
+            <EditText
+                android:id="@+id/edit_phonenumber"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="3"
+                android:background="@null"
+                android:paddingLeft="15dp"
+                android:hint="@string/number"
+                android:inputType="number"
+                android:layout_marginRight="10dp"
+                android:maxLength="11"
+                android:textColor="@android:color/white"
+                android:textColorHint="@android:color/white" />
+        </LinearLayout>
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/task_title_stroke"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="15dp"
+            android:paddingBottom="15dp"
+            android:orientation="horizontal">
+            <RelativeLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1">
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:src="@drawable/self"/>
+            </RelativeLayout>
 
-    <TextView
-        android:id="@+id/tv_state_num"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:drawableRight="@drawable/edit_left"
-        android:text="+86"
-        android:gravity="center"
-        android:textColor="@android:color/white"
-        app:layout_heightPercent="15%"
-        app:layout_marginLeftPercent="4%"
-        app:layout_marginTopPercent="6%"
-        app:layout_widthPercent="10%" />
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/edit_left"/>
+            <EditText
+                android:id="@+id/edit_vaildcode"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:background="@null"
+                android:paddingLeft="15dp"
+                android:hint="@string/inputvaildcode"
+                android:inputType="number"
+                android:maxLength="4"
+                android:textColor="@android:color/white"
+                android:textColorHint="@android:color/white" />
 
-    <TextView
-        android:id="@+id/tv_state"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:textColor="@android:color/white"
-        android:gravity="center|left"
-        app:layout_heightPercent="15%"
-        app:layout_marginLeftPercent="17%"
-        app:layout_marginTopPercent="6%"
-        app:layout_widthPercent="40%"
-        android:text="@string/china"/>
+            <Button
+                android:id="@+id/getvaild"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_gravity="center"
+                android:layout_alignParentRight="true"
+                android:background="@drawable/valid_code_bg_shape"
+                android:text="@string/getvaild"
+                android:textColor="@android:color/white"
+                android:layout_marginRight="10dp"/>
+        </LinearLayout>
+    </LinearLayout>
 
-    <Button
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_heightPercent="15%"
-        app:layout_marginLeftPercent="4%"
-        app:layout_marginTopPercent="25%"
-        app:layout_widthPercent="10%"
-        android:background="@null"
-        android:drawableRight="@drawable/edit_left"
-        android:drawableStart="@drawable/phonenumber"/>
-
-    <EditText
-        android:id="@+id/edit_phonenumber"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_heightPercent="15%"
-        app:layout_marginLeftPercent="17%"
-        app:layout_marginTopPercent="24%"
-        app:layout_textSizePercent="7%"
-        app:layout_widthPercent="40%"
-        android:background="@null"
-        android:hint="@string/number"
-        android:inputType="number"
-        android:maxLength="11"
-        android:textColor="@android:color/white"
-        android:textColorHint="@android:color/white" />
-
-    <Button
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_heightPercent="15%"
-        app:layout_marginLeftPercent="4%"
-        app:layout_marginTopPercent="45%"
-        app:layout_widthPercent="10%"
-        android:background="@null"
-        android:drawableRight="@drawable/edit_left"
-        android:drawableStart="@drawable/self" />
-
-    <EditText
-        android:id="@+id/edit_vaildcode"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_heightPercent="15%"
-        app:layout_marginLeftPercent="17%"
-        app:layout_marginTopPercent="44%"
-        app:layout_textSizePercent="7%"
-        app:layout_widthPercent="40%"
-        android:background="@null"
-        android:hint="@string/inputvaildcode"
-        android:inputType="number"
-        android:maxLength="4"
-        android:textColor="@android:color/white"
-        android:textColorHint="@android:color/white" />
-
-    <Button
-        android:id="@+id/getvaild"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_gravity="center"
-        android:layout_alignParentRight="true"
-        app:layout_heightPercent="15%"
-        app:layout_marginRightPercent="4%"
-        app:layout_marginTopPercent="45%"
-        app:layout_textSizePercent="6%"
-        app:layout_widthPercent="23%"
-        android:background="@drawable/getvilery"
-        android:text="@string/getvaild"
-        android:textColor="@android:color/white" />
 
     <Button
         android:id="@+id/btn_login"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_heightPercent="15%"
-        app:layout_widthPercent="20%"
-        android:layout_centerHorizontal="true"
-        app:layout_marginTopPercent="70%"
-        android:background="@drawable/title_shape"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:background="@drawable/bind_button_shape"
+        android:gravity="center"
+        android:paddingTop="15dp"
+        android:paddingBottom="15dp"
         android:text="@string/login"
-        android:textColor="@android:color/white" />
-</com.layout.utils.PercentRelativeLayout>
+        android:textSize="18sp"
+        android:textColor="@android:color/white"
+        android:layout_marginTop="25dp"/>
+</LinearLayout>

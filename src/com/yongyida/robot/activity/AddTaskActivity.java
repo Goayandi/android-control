@@ -19,7 +19,7 @@ import com.android.datetimepicker.time.TimePickerDialog;
 import com.android.datetimepicker.time.TimePickerDialog.OnTimeSetListener;
 import com.yongyida.robot.R;
 import com.yongyida.robot.fragment.AddalarmFragment;
-import com.yongyida.robot.fragment.AddremindFragment;
+import com.yongyida.robot.fragment.NewAddRemindFragment;
 import com.yongyida.robot.widget.RobotDialog;
 
 import java.util.ArrayList;
@@ -40,7 +40,7 @@ public class AddTaskActivity extends FragmentActivity{
 		calendar = Calendar.getInstance();
 		if (getIntent().getStringExtra("mode").equals("remind")) {
 			getFragmentManager().beginTransaction()
-					.replace(R.id.content_task, new AddremindFragment())
+					.replace(R.id.content_task, new NewAddRemindFragment())
 					.commit();
 			mTitle.setText(R.string.remind);
 		} else if (getIntent().getStringExtra("mode").equals("alarm")) {
@@ -49,7 +49,12 @@ public class AddTaskActivity extends FragmentActivity{
 					.commit();
 			mTitle.setText(R.string.alert);
 		}
-
+		findViewById(R.id.tv_back).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				finish();
+			}
+		});
 	}
 
 	@Override

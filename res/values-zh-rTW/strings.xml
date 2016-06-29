@@ -164,7 +164,7 @@
     <string name="initialize_fail">初始化失敗，請重試</string>
     <string name="waitting">敬請期待</string>
     <string name="reminder">提示</string>
-    <string name="service_number">"是否撥打客服電話:400-9696488 "</string>
+    <string name="service_number">"是否撥打客服電話:"</string>
     <string name="confirm">確定</string>
     <string name="edit">編輯</string>
     <string name="complete">完成</string>
@@ -319,4 +319,6 @@
     <string name="room_not_exist">房间不存在</string>
     <string name="some_request_not_handle">有未处理的视频请求</string>
     <string name="hang_up_opposite">对方挂断</string>
+    <string name="zhinengjiating">智能家庭</string>
+    <string name="cancel_publish">取消发布</string>
 </resources>

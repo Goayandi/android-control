@@ -46,20 +46,18 @@ public class NetUtil {
 		return httputil;
 	}
 
+
+
 	// http请求方法
 	public boolean http(String url, Map<String, String> params, callback call,
 			Context context) throws SocketTimeoutException {
 		if (Constants.address == null) {
-			Log.e(TAG, "constants:" + Constants.address);
-			Log.e(TAG, "constants:" + Constants.download_fota_address);
-			Log.e(TAG, "constants:" + Constants.ip);
-			Log.e(TAG, "constants:" + Constants.port);
-			Log.e(TAG, "constants:" + Constants.download_address);
-			Constants.address = Constants.address_cn;
-			Constants.download_fota_address = Constants.download_fota_address_cn;
-			Constants.ip = Constants.ip_cn;
-			Constants.port = Constants.port_cn;
-			Constants.download_address = Constants.download_address_cn;
+			String serverState = context.getSharedPreferences("net_state", context.MODE_PRIVATE).getString("state",null);
+			if (serverState != null && !serverState.equals("official")){
+				Utils.switchServer(Utils.TEST);
+			} else {
+				Utils.switchServer(Utils.CN);
+			}
 		}
 		String address = Constants.address;
 		try {
@@ -521,7 +519,7 @@ public class NetUtil {
 	// socket方法
 	public static void Scoket(JSONObject params, int flag, ChannelHandlerContext handler) {
 		if (params != null) {
-			Log.i("NetUtil", params.toString());
+			Log.d("NetUtil", params.toString());
 		}
 		ChannelBuffer channelBuffer = null;
 		String str = null;
@@ -548,7 +546,7 @@ public class NetUtil {
 		case 1:
 			str = "{\"cmd\":\"/robot/push\",\"command\":{\"cmd\":\"move\",\"type\":\""
 					+ Constants.execode + "\"}}";
-			Log.i("JsonString", str);
+			Log.d("JsonString", str);
 			channelBuffer = new DynamicChannelBuffer(ByteOrder.BIG_ENDIAN,
 					(12 + str.getBytes().length));
 			channelBuffer.writeByte((byte) 1);
@@ -586,7 +584,7 @@ public class NetUtil {
 			for (int i = 0; i < 8; i++) {
 				channelBuffer.writeByte(0);
 			}
-			Log.i("Heart", System.currentTimeMillis() + "");
+			Log.d("Heart", System.currentTimeMillis() + "");
 			break;
 		case 4:
 			try {
@@ -725,7 +723,7 @@ public class NetUtil {
 			}
 		}
 
-		Log.i("request", request_content);
+		Log.d("request", request_content);
 		try {
 			channelBuffer = new DynamicChannelBuffer(ByteOrder.BIG_ENDIAN, 1024);
 		} catch (Throwable e1) {
@@ -767,7 +765,7 @@ public class NetUtil {
 			photo_operation = "{\"cmd\":\"/robot/push\",\"command\":{\"cmd\":\"photo_query\",\"type\":\"photo_query_original\",\"name\":\""
 					+ intent.getStringExtra("name") + "\"}}";
 		}
-		Log.i("request", photo_operation);
+		Log.d("request", photo_operation);
 		try {
 			channelBuffer = new DynamicChannelBuffer(ByteOrder.BIG_ENDIAN, 1024);
 		} catch (Throwable e1) {
@@ -793,7 +791,7 @@ public class NetUtil {
 		String robotinfo_operation = "{\"cmd\":\"/robot/flush\",\"rname\":\""
 				+ intent.getStringExtra("name") + "\"}";
 
-		Log.i("request", robotinfo_operation);
+		Log.d("request", robotinfo_operation);
 		try {
 			channelBuffer = new DynamicChannelBuffer(ByteOrder.BIG_ENDIAN, 1024);
 		} catch (Throwable e1) {

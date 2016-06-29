@@ -280,7 +280,7 @@ public class RegisterActivity extends Activity implements OnClickListener{
                                     case 0:
                                         into(json);
                                         huanxinlogin(json.getString("id"), json.getString("id"));
-                                        if (!Utils.isServiceRunning(RegisterActivity.this, SocketService.class.getSimpleName())) {
+                                        if (!Utils.isServiceRunning(RegisterActivity.this, SocketService.class.getCanonicalName())) {
                                             Utils.startSocketService(RegisterActivity.this);
                                         }
                                         StartUtil.startintent(RegisterActivity.this, ConnectActivity.class,

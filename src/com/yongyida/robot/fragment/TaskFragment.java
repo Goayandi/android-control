@@ -1,10 +1,5 @@
 package com.yongyida.robot.fragment;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
-
 import android.app.Activity;
 import android.app.Fragment;
 import android.content.Intent;
@@ -25,6 +20,7 @@ import android.view.animation.AnimationSet;
 import android.view.animation.TranslateAnimation;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.BaseAdapter;
 
 import com.baoyz.swipemenulistview.SwipeMenu;
 import com.baoyz.swipemenulistview.SwipeMenuCreator;
@@ -35,17 +31,24 @@ import com.yongyida.robot.R;
 import com.yongyida.robot.activity.AddTaskActivity;
 import com.yongyida.robot.activity.TaskRemindActivity;
 import com.yongyida.robot.activity.TaskRemindActivity.OnFragmentRefresh;
-import com.yongyida.robot.adapter.TaskAdapter;
+import com.yongyida.robot.adapter.AlarmAdapter;
+import com.yongyida.robot.adapter.EventRemindAdapter;
 import com.yongyida.robot.bean.Alarm;
+import com.yongyida.robot.bean.Remind;
 import com.yongyida.robot.bean.Task;
 import com.yongyida.robot.utils.Constants;
 import com.yongyida.robot.utils.StartUtil;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class TaskFragment extends Fragment implements OnFragmentRefresh {
 
 	private SwipeRefreshLayout refreshLayout;
 	private SwipeMenuListView task_listview;
-	private TaskAdapter taskadapter = null;
+	private BaseAdapter mAdapter;
 	private List<Task> list_task = new ArrayList();
 	private TaskRemindActivity activity;
 
@@ -107,7 +110,15 @@ public class TaskFragment extends Fragment implements OnFragmentRefresh {
 		refreshLayout.setRefreshing(false);
 
 		list_task = tasks;
-		taskadapter = new TaskAdapter(getActivity(), list_task);
+		if (list_task != null && list_task.size() != 0) {
+			if (list_task.get(0) instanceof Remind) {
+				mAdapter = new EventRemindAdapter(getActivity(), list_task);
+			} else if (list_task.get(0) instanceof Alarm) {
+				mAdapter = new AlarmAdapter(getActivity(), list_task);
+			}
+		} else {
+			mAdapter = new EventRemindAdapter(getActivity(), list_task);
+		}
 
 		SwipeMenuCreator creator = new SwipeMenuCreator() {
 
@@ -171,7 +182,7 @@ public class TaskFragment extends Fragment implements OnFragmentRefresh {
 						}
 						Constants.task = list_task.get(position);
 						tasks.remove(position);
-						taskadapter.notifyDataSetChanged();
+						mAdapter.notifyDataSetChanged();
 						Intent intent = new Intent();
 						intent.setAction(Constants.Task_Remove);
 						getActivity().sendBroadcast(intent);
@@ -180,7 +191,7 @@ public class TaskFragment extends Fragment implements OnFragmentRefresh {
 				v.startAnimation(set);
 			}
 		});
-		task_listview.setAdapter(taskadapter);
+		task_listview.setAdapter(mAdapter);
 	}
 
 	private OnItemClickListener onitemclick = new OnItemClickListener() {

@@ -28,16 +28,16 @@
  *******************************************************************************/
 package com.yongyida.robot.widget;
 
-import com.yongyida.robot.widget.PhotoViewAttacher.OnMatrixChangedListener;
-import com.yongyida.robot.widget.PhotoViewAttacher.OnPhotoTapListener;
-import com.yongyida.robot.widget.PhotoViewAttacher.OnViewTapListener;
-
 import android.content.Context;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.util.AttributeSet;
 import android.widget.ImageView;
+
+import com.yongyida.robot.widget.PhotoViewAttacher.OnMatrixChangedListener;
+import com.yongyida.robot.widget.PhotoViewAttacher.OnPhotoTapListener;
+import com.yongyida.robot.widget.PhotoViewAttacher.OnViewTapListener;
 
 public class PhotoView extends ImageView implements IPhotoView {
 

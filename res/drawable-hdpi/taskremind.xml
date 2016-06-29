@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <shape xmlns:android="http://schemas.android.com/apk/res/android" >
     <corners android:radius="8dp"></corners>
-    <solid android:color="#40E0D0"/>
+
+    <solid android:color="@color/task_item_bg"/>
+
+    <stroke
+        android:width="1dip"
+        android:color="@color/task_item_stroke" />
 </shape>

@@ -2,7 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
+    android:background="@drawable/bjsz"
     android:orientation="vertical"
     tools:context=".BindRobotActivity" >
 
@@ -34,6 +34,8 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:hint="@string/input_robot_id"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="15dp"
             android:textColor="@color/white"
             android:textColorHint="@color/white"
             android:background="@drawable/edit_shape_login" />
@@ -42,6 +44,8 @@
             android:id="@+id/robot_serial"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="15dp"
             android:hint="@string/input_robot_serial_number"
             android:textColor="@color/white"
             android:textColorHint="@color/white"
@@ -49,10 +53,15 @@
 
         <Button
             android:id="@+id/bind"
-            android:layout_width="200dp"
-            android:layout_height="40dp"
-            android:layout_gravity="center"
-            android:background="@drawable/title_shape"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginBottom="20dp"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:gravity="center"
+            android:background="@drawable/bind_button_shape"
             android:textColor="@color/white"
             android:text="@string/bind" />
     </LinearLayout>

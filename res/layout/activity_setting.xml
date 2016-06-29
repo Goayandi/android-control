@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/background2"
+    android:background="@drawable/bjsz"
     tools:context=".SettingActivity" >
 
     <RelativeLayout
@@ -117,17 +117,6 @@
                 android:text="@string/robot_name"
                  />
 
-            <EditText
-                android:id="@+id/robotname"
-                android:layout_width="150dp"
-                android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:background="@color/white"
-                android:enabled="false"
-                android:gravity="center"
-                android:maxLength="12"
-                android:text="@string/small_yong" />
-
             <TextView
                 android:id="@+id/editname"
                 android:layout_width="wrap_content"
@@ -136,6 +125,7 @@
                 android:layout_centerVertical="true"
                 android:layout_marginRight="10dp"
                 android:text="@string/edit"
+                android:drawableRight="@drawable/toright"
                 android:textColor="@color/white"
                 android:textSize="17sp" />
         </RelativeLayout>
@@ -219,24 +209,31 @@
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
                 android:layout_alignParentRight="true"
-                android:layout_marginRight="5dip"
+                android:layout_marginRight="15dip"
                 android:gravity="center_vertical"
                 android:text="1.0"
                 android:textColor="@color/white" />
         </RelativeLayout>
 
         <RelativeLayout
+            android:id="@+id/contact"
             android:layout_width="wrap_content"
             android:layout_height="50dip"
-            android:orientation="horizontal"
             android:paddingLeft="15dip" >
 
             <TextView
-                android:id="@+id/contact"
                 style="@style/mag"
-                android:layout_width="fill_parent"
+                android:layout_width="wrap_content"
                 android:autoLink="email|phone|web"
                 android:text="@string/contact" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="15dp"
+                android:text="@string/contact_number"
+                android:textColor="@android:color/white"/>
         </RelativeLayout>
     </LinearLayout>
 

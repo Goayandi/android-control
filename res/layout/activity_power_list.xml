@@ -204,7 +204,7 @@
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             android:layout_below="@id/bt_more"
-            android:text="@string/more"
+            android:text="@string/zhinengjiating"
             style="@style/style_tv_control" />
     </com.layout.utils.PercentRelativeLayout>
     

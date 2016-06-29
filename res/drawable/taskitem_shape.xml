@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <shape xmlns:android="http://schemas.android.com/apk/res/android" >
 
-    <solid android:color="#FFFFFF" />
+    <solid android:color="@color/task_bottom_bg" />
 
     <corners android:radius="3dip" />
 
     <stroke
         android:width="1dip"
-        android:color="#BDC7D8" />
+        android:color="@color/task_title_stroke" />
 
  
 

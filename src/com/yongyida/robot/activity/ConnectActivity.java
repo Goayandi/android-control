@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.os.Message;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
+import android.text.TextUtils;
 import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -19,11 +20,11 @@ import android.view.View;
 import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
-import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationSet;
 import android.view.animation.TranslateAnimation;
 import android.widget.AdapterView;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.RelativeLayout.LayoutParams;
 
@@ -36,6 +37,7 @@ import com.yongyida.robot.R;
 import com.yongyida.robot.adapter.RobotAdapter;
 import com.yongyida.robot.bean.Robot;
 import com.yongyida.robot.biz.Biz;
+import com.yongyida.robot.ronglianyun.SDKCoreHelper;
 import com.yongyida.robot.service.SocketService;
 import com.yongyida.robot.utils.BroadcastReceiverRegister;
 import com.yongyida.robot.utils.Constants;
@@ -47,6 +49,7 @@ import com.yongyida.robot.utils.ThreadPool;
 import com.yongyida.robot.utils.ToastUtil;
 import com.yongyida.robot.utils.Utils;
 import com.yongyida.robot.widget.RobotDialog;
+import com.yuntongxun.ecsdk.ECDevice;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -71,19 +74,30 @@ public class ConnectActivity extends BaseActivity implements
     private ImageView setting;
     private long time;
     private int mBattery;
+    private MyOnImageButtonClickListener mListener;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         setContentView(R.layout.activity_connect);
         super.onCreate(savedInstanceState);
+        initRonglianyun();
     }
+
+    /**
+     * 初始化容联云
+     */
+    private void initRonglianyun() {
+        SDKCoreHelper.init(this);
+    }
+
 
 
     @Override
     public void initlayout(OnRefreshListener onRefreshListener) {
         robots_bind = (SwipeMenuListView) findViewById(R.id.robotlist_bind);
         refreshableView = (SwipeRefreshLayout) findViewById(R.id.refresh_bind);
-        robots_bind.setOnItemClickListener(itemClickListener);
+    //    robots_bind.setOnItemClickListener(itemClickListener);
         findrobot = (ImageView) findViewById(R.id.findrobot);
         findrobot.setOnClickListener(this);
         setting = (ImageView) findViewById(R.id.setting_into);
@@ -92,6 +106,7 @@ public class ConnectActivity extends BaseActivity implements
         setImageViewfixBg(setting);
         sharedPreferences = getSharedPreferences("userinfo", 0);
         list_robots = new ArrayList<Robot>();
+        mListener = new MyOnImageButtonClickListener();
         refreshableView.setOnRefreshListener(onRefreshListener);
     }
 
@@ -127,11 +142,14 @@ public class ConnectActivity extends BaseActivity implements
         if (Constants.flag) {
             sendBroadcast(new Intent(Constants.Stop));
         }
-        robot = new RobotAdapter(this, new ArrayList<Robot>());
+        robot = new RobotAdapter(this, new ArrayList<Robot>(), mListener);
         robots_bind.setAdapter(robot);
         getrobotinfo();
         time = 0;
         super.onResume();
+        if (SDKCoreHelper.getConnectState() != ECDevice.ECConnectState.CONNECT_SUCCESS) {
+            initRonglianyun();
+        }
     }
 
     @Override
@@ -194,7 +212,6 @@ public class ConnectActivity extends BaseActivity implements
         });
     }
 
-    //TODO
     @Override
     public void onHandlerMessage(Message msg) {
         switch (msg.what) {
@@ -254,7 +271,7 @@ public class ConnectActivity extends BaseActivity implements
         ToastUtil.showtomain(ConnectActivity.this, content);
         getSharedPreferences("userinfo", MODE_PRIVATE).edit().clear().commit();
         getSharedPreferences("huanxin", MODE_PRIVATE).edit().clear().commit();
-        if (Utils.isServiceRunning(ConnectActivity.this, SocketService.class.getSimpleName())) {
+        if (Utils.isServiceRunning(ConnectActivity.this, SocketService.class.getCanonicalName())) {
             Utils.stopSocketService(this);
         }
         StartUtil.startintent(ConnectActivity.this, NewLoginActivity.class,
@@ -263,13 +280,27 @@ public class ConnectActivity extends BaseActivity implements
 
     RobotDialog alert = null;
 
+
     @SuppressLint("NewApi")
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.findrobot:
-                StartUtil.startintentforresult(this, BindRobotActivity.class,
-                        Constants.bindrobot_RequestCode);
+                StartUtil.startintentforresult(this, BindRobotActivity.class, Constants.bindrobot_RequestCode);
+                //TODO
+            //    startActivity(new Intent(ConnectActivity.this, TestVideoActivity.class));
+//                if (SDKCoreHelper.getConnectState() == ECDevice.ECConnectState.CONNECT_SUCCESS) {
+//                    Intent intent = new Intent(ConnectActivity.this, TestMeetingActivity.class);
+//                    if (!TextUtils.isEmpty(mUnreleaseMeetingNo)) {
+//                        intent.putExtra(Constants.TO_MEETING_NO, mUnreleaseMeetingNo);
+//                        mUnreleaseMeetingNo = "";
+//                    }
+//                    startActivity(intent);
+//                } else {
+//                    initRonglianyun();
+//                    ToastUtil.showtomain(this, "网络连接异常");
+//                }
+
                 break;
             case R.id.setting_into:
                 Bundle params = new Bundle();
@@ -281,6 +312,7 @@ public class ConnectActivity extends BaseActivity implements
         }
 
     }
+
 
     ProgressDialog pro = null;
     Timer timer = null;
@@ -325,10 +357,15 @@ public class ConnectActivity extends BaseActivity implements
                 unregisterReceiver(bro);
                 switch (intent.getIntExtra("ret", 0)) {
                     case 0:
+                        String id = intent.getStringExtra("id");
                         Bundle params = new Bundle();
                         params.putString("version", intent.getStringExtra("version"));
                         params.putInt("battery", mBattery);
-                        StartUtil.startintent(ConnectActivity.this, PowerListActivity.class, "no", params);
+                        if (!TextUtils.isEmpty(id) && id.startsWith("Y20")) {
+                            StartUtil.startintent(ConnectActivity.this, MeetingFunctionListActivity.class, "no", params);
+                        } else {
+                            StartUtil.startintent(ConnectActivity.this, PowerListActivity.class, "no", params);
+                        }
                         break;
                     case -1:
                         handler.sendEmptyMessage(4);
@@ -421,12 +458,57 @@ public class ConnectActivity extends BaseActivity implements
 
     }
 
+    public View getViewByPosition(int pos, ListView listView) {
+        final int firstListItemPosition = listView.getFirstVisiblePosition();
+        final int lastListItemPosition = firstListItemPosition + listView.getChildCount() - 1;
+
+        if (pos < firstListItemPosition || pos > lastListItemPosition ) {
+            return listView.getAdapter().getView(pos, null, listView);
+        } else {
+            final int childIndex = pos - firstListItemPosition;
+            return listView.getChildAt(childIndex);
+        }
+    }
+
+    private class MyOnImageButtonClickListener implements RobotAdapter.OnImageButtonClickListener {
+
+        @Override
+        public void myClick(int position) {
+            if (!list_robots2.get(position).isOnline()) {
+                ToastUtil.showtomain(ConnectActivity.this, getString(R.string.robot_not_online));
+                return;
+            } else if (list_robots2.get(position).getController() != 0) {
+                ToastUtil.showtomain(ConnectActivity.this, getString(R.string.already_controlled));
+                return;
+            }
+            String username = list_robots2.get(position).getId();
+            getSharedPreferences("Receipt", MODE_PRIVATE)
+                    .edit()
+                    .putString("username", username)
+                    .putString("robotid",
+                            list_robots2.get(position).getRid() + "").commit();
+            getSharedPreferences("robotname", MODE_PRIVATE).edit()
+                    .putString("name", list_robots2.get(position).getRname())
+                    .commit();
+            Intent intent = new Intent();
+            intent.setAction(Constants.Robot_Connection);
+            sendBroadcast(intent);
+            BroadcastReceiverRegister.reg(ConnectActivity.this,
+                    new String[]{"online"}, bro);
+            pro = new ProgressDialog(ConnectActivity.this);
+            pro.setMessage(getString(R.string.connecting));
+            pro.show();
+            mBattery = list_robots2.get(position).getBattery();
+
+        }
+    }
+
     Robot unbind = null;
 
     // 适配listview
     public void setadapter() {
         list_robots2 = sortAllType(list_robots);
-        robot = new RobotAdapter(this, list_robots2);
+        robot = new RobotAdapter(this, list_robots2, mListener);
 
         SwipeMenuCreator creator = new SwipeMenuCreator() {
 
@@ -440,6 +522,8 @@ public class ConnectActivity extends BaseActivity implements
                         0x3F, 0x25)));
                 // set item width
                 deleteItem.setWidth(dp2px(90));
+                // set item height
+                deleteItem.setHeight(dp2px(160));
                 // set a icon
                 deleteItem.setIcon(R.drawable.ic_delete);
                 // add to menu
@@ -453,17 +537,17 @@ public class ConnectActivity extends BaseActivity implements
             @Override
             public void onMenuItemClick(final int position, SwipeMenu menu,
                                         int index) {
-                View v = robots_bind.getChildAt(position);
+                final View v = getViewByPosition(position, robots_bind);
                 v.setBackgroundColor(Color.BLACK);
                 TranslateAnimation tran = new TranslateAnimation(-(menu
                         .getMenuItem(0).getWidth()), -(v.getLeft()
                         + v.getWidth() + menu.getMenuItem(0).getWidth()), 0, 0);
                 AlphaAnimation al = new AlphaAnimation(1, 0);
-                AnimationSet set = new AnimationSet(true);
+                final AnimationSet set = new AnimationSet(true);
                 set.addAnimation(tran);
                 set.addAnimation(al);
                 set.setDuration(500);
-                set.setAnimationListener(new AnimationListener() {
+                set.setAnimationListener(new Animation.AnimationListener() {
                     @Override
                     public void onAnimationStart(Animation animation) {
 
@@ -550,9 +634,12 @@ public class ConnectActivity extends BaseActivity implements
 
     @Override
     public void onBackPressed() {
-        if (Utils.isServiceRunning(ConnectActivity.this, SocketService.class.getSimpleName())) {
+        if (Utils.isServiceRunning(ConnectActivity.this, SocketService.class.getCanonicalName())) {
             Utils.stopSocketService(this);
         }
+        SDKCoreHelper.logout(false);
+        ECDevice.unInitial();
+
         super.onBackPressed();
     }
 
@@ -566,4 +653,19 @@ public class ConnectActivity extends BaseActivity implements
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+    }
+
+    private String mUnreleaseMeetingNo;
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == TestMeetingActivity.RELEASE_MEETING_FAIL_CODE) {
+            mUnreleaseMeetingNo = data.getStringExtra(Constants.UNRELEASE_MEETING_NO);
+        } else if (resultCode == TestMeetingActivity.REQUEST_SERVER_FAIL_CODE) {
+            initRonglianyun();
+        }
+    }
 }

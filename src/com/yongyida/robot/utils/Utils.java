@@ -1,6 +1,8 @@
 package com.yongyida.robot.utils;
 
 import android.app.ActivityManager;
+import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -23,6 +25,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Utils {
+    private static final String TAG = "Utils";
+
     public static void CopyStream(InputStream is, OutputStream os)
     {
         final int buffer_size=1024;
@@ -82,7 +86,6 @@ public class Utils {
 
         for (int i = 0; i < serviceList.size(); i++) {
             if (serviceList.get(i).service.getClassName().equals(className) == true) {
-
                 isRunning = true;
 
                 break;
@@ -274,5 +277,112 @@ public class Utils {
 
         }
 
+    }
+
+
+    /**
+     * 获取容联云账号
+     * @param context
+     * @return
+     */
+    public static String getAccount(Context context){
+        int method = context.getSharedPreferences("login",
+                context.MODE_PRIVATE).getInt(Constants.LOGIN_METHOD, -1);
+        int userId = context.getSharedPreferences("userinfo", context.MODE_PRIVATE)
+                .getInt("id", -1);
+        if (method == Constants.ACCOUNT_LOGIN) {
+            String account = context.getSharedPreferences("userinfo", context.MODE_PRIVATE)
+                    .getString("account_name", null);
+            if (account != null) {
+                Log.e(TAG, "getAccount:ACCOUNT_LOGIN:account" + account);
+                return account;
+            } else {
+                if (userId != -1) {
+                    Log.e(TAG, "getAccount:ACCOUNT_LOGIN:userId" + userId);
+                    return userId + "";
+                }
+            }
+        } else {
+            String username = context.getSharedPreferences("userinfo", context.MODE_PRIVATE)
+                    .getString("phonenumber", null);
+            if (username != null) {
+                return username;
+            } else {
+                if (userId != -1) {
+                    Log.e(TAG, "getAccount:userId:" + userId);
+                    return userId + "";
+                }
+            }
+        }
+        Log.e(TAG, "getAccount:null");
+        return "";
+    }
+
+    public final static int CN = 0;
+    public final static int TEST = 1;
+    public final static int HK = 2;
+    public final static int TW = 3;
+
+    public static void switchServer(int area){
+        switch (area) {
+            case CN:
+                Constants.address = Constants.address_cn;
+                Constants.download_fota_address = Constants.download_fota_address_cn;
+                Constants.ip = Constants.ip_cn;
+                Constants.port = Constants.port_cn;
+                Constants.download_address = Constants.download_address_cn;
+                break;
+            case TEST:
+                Constants.address = Constants.address_test;
+                Constants.download_fota_address = Constants.download_fota_address_test;
+                Constants.ip = Constants.ip_test;
+                Constants.port = Constants.port_test;
+                Constants.download_address = Constants.download_address_test;
+                break;
+            case HK:
+                Constants.address = Constants.address_hk;
+                Constants.download_fota_address = Constants.download_fota_address_hk;
+                Constants.ip = Constants.ip_hk;
+                Constants.port = Constants.port_hk;
+                Constants.download_address = Constants.download_address_hk;
+                break;
+            case TW:
+                Constants.address = Constants.address_tw;
+                Constants.download_fota_address = Constants.download_fota_address_tw;
+                Constants.ip = Constants.ip_tw;
+                Constants.port = Constants.port_tw;
+                Constants.download_address = Constants.download_address_tw;
+                break;
+        }
+    }
+
+    /**
+     *
+     * @param receiver
+     * @param service
+     */
+    public static void unRegisterReceiver(BroadcastReceiver receiver, Service service) {
+        try {
+            if (receiver != null) {
+                service.unregisterReceiver(receiver);
+            }
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     *
+     * @param receiver
+     * @param context
+     */
+    public static void unRegisterReceiver(BroadcastReceiver receiver, Context context) {
+        try {
+            if (receiver != null) {
+                context.unregisterReceiver(receiver);
+            }
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        }
     }
 }

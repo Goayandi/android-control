@@ -23,7 +23,7 @@ public class SessionErrorReceiver extends BroadcastReceiver {
             ToastUtil.showtomain(context, "登录过期");
             context.getSharedPreferences("userinfo", context.MODE_PRIVATE).edit().clear().commit();
             context.getSharedPreferences("huanxin", context.MODE_PRIVATE).edit().clear().commit();
-            if (Utils.isServiceRunning(context, SocketService.class.getSimpleName())) {
+            if (Utils.isServiceRunning(context, SocketService.class.getCanonicalName())) {
                 Utils.stopSocketService(context);
             }
             context.startActivity(new Intent(context, NewLoginActivity.class)

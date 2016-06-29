@@ -43,12 +43,13 @@ public class NewLoginActivity extends FragmentActivity implements OnCheckedChang
         super.onCreate(savedInstanceState);
         Log.i(TAG, "onCreate");
         setContentView(R.layout.activity_new_login);
-        if (Utils.isServiceRunning(this, SocketService.class.getSimpleName())) {
+        if (Utils.isServiceRunning(this, SocketService.class.getCanonicalName())) {
             Utils.stopSocketService(this);
         }
         initView();
         hideOtherLoginMethod(1);
     }
+
 
     /**
      *
@@ -229,5 +230,10 @@ public class NewLoginActivity extends FragmentActivity implements OnCheckedChang
                 switchFragment(Constants.ACCOUNT_LOGIN);
                 break;
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
     }
 }

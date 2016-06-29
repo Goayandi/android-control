@@ -270,6 +270,8 @@ public class SocketService extends Service {
                             String robot = Result.getString("Robot");
                             JSONObject jsonObject = new JSONObject(robot);
                             String version = jsonObject.getString("version");
+                            String id = jsonObject.getString("id");
+                            in.putExtra("id", id);
                             in.putExtra("version", version);
                             in.putExtra("ret", 0);
                             Constants.flag = true;
@@ -1054,57 +1056,23 @@ public class SocketService extends Service {
 
     @Override
     public void onDestroy() {
-        try {
-            if (netstate != null) {
-                unregisterReceiver(netstate);
-            }
-
-            if (mSocketErrorReceiver != null) {
-                unregisterReceiver(mSocketErrorReceiver);
-            }
-
-            if (photo != null) {
-                unregisterReceiver(photo);
-            }
-            if (task != null) {
-                unregisterReceiver(task);
-            }
-            if (move != null) {
-                unregisterReceiver(move);
-            }
-            if (stop != null) {
-                unregisterReceiver(stop);
-            }
-            if (speak != null) {
-                unregisterReceiver(speak);
-            }
-            if (flush != null) {
-                unregisterReceiver(flush);
-            }
-            if (connectRobot != null) {
-                unregisterReceiver(connectRobot);
-            }
-            if (socketLogout != null) {
-                unregisterReceiver(socketLogout);
-            }
-            if (mVideoRequestBR != null) {
-                unregisterReceiver(mVideoRequestBR);
-            }
-            if (mVideoReplyBR != null) {
-                unregisterReceiver(mVideoReplyBR);
-            }
-            if (mLoginVideoRoomBR != null) {
-                unregisterReceiver(mLoginVideoRoomBR);
-            }
-            if (mFotaUpdateBR != null) {
-                unregisterReceiver(mFotaUpdateBR);
-            }
-            if (mCancelDialBR != null) {
-                unregisterReceiver(mCancelDialBR);
-            }
-        } catch (IllegalArgumentException e) {
-            e.printStackTrace();
-        }
+        Utils.unRegisterReceiver(netstate, this);
+        Utils.unRegisterReceiver(mSocketErrorReceiver, this);
+        Utils.unRegisterReceiver(photo, this);
+        Utils.unRegisterReceiver(task, this);
+        Utils.unRegisterReceiver(move, this);
+        Utils.unRegisterReceiver(stop, this);
+        Utils.unRegisterReceiver(speak, this);
+        Utils.unRegisterReceiver(flush, this);
+        Utils.unRegisterReceiver(connectRobot, this);
+        Utils.unRegisterReceiver(socketLogout, this);
+        Utils.unRegisterReceiver(mVideoRequestBR, this);
+        Utils.unRegisterReceiver(mVideoReplyBR, this);
+        Utils.unRegisterReceiver(mLoginVideoRoomBR, this);
+        Utils.unRegisterReceiver(mFotaUpdateBR, this);
+        Utils.unRegisterReceiver(mCancelDialBR, this);
+        Utils.unRegisterReceiver(mCancelDialBR, this);
+        Utils.unRegisterReceiver(mLogoutVideoRoomBR, this);
 
         if (time != null) {
             time.cancel();
@@ -1117,4 +1085,6 @@ public class SocketService extends Service {
 
         super.onDestroy();
     }
+
+
 }

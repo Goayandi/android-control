@@ -172,7 +172,7 @@
     <string name="initialize_fail">initialize fail</string>
     <string name="waitting">waitting</string>
     <string name="reminder">reminder</string>
-    <string name="service_number">"if call:400-9696488 "</string>
+    <string name="service_number">"if call:"</string>
     <string name="confirm">confirm</string>
     <string name="edit">edit</string>
     <string name="complete">complete</string>
@@ -319,4 +319,6 @@
     <string name="room_not_exist">room not exist</string>
     <string name="some_request_not_handle">some request not handle</string>
     <string name="hang_up_opposite">hang up there</string>
+    <string name="zhinengjiating">smart home</string>
+    <string name="cancel_publish">cancel publish</string>
 </resources>
