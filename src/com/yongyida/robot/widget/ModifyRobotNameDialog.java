@@ -4,7 +4,9 @@ import android.app.Dialog;
 import android.content.Context;
 import android.text.TextUtils;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import com.yongyida.robot.R;
 import com.yongyida.robot.utils.ToastUtil;
@@ -15,6 +17,7 @@ import com.yongyida.robot.utils.ToastUtil;
 public class ModifyRobotNameDialog extends Dialog {
     private Context mContext;
     private EditText mEditText;
+    private TextView mTitle;
     public ModifyRobotNameDialog(Context context, final OnSaveListener listener, String hint) {
         super(context, R.style.myDialog);
         mContext = context;
@@ -25,6 +28,7 @@ public class ModifyRobotNameDialog extends Dialog {
         if (!TextUtils.isEmpty(hint)) {
             mEditText.setHint(hint);
         }
+        mTitle = (TextView) findViewById(R.id.tv_title);
         findViewById(R.id.tv_cancel).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -42,8 +46,19 @@ public class ModifyRobotNameDialog extends Dialog {
                 listener.save(name);
             }
         });
+
+        WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+        int width = wm.getDefaultDisplay().getWidth();
+        int height = wm.getDefaultDisplay().getHeight();
+        WindowManager.LayoutParams wl = getWindow().getAttributes();
+        wl.height = height / 3;
+        wl.width = width * 2 / 3;
+        getWindow().setAttributes(wl);
     }
 
+    public void setTitle(String title) {
+        mTitle.setText(title);
+    }
 
     public interface OnSaveListener{
         void save(String name);

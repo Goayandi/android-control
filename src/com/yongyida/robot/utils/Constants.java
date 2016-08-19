@@ -6,7 +6,7 @@ import com.yongyida.robot.bean.Task;
 public class Constants {
 
 
-	// 请求地址
+    // 请求地址
 	public static String address_cn = "http://server.yydrobot.com";
 	public static String address_test = "http://120.24.242.163:81";
 	public static String address_hk = "http://hk.server.yydrobot.com:180";
@@ -26,7 +26,11 @@ public class Constants {
 
 	// 下载地址
 	public static String download_address_cn = "http://resource.yydrobot.com/app/yyd/cn/app.version";
-	public static String download_address_test = "http://resource.yydrobot.com/app/yyd/cn/app.version";
+//	public static String download_address_cn= "http://resource.yydrobot.com/app/gaojunkeji/cn/app.gaojunkeji.version";
+//	public static String download_address_cn= "http://resource.yydrobot.com/app/liuchaokeji/cn/app.liuchaokeji.version";
+//	public static String download_address_test = "http://120.24.242.163/app/gaojunkeji/cn/app.gaojunkeji.version";
+//	public static String download_address_test = "http://120.24.242.163/app/liuchaokeji/cn/app.liuchaokeji.version";
+	public static String download_address_test = "http://120.24.242.163/app/yyd/cn/app.version";
 	public static String download_address_hk = "http://resource.yydrobot.com/app/hk/cn/app.hk.version";
 	public static String download_address_tw = "http://resource.yydrobot.com/app/taiwan/cn/app.taiwan.version";
 
@@ -89,6 +93,9 @@ public class Constants {
 
 	// 语音action
 	public static String Speech_action = "speak";
+
+	// 语音复读
+	public static String Talk = "talk";
 
 	// 移动action
 	public static String Move_aciton = "move";
@@ -213,6 +220,10 @@ public class Constants {
 
 	public static final String LOGIN_VIDEO_ROOM_LOGOUT_RESPONSE = "login_video_room_logout_response";
 
+	public static final String QUESTIONNAIRE = "questionnaire";
+
+	public static final String EMERGENCY = "emergency";
+
 	public static final String MEDIA_JOIN_ROOM = "join_room";
 
 	public static final String INVITE_ID = "invite_id";
@@ -267,9 +278,24 @@ public class Constants {
 
 	public static final String MEETING_CANCEL_INVITE = "meetingCancelInvite";
 
+	public static final String CHOOSED_WEEK = "choosed_week";
+
+	public static final String CHOOSED_WEEK_RESULT = "choosed_week_result";
+
+	public static final String IS_VIDEO = "is_video";
+
+	public static final String RLY_KICK_OFF = "rly_kick_off";
+
+	public static boolean NetBrInterrupt = true;
+
+    public static final String NET_OFF = "net_off";
+
+    public static final String CONNECT_SUCCESS = "connect_success";
+
 	public interface Role{
 		String Robot = "Robot";
 		String User = "User";
 		String Phone = "Phone";
 	}
+
 }

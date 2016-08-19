@@ -30,7 +30,7 @@ public class WeekChooseLinearlayout extends LinearLayout {
     }
 
     public void addWeekTextView(String[] arr, boolean repeat) {
-        if (arr != null && arr.length != 0) {
+        if (arr != null && arr.length != 0 && arr[0] != "") {
             for (String i : arr) {
                 WeekChooseTextView tv = new WeekChooseTextView(mContext);
                 LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);

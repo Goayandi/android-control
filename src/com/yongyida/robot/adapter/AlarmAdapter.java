@@ -2,6 +2,7 @@ package com.yongyida.robot.adapter;
 
 import android.content.Context;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,6 +23,7 @@ import java.util.List;
  */
 public class AlarmAdapter extends BaseAdapter {
 
+    private static final String TAG = "AlarmAdapter";
     private List tasks;
     private Context context;
 
@@ -77,10 +79,12 @@ public class AlarmAdapter extends BaseAdapter {
                 e.printStackTrace();
             }
 
+            Log.e(TAG, "week:" + alarm.getWeek());
             String[] week = alarm.getWeek().split(",");
             if (week != null && week.length == 7 && alarm.getIsaways() != 0) {
                 alarmholder.weekChooseLinearlayout.setEveryDay();
             } else {
+                alarmholder.weekChooseLinearlayout.removeAllViews();
                 alarmholder.weekChooseLinearlayout.addWeekTextView(week, alarm.getIsaways() != 0);
             }
 

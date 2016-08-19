@@ -52,9 +52,13 @@ public class NetStateBroadcastReceiver extends BroadcastReceiver {
 
 	public void back(Context context) {
 		if (DemoHXSDKHelper.getInstance().isLogined()) {
-		//	context.sendBroadcast(new Intent(Constants.Stop));
-			context.startActivity(new Intent(context, ConnectActivity.class)
-					.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+            if (Constants.NetBrInterrupt) {
+                //	context.sendBroadcast(new Intent(Constants.Stop));
+                context.startActivity(new Intent(context, ConnectActivity.class)
+                        .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+            } else {
+                context.sendBroadcast(new Intent(Constants.NET_OFF));
+            }
 		}
 
 	}

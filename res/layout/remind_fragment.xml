@@ -17,6 +17,8 @@
                 android:paddingTop="20dp"
                 android:paddingLeft="10dp"
                 android:paddingRight="10dp"
+                android:cacheColorHint="@android:color/transparent"
+                android:background="@android:color/transparent"
                 android:divider="@android:color/transparent" >
             </com.baoyz.swipemenulistview.SwipeMenuListView>
         </android.support.v4.widget.SwipeRefreshLayout>

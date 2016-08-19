@@ -15,16 +15,11 @@ package com.yongyida.robot.huanxin;
 
 import android.app.Application;
 import android.content.Context;
-import android.content.Intent;
 
 import com.easemob.EMCallBack;
 import com.google.code.microlog4android.Logger;
 import com.google.code.microlog4android.LoggerFactory;
 import com.google.code.microlog4android.config.PropertyConfigurator;
-import com.yongyida.robot.R;
-import com.yongyida.robot.service.SocketService;
-import com.yongyida.robot.utils.Constants;
-import com.yongyida.robot.utils.LogHelper;
 import com.yongyida.robot.utils.MyCrashHandler;
 import com.yongyida.robot.utils.NetUtil;
 
@@ -48,11 +43,12 @@ public class DemoApplication extends Application {
 	public void onCreate() {
 		super.onCreate();
 		MyCrashHandler myCrashHandler = MyCrashHandler.getInstance();
-		Thread.setDefaultUncaughtExceptionHandler(myCrashHandler);
+		myCrashHandler.init(this);
+	//	Thread.setDefaultUncaughtExceptionHandler(myCrashHandler);
 		applicationContext = this;
 		instance = this;
 		new NetUtil();
-		LogHelper.getInstance(instance).start();
+	//	LogHelper.getInstance(instance).start();
 		PropertyConfigurator.getConfigurator(this).configure();
 		String net_state = getSharedPreferences("net_state", 0).getString(
 				"state", null);
@@ -62,17 +58,17 @@ public class DemoApplication extends Application {
 		}
 		/**
 		 * this function will initialize the HuanXin SDK
-		 * 
+		 *
 		 * @return boolean true if caller can continue to call HuanXin related
 		 *         APIs after calling onInit, otherwise false.
-		 * 
+		 *
 		 *         环信初始化SDK帮助函数
 		 *         返回true如果正确初始化，否则false，如果返回为false，请在后续的调用中不要调用任何和环信相关的代码
-		 * 
+		 *
 		 *         for example: 例子：
-		 * 
+		 *
 		 *         public class DemoHXSDKHelper extends HXSDKHelper
-		 * 
+		 *
 		 *         HXHelper = new DemoHXSDKHelper();
 		 *         if(HXHelper.onInit(context)){ // do HuanXin related work }
 		 */
@@ -104,7 +100,7 @@ public class DemoApplication extends Application {
 	/**
 	 * 设置用户名
 	 * 
-	 * @param user
+	 * @param username
 	 */
 	public void setUserName(String username) {
 		hxSDKHelper.setHXId(username);

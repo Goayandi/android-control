@@ -2,15 +2,13 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
+    android:background="@android:color/transparent"
     android:orientation="vertical" >
-    <ListView 
+    <ListView
         android:id="@+id/typelist"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        
-        >
-        
+        android:background="@drawable/shape_dialog_bg">
     </ListView>
 
 </LinearLayout>

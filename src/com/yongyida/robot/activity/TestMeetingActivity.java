@@ -1,13 +1,15 @@
 package com.yongyida.robot.activity;
 
-import android.app.Activity;
+import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.hardware.Camera;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
@@ -18,38 +20,32 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.yongyida.robot.R;
 import com.yongyida.robot.bean.MeetingMemberObj;
 import com.yongyida.robot.ronglianyun.SDKCoreHelper;
+import com.yongyida.robot.utils.BroadcastReceiverRegister;
+import com.yongyida.robot.utils.CameraUtils;
 import com.yongyida.robot.utils.Constants;
 import com.yongyida.robot.utils.ToastUtil;
 import com.yongyida.robot.utils.Utils;
 import com.yongyida.robot.widget.MeetingUserLayout;
-import com.yongyida.robot.widget.ScreenshotDialog;
-import com.yuntongxun.ecsdk.CameraCapability;
 import com.yuntongxun.ecsdk.CameraInfo;
-import com.yuntongxun.ecsdk.ECChatManager;
 import com.yuntongxun.ecsdk.ECDevice;
 import com.yuntongxun.ecsdk.ECError;
 import com.yuntongxun.ecsdk.ECMeetingManager;
 import com.yuntongxun.ecsdk.ECMeetingManager.ECCreateMeetingParams.ToneMode;
-import com.yuntongxun.ecsdk.ECMessage;
 import com.yuntongxun.ecsdk.ECVoIPCallManager;
 import com.yuntongxun.ecsdk.ECVoIPSetupManager;
-import com.yuntongxun.ecsdk.OnChatReceiveListener;
 import com.yuntongxun.ecsdk.OnMeetingListener;
 import com.yuntongxun.ecsdk.SdkErrorCode;
 import com.yuntongxun.ecsdk.VideoRatio;
-import com.yuntongxun.ecsdk.im.ECMessageNotify;
-import com.yuntongxun.ecsdk.im.ECTextMessageBody;
-import com.yuntongxun.ecsdk.im.group.ECGroupNoticeMessage;
 import com.yuntongxun.ecsdk.meeting.ECVideoMeetingMember;
 import com.yuntongxun.ecsdk.meeting.intercom.ECInterPhoneMeetingMsg;
 import com.yuntongxun.ecsdk.meeting.video.ECVideoMeetingDeleteMsg;
@@ -62,15 +58,17 @@ import com.yuntongxun.ecsdk.meeting.video.ECVideoMeetingSwitchMsg;
 import com.yuntongxun.ecsdk.meeting.video.ECVideoMeetingVideoFrameActionMsg;
 import com.yuntongxun.ecsdk.meeting.voice.ECVoiceMeetingMsg;
 import com.yuntongxun.ecsdk.voip.video.ECCaptureView;
+import com.yuntongxun.ecsdk.voip.video.OnCameraInitListener;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * Created by Administrator on 2016/6/2 0002.
  */
-public class TestMeetingActivity extends Activity {
+public class TestMeetingActivity extends RLYBaseActivity implements View.OnClickListener {
 
     private static final String TAG = "TestMeetingActivity";
     private static final int QUERY_MEMBER_COUNT = 1;
@@ -95,6 +93,10 @@ public class TestMeetingActivity extends Activity {
     private static final int MEETING_NOT_EXIST_CODE = 175707;
     public static final int RELEASE_MEETING_FAIL_CODE = 1;
     public static final int REQUEST_SERVER_FAIL_CODE = 2;
+    private final static int COMPLIANT = 320 * 240;
+    private static final int TIME_COUNT = 60;
+    private static final int CREATE_SUCCESS = 20;
+    private static final int INVITE_TIMEOUT = 21;
     private List<String> mUserAccounts;
     private String mVideoConferenceId;
     private ECCaptureView mECCaptureView;
@@ -105,21 +107,18 @@ public class TestMeetingActivity extends Activity {
     private ECMeetingManager meetingManager;
     private RelativeLayout mFriendsRl;
     private LinearLayout mFunctionRightLL;
-    private LinearLayout mFunctionTopLL;
     private EditText mInviteEditText;
-    private Button mInviteBtn;
-    private Button mMuteBtn;
     private String mAccount;
     private byte[] mLock = new byte[0];
     private List<MeetingMemberObj> mMeetingMemberObjList;
     private boolean host; //是否是房主
     private boolean isVideo = true; //是否发布视频
     private OnMeetingListener mOnMeetingListener;
-    private OnChatReceiveListener mOnChatReceiveListener;
     private ECVoIPCallManager.OnVoIPListener mOnVoIPListener;
     private PopupWindow mPopupWindow;
     private String mPopupWindowTag;
-    private List<String> mInviteList; //邀请人名单
+    private boolean mInviteState = true;
+    private ProgressDialog progressDialog;
     private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -130,75 +129,108 @@ public class TestMeetingActivity extends Activity {
                         mFrameLayout.removeAllViews();
                     }
                     break;
+                case CREATE_SUCCESS:
+                    if (progressDialog != null) {
+                        progressDialog.dismiss();
+                    }
+                    break;
                 case CREATE_FAIL:
-                    if (msg.arg1 == REQUEST_SERVER_FAIL) {
-                        setResult(REQUEST_SERVER_FAIL_CODE);
+                    if (msg.arg1 == LOCAL_LINE_OCCUPY) {
+                        SDKCoreHelper.logout(false);
+                        SDKCoreHelper.init(TestMeetingActivity.this);
                     }
                     ToastUtil.showtomain(TestMeetingActivity.this,"创建视频房间失败，请稍后重试" + msg.arg1);
+
                     TestMeetingActivity.this.finish();
                     break;
                 case CANCEL_VIDEO_SUCCESS:
-                    ToastUtil.showtomain(TestMeetingActivity.this, "取消视频发布");
-                    mSwitchPublishStateBtn.setText("切换视频");
-                    mSwitchPublishStateBtn.setEnabled(true);
+                    Log.i(TAG, "取消视频发布");
                     break;
                 case CANCEL_VIDEO_FAIL:
-                    ToastUtil.showtomain(TestMeetingActivity.this, "取消视频发布失败");
-                    mSwitchPublishStateBtn.setEnabled(true);
+                    Log.i(TAG, "取消视频发布失败");
                     break;
                 case PUBLISH_SUCCESS:
-                    ToastUtil.showtomain(TestMeetingActivity.this, "发布视频成功");
-                    mSwitchPublishStateBtn.setText("切换语音");
-                    mSwitchPublishStateBtn.setEnabled(true);
+                    Log.i(TAG, "发布视频成功");
                     break;
                 case PUBLISH_FAIL:
-                    ToastUtil.showtomain(TestMeetingActivity.this, "发布视频失败");
-                    mSwitchPublishStateBtn.setEnabled(true);
+                    Log.i(TAG, "发布视频失败");
                     break;
                 case REQUEST_VIDEO_SUCCESS:
-                    ToastUtil.showtomain(TestMeetingActivity.this, "请求视频图像");
+                    Log.i(TAG, "请求视频图像");
                     break;
                 case REQUEST_VIDEO_FAIL:
-                    ToastUtil.showtomain(TestMeetingActivity.this, "请求视频图像失败,请刷新");
+                    Log.i(TAG, "请求视频图像失败");
                     break;
                 case INVITE_SUCCESS:
+//                    String inviter = (String) msg.obj;
+//                    new InviteTimeoutTimer(inviter, new InviteTimeoutTimer.OnInviteResponseListener() {
+//                        @Override
+//                        public void inviteTimeout() {
+//                            mHandler.sendEmptyMessage(INVITE_TIMEOUT);
+//                        }
+//                    });
                     ToastUtil.showtomain(TestMeetingActivity.this, "邀请发送成功");
+                    //TODO
+                    break;
+                case INVITE_TIMEOUT:
+                    ToastUtil.showtomain(TestMeetingActivity.this, "对方无应答");
                     break;
                 case INVITE_FAIL:
-                    ToastUtil.showtomain(TestMeetingActivity.this, "邀请发送失败");
+                    ToastUtil.showtomain(TestMeetingActivity.this, msg.obj + "邀请发送失败");
                     break;
                 case RELEASE_FAIL:
-                    ToastUtil.showtomain(TestMeetingActivity.this, "解散房间失败");
+                    Log.i(TAG, "解散房间失败");
                     finish();
                     break;
                 case RELEASE_SUCCESS:
-                    ToastUtil.showtomain(TestMeetingActivity.this, "解散房间成功");
+                    Log.i(TAG, "解散房间成功");
                     finish();
                     break;
                 case INVITE_REFUSE_MESSAGE:
-                    ToastUtil.showtomain(TestMeetingActivity.this, msg.obj + "拒绝邀请");
+                    ToastUtil.showtomain(TestMeetingActivity.this, "机器人拒绝邀请");
+            //        ToastUtil.showtomain(TestMeetingActivity.this, msg.obj + "拒绝邀请");
                     break;
                 case CUT:
-                    ToastUtil.showtomain(TestMeetingActivity.this, "视频会议中断");
+                    Log.i(TAG, "视频会议中断");
                     break;
                 case MEETING_DELETE:
-                    ToastUtil.showtomain(TestMeetingActivity.this, "视频会议结束");
+                    Log.i(TAG, "视频会议结束");
                     break;
                 case INVITE_ACCEPT_MESSAGE:
-                    ToastUtil.showtomain(TestMeetingActivity.this, msg.obj + "接受邀请");
+                    ToastUtil.showtomain(TestMeetingActivity.this, "机器人接受邀请");
+                //    ToastUtil.showtomain(TestMeetingActivity.this, msg.obj + "接受邀请");
                     break;
                 case MEETING_NOT_EXIST:
                     ToastUtil.showtomain(TestMeetingActivity.this, "会议不存在");
+                    break;
+                case TIME_COUNT:
+                    mTimeTV.setText(Utils.showTimeCount(mTimeCount * 1000));
                     break;
                 default:
                     break;
             }
         }
     };
-    private Button mSwitchPublishStateBtn;
- //   private String mCallId;
+ //   private Button mSwitchPublishStateBtn;
+    private String mCallId;
     private String mCallName;
-    private String mUnreleaseMeetingNo;
+    private LinearLayout mBottomLL;
+    private TextView mMuteBtn;
+    private TextView mTimeTV;
+    private TimerTask mTimerTask;
+    private int mTimeCount;
+    private Timer mTimer;
+    private TextView mInviteBtn;
+    private boolean mNetworkFlag = true;
+    private BroadcastReceiver mNetOffBR = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+//            exitRoom();
+//            startActivity(new Intent(context, ConnectActivity.class)
+//                    .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+            mNetworkFlag = false;
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -209,20 +241,49 @@ public class TestMeetingActivity extends Activity {
         openCamera();
         SDKCoreHelper.getInstance().setmBusyFlag(true);
         if (host) {
-            mUnreleaseMeetingNo = getIntent().getStringExtra(Constants.TO_MEETING_NO);
-            Log.e(TAG, "mUnreleaseMeetingNo:" + mUnreleaseMeetingNo);
             createMeetingRoom();
+            progressDialog.setMessage(getString(R.string.creating_wait));
+            progressDialog.show();
+            progressDialog.setCanceledOnTouchOutside(false);
         } else {
-            mFunctionRightLL.setVisibility(View.GONE);
+            setInviteIcon(false);
             mVideoConferenceId = getIntent().getStringExtra(Constants.CONFERENCE_ID);
-        //    mCallId = getIntent().getStringExtra(Constants.CALL_ID);
+            mCallId = getIntent().getStringExtra(Constants.CALL_ID);
             mCallName = getIntent().getStringExtra(Constants.CALL_NAME);
             joinMeeting();
+            ECDevice.getECVoIPSetupManager().setMute(false);
+            ECDevice.getECVoIPSetupManager().enableLoudSpeaker(true);
         }
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD,
                 WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
+    }
+
+    private void setInviteIcon(boolean invitable){
+        if (invitable) {
+            Drawable drawableT = getResources().getDrawable(R.drawable.tv_invite);
+            drawableT.setBounds(0, 0, drawableT.getMinimumWidth(), drawableT.getMinimumHeight());
+            mInviteBtn.setCompoundDrawables(null, drawableT, null, null);
+            mInviteState = true;
+        } else {
+            Drawable drawableF = getResources().getDrawable(R.drawable.tv_not_invite);
+            drawableF.setBounds(0, 0, drawableF.getMinimumWidth(), drawableF.getMinimumHeight());
+            mInviteBtn.setCompoundDrawables(null, drawableF, null, null);
+            mInviteState = false;
+        }
+    }
+
+    private void setMuteIcon(boolean isMute) {
+        if (isMute) {
+            Drawable drawableT = getResources().getDrawable(R.drawable.tv_mute);
+            drawableT.setBounds(0, 0, drawableT.getMinimumWidth(), drawableT.getMinimumHeight());
+            mMuteBtn.setCompoundDrawables(null, drawableT, null, null);
+        } else {
+            Drawable drawableF = getResources().getDrawable(R.drawable.tv_not_mute);
+            drawableF.setBounds(0, 0, drawableF.getMinimumWidth(), drawableF.getMinimumHeight());
+            mMuteBtn.setCompoundDrawables(null, drawableF, null, null);
+        }
     }
 
     @Override
@@ -272,8 +333,13 @@ public class TestMeetingActivity extends Activity {
 
     private void init() {
         initlayout();
+        initBR();
         initMeetingInfo();
 
+    }
+
+    private void initBR() {
+        BroadcastReceiverRegister.reg(this, new String[]{Constants.NET_OFF}, mNetOffBR);
     }
 
     private void createMeetingRoom() {
@@ -283,7 +349,7 @@ public class TestMeetingActivity extends Activity {
         // 设置语音会议房间名称
         builder.setMeetingName("meetingName")
                 // 设置视频会议创建者退出是否自动解散会议
-                .setIsAutoClose(false)
+                .setIsAutoClose(true)
                         // 设置视频会议创建成功是否自动加入
                 .setIsAutoJoin(true)
                         // 设置视频会议背景音模式
@@ -299,19 +365,16 @@ public class TestMeetingActivity extends Activity {
                     public void onCreateOrJoinMeeting(ECError reason, String meetingNo) {
                         if (reason.errorCode == SdkErrorCode.REQUEST_SUCCESS) {
                             mVideoConferenceId = meetingNo;
-                            Log.d(TAG, "mVideoConferenceId:" + mVideoConferenceId);
+                            ECDevice.getECVoIPSetupManager().setMute(false);
+                            ECDevice.getECVoIPSetupManager().enableLoudSpeaker(true);
+                            Log.i(TAG, "mVideoConferenceId:" + mVideoConferenceId);
+                            mHandler.sendEmptyMessage(CREATE_SUCCESS);
                             return;
                         } else {
-                            if (reason.errorCode == LOCAL_LINE_OCCUPY) {
-                                if (!TextUtils.isEmpty(mUnreleaseMeetingNo)){
-                                    releaseMeeting(mUnreleaseMeetingNo);
-                                    return;
-                                }
-                            }
                             Message message = mHandler.obtainMessage(CREATE_FAIL);
                             message.arg1 = reason.errorCode;
                             mHandler.sendMessage(message);
-                            Log.d(TAG, reason.errorMsg + ":" + reason.errorCode);
+                            Log.i(TAG, reason.errorMsg + ":" + reason.errorCode);
                         }
                     }
                 });
@@ -319,9 +382,29 @@ public class TestMeetingActivity extends Activity {
     }
 
     public void initlayout() {
+        mBottomLL = (LinearLayout) findViewById(R.id.ll_bottom);
+        RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) mBottomLL.getLayoutParams();
+        Log.i(TAG, "w:" + getScreenWidth());
+        Log.i(TAG, "h:" + getScreenHeight());
+        params.height = getScreenWidth() / 4 * 240 / 320;
+        mBottomLL.setLayoutParams(params);
+
         mFrameLayout = (FrameLayout) findViewById(R.id.frameLayout);
         mSurfaceContainer = (LinearLayout) findViewById(R.id.ll_container);
         mECCaptureView = (ECCaptureView) findViewById(R.id.ec_capture_view);
+        mECCaptureView.setOnCameraInitListener(new OnCameraInitListener() {
+            @Override
+            public void onCameraInit(boolean result) {
+                if(!result) {
+                    mHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            ToastUtil.showtomain(TestMeetingActivity.this, getString(R.string.camera_occupy));
+                        }
+                    });
+                }
+            }
+        });
         mECCaptureView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -331,19 +414,58 @@ public class TestMeetingActivity extends Activity {
         });
         mFriendsRl = (RelativeLayout) findViewById(R.id.rl_invite);
         mFunctionRightLL = (LinearLayout) findViewById(R.id.ll_right_function);
-        mFunctionTopLL = (LinearLayout) findViewById(R.id.ll_top_function);
-        mInviteBtn = (Button) findViewById(R.id.bt_invite);
-        mMuteBtn = (Button) findViewById(R.id.bt_mute);
-        mSwitchPublishStateBtn = (Button) findViewById(R.id.bt_switch_voice);
         if (ECDevice.getECVoIPSetupManager() == null) {
             mHandler.sendEmptyMessage(CREATE_FAIL);
             return;
         }
-        mMuteBtn.setTextColor(ECDevice.getECVoIPSetupManager().getMuteStatus() ? getResources().getColor(R.color.red) : getResources().getColor(R.color.black_deep));
         mInviteEditText = (EditText) findViewById(R.id.et_invite);
+        mMuteBtn = (TextView) findViewById(R.id.tv_mute);
+        mMuteBtn.setOnClickListener(this);
+        mInviteBtn = (TextView) findViewById(R.id.tv_invite);
+        mInviteBtn.setOnClickListener(this);
+        findViewById(R.id.tv_switch_camera).setOnClickListener(this);
+        findViewById(R.id.tv_hang_up).setOnClickListener(this);
+        mTimeTV = (TextView) findViewById(R.id.tv_time);
 
+        setRightFunctionLLParams();
+        progressDialog = new ProgressDialog(this);
     }
 
+    private void setRightFunctionLLParams(){
+        ViewGroup.LayoutParams layoutParams = mFunctionRightLL.getLayoutParams();
+        layoutParams.width = getScreenWidth() - getScreenHeight() * 320 / 240;
+        mFunctionRightLL.setLayoutParams(layoutParams);
+    }
+
+    private void startTime(){
+        mTimeTV.setVisibility(View.VISIBLE);
+        resetTimeCount();
+        mTimerTask = new TimerTask() {
+            @Override
+            public void run() {
+                mTimeCount++;
+                mHandler.sendEmptyMessage(TIME_COUNT);
+            }
+        };
+        mTimer = new Timer();
+        mTimer.schedule(mTimerTask, 1000, 1000);
+    }
+
+    private void resetTimeCount(){
+        mTimeTV.setText(Utils.showTimeCount(0));
+        mTimeCount = 0;
+    }
+
+    private void stopTime(){
+        if (mTimeCount != 0) {
+            mTimeTV.setVisibility(View.GONE);
+            ToastUtil.showtomain(this, "本次通话时长为:" + mTimeTV.getText().toString());
+            resetTimeCount();
+        }
+        if(mTimer != null) {
+            mTimer.cancel();
+        }
+    }
 
     /**
      * 获取小的surfaceView的布局
@@ -379,9 +501,15 @@ public class TestMeetingActivity extends Activity {
     }
 
     private void initMeetingInfo() {
+        boolean wificheck = getSharedPreferences("setting",
+                MODE_PRIVATE).getBoolean("wificheck", true);
+        if (wificheck && !checknetwork()) {
+            ToastUtil.showtomain(this, getString(R.string.not_wifi));
+            return;
+        }
+        Constants.NetBrInterrupt = false;
         mUserAccounts = new ArrayList<String>();
         mMeetingMemberObjList = new ArrayList<MeetingMemberObj>();
-        mInviteList = new ArrayList<String>();
         if (TextUtils.isEmpty(Utils.getAccount(this))) {
             ToastUtil.showtomain(this, "无法获取账户信息");
             finish();
@@ -391,14 +519,40 @@ public class TestMeetingActivity extends Activity {
         putVideoUIMemberCache(mAccount);
         meetingManager = ECDevice.getECMeetingManager();
         mOnMeetingListener = new MyOnMeetingListener();
-        mOnChatReceiveListener = new MyOnChatReceiveListener();
         mOnVoIPListener = new MyOnVoIPListener();
-        SDKCoreHelper.getInstance().registOnChatReceiveListener(mOnChatReceiveListener);
         SDKCoreHelper.getInstance().registOnMeetingListener(mOnMeetingListener);
-        SDKCoreHelper.getInstance().registOnVoIPCallListener(mOnVoIPListener);
-
+        ECDevice.getECVoIPCallManager().setOnVoIPCallListener(mOnVoIPListener);
         SDKCoreHelper.getVoIPCallManager().setOnVoIPCallListener(new MyOnVoIPListener());
 
+    }
+
+    private boolean checknetwork() {
+        ConnectivityManager manager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+        NetworkInfo info = manager
+                .getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+        if (info.isAvailable() && info.isConnected()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.tv_invite:
+                invite();
+                break;
+            case R.id.tv_mute:
+                mute();
+                break;
+            case R.id.tv_switch_camera:
+                switchCamera();
+                break;
+            case R.id.tv_hang_up:
+                exitRoom();
+                break;
+        }
     }
 
     private class MyOnVoIPListener implements  ECVoIPCallManager.OnVoIPListener {
@@ -412,7 +566,7 @@ public class TestMeetingActivity extends Activity {
         public void onCallEvents(ECVoIPCallManager.VoIPCall voIPCall) {
             // 接收VoIP呼叫事件回调
             if(voIPCall == null) {
-                Log.d(TAG, "handle call event error , voipCall null");
+                Log.i(TAG, "handle call event error , voipCall null");
                 return ;
             }
             switch (voIPCall.callState) {
@@ -423,10 +577,14 @@ public class TestMeetingActivity extends Activity {
                 case ECCALL_ANSWERED:
                     break;
                 case ECCALL_FAILED:
+                    Log.i(TAG, "ECCALL_FAILED");
                     break;
                 case ECCALL_RELEASED:
-                    Log.d(TAG, "ECCALL_RELEASED");
-                //    finish();
+                    Log.i(TAG, "ECCALL_RELEASED");
+                    if (progressDialog != null) {
+                        progressDialog.dismiss();
+                    }
+                    finish();
                     break;
                 default:
                     break;
@@ -449,127 +607,6 @@ public class TestMeetingActivity extends Activity {
         }
     }
 
-    /**
-     * 拒绝邀请
-     *
-     * @param to
-     */
-    private void sendRejectMessage(String to) {
-        try {
-            String msgType = Constants.MEETING_INVITE_REPLY;
-            String body = Constants.INVITE_REJECT;
-
-            ECMessage msg = ECMessage.createECMessage(ECMessage.Type.TXT);
-            msg.setFrom(mAccount);
-            msg.setMsgTime(System.currentTimeMillis());
-            msg.setTo(to);
-            msg.setSessionId(to);
-            msg.setDirection(ECMessage.Direction.SEND);
-            msg.setUserData(Constants.MESSAGE_PREFIX + msgType);
-
-            ECTextMessageBody msgBody = new ECTextMessageBody(body);
-            msg.setBody(msgBody);
-            ECChatManager manager = ECDevice.getECChatManager();
-            manager.sendMessage(msg, new ECChatManager.OnSendMessageListener() {
-                @Override
-                public void onSendMessageComplete(ECError error, ECMessage message) {
-
-                    // 处理消息发送结果
-                    if (message == null) {
-                        return;
-                    }
-                    //                Message msg = mHandler.obtainMessage(ERROR_CODE);
-                    //                msg.arg1 = error.errorCode;
-                    //                mHandler.sendMessage(msg);
-                    // 将发送的消息更新到本地数据库并刷新UI
-                }
-
-                @Override
-                public void onProgress(String msgId, int totalByte, int progressByte) {
-                }
-            });
-        } catch (Exception e) {
-            // 处理发送异常
-            Log.e(TAG, "send message fail , e=" + e.getMessage());
-        }
-    }
-
-    private class MyOnChatReceiveListener implements OnChatReceiveListener {
-        @Override
-        public void OnReceivedMessage(ECMessage msg) {
-            if(msg.getType() == ECMessage.Type.TXT) {
-                // 在这里处理文本消息
-                ECTextMessageBody textMessageBody = (ECTextMessageBody) msg.getBody();
-                if (textMessageBody != null) {
-
-                    if (msg.getUserData().equals(Constants.MESSAGE_PREFIX + Constants.MEETING_INVITE_REPLY)) {
-                        if (mInviteList != null && mInviteList.contains(msg.getForm())) {
-                            mInviteList.remove(msg.getForm());
-                        }
-                        if (Constants.INVITE_REJECT.equals(textMessageBody.getMessage())) {
-                            Message message = mHandler.obtainMessage(INVITE_REFUSE_MESSAGE);
-                            message.obj = msg.getForm();
-                            mHandler.sendMessage(message);
-                        } else if (Constants.INVITE_ACCEPT.equals(textMessageBody.getMessage())) {
-                            Message message = mHandler.obtainMessage(INVITE_ACCEPT_MESSAGE);
-                            message.obj = msg.getForm();
-                            mHandler.sendMessage(message);
-                        }
-                    } else if (msg.getUserData().equals(Constants.MESSAGE_PREFIX + Constants.INVITE_MESSAGE)) {
-                        sendRejectMessage(msg.getForm());
-                    }
-
-                }
-            }
-
-        }
-
-        @Override
-        public void onReceiveMessageNotify(ECMessageNotify ecMessageNotify) {
-
-        }
-
-        @Override
-        public void OnReceiveGroupNoticeMessage(ECGroupNoticeMessage notice) {
-            // 收到群组通知消息（有人加入、退出...）
-            // 可以根据ECGroupNoticeMessage.ECGroupMessageType类型区分不同消息类型
-        }
-
-        @Override
-        public void onOfflineMessageCount(int count) {
-            // 登陆成功之后SDK回调该接口通知账号离线消息数
-        }
-
-        @Override
-        public int onGetOfflineMessage() {
-            return 0;
-        }
-
-        @Override
-        public void onReceiveOfflineMessage(List msgs) {
-            // SDK根据应用设置的离线消息拉去规则通知应用离线消息
-        }
-
-        @Override
-        public void onReceiveOfflineMessageCompletion() {
-            // SDK通知应用离线消息拉取完成
-        }
-
-        @Override
-        public void onServicePersonVersion(int version) {
-            // SDK通知应用当前账号的个人信息版本号
-        }
-
-        @Override
-        public void onReceiveDeskMessage(ECMessage ecMessage) {
-
-        }
-
-        @Override
-        public void onSoftVersion(String s, int i) {
-
-        }
-    }
 
     /**
      * 添加已进入房间的MeetingMemberObj对象
@@ -651,7 +688,7 @@ public class TestMeetingActivity extends Activity {
         if (cameraInfos != null) {
             for (int i = 0; i < cameraInfos.length; i++) {
                 if (cameraInfos[i].index == cameraIndex) {
-                    mCameraCapbilityIndex = comportCapabilityIndex(cameraInfos[cameraInfos[i].index].caps, 352 * 288);
+                    mCameraCapbilityIndex = CameraUtils.comportCapabilityIndex(cameraInfos[cameraInfos[i].index].caps, COMPLIANT);
                 }
             }
         }
@@ -659,36 +696,6 @@ public class TestMeetingActivity extends Activity {
         ECDevice.getECVoIPSetupManager().enableLoudSpeaker(true);
         mECCaptureView.setZOrderOnTop(true);
         ECDevice.getECVoIPSetupManager().selectCamera(cameraIndex, mCameraCapbilityIndex, 15, ECVoIPSetupManager.Rotate.ROTATE_0, true);
-    }
-
-    /**
-     * 寻找合适的清晰度
-     * @param caps
-     * @param compliant
-     * @return
-     */
-    public static int comportCapabilityIndex(CameraCapability[] caps , int compliant) {
-        if(caps == null ) {
-            return 0;
-        }
-        int pixel[] = new int[caps.length];
-        int _pixel[] = new int[caps.length];
-        for(CameraCapability cap : caps) {
-            if(cap.index >= pixel.length) {
-                continue;
-            }
-            pixel[cap.index] = cap.width * cap.height;
-        }
-
-        System.arraycopy(pixel, 0, _pixel, 0, caps.length);
-
-        Arrays.sort(_pixel);
-        for(int i = 0 ; i < caps.length ; i++) {
-            if(pixel[i] >= compliant) {
-                return i;
-            }
-        }
-        return 0;
     }
 
 
@@ -714,18 +721,24 @@ public class TestMeetingActivity extends Activity {
                     for (String s : joinMsg.getWhos()) {
                         string = string + s + ",";
                     }
-                    Log.d(TAG, "join:" + string);
+                    Log.i(TAG, "join:" + string);
                     query();
                     break;
                 case EXIT:
                     // 视频会议消息类型-有人退出
                     final ECVideoMeetingExitMsg exitMsg = (ECVideoMeetingExitMsg) msg;
                     for (int i = 0 ; i < exitMsg.getWhos().length; i ++) {
-                        Log.d(TAG, "exit: " + exitMsg.getWhos()[i]);
+                        Log.i(TAG, "exit: " + exitMsg.getWhos()[i]);
+                        ToastUtil.showtomain(TestMeetingActivity.this, exitMsg.getWhos()[i] + getString(R.string.exit_meeting));
                         if (host) {
                             if (exitMsg.getWhos()[i].equals(mAccount)) {
                                 exitRoom();
                                 return;
+                            }
+                            if (exitMsg.getWhos()[i].equals(getSharedPreferences("Receipt", MODE_PRIVATE).getString(
+                                    "robotid", null))) {
+                                stopTime();
+                                setInviteIcon(true);
                             }
                         } else {
                             //房主或是自己离开房间
@@ -738,6 +751,9 @@ public class TestMeetingActivity extends Activity {
                             mMeetingUserLayout = null;
                             mFrameLayout.removeAllViews();
                             removeVideoUIMemberCache(exitMsg.getWhos()[i]);
+                            if (mSurfaceContainer.getChildCount() != 0) {
+                                switchToBigScreen((MeetingUserLayout)mSurfaceContainer.getChildAt(0));
+                            }
                         } else {
                             removeSurfaceViewLayout((MeetingUserLayout) mSurfaceContainer.findViewWithTag(exitMsg.getWhos()[i]), true);
                         }
@@ -750,20 +766,22 @@ public class TestMeetingActivity extends Activity {
                 case DELETE:
                     // 视频会议消息类型-会议结束
                     ECVideoMeetingDeleteMsg delMsg = (ECVideoMeetingDeleteMsg) msg;
-                    Log.d(TAG, "DELETE");
-            //        mHandler.sendEmptyMessage(MEETING_DELETE);
-            //        exitRoom();
-                    finish();
+                    Log.i(TAG, "DELETE");
+                    mHandler.sendEmptyMessage(MEETING_DELETE);
+                    exitRoom();
                     break;
                 case REMOVE_MEMBER:
                     // 视频会议消息类型-成员被移除
                     ECVideoMeetingRemoveMemberMsg rMsg =
                             (ECVideoMeetingRemoveMemberMsg) msg;
-                    Log.d(TAG, "remove: " + rMsg.getWho());
+                    Log.i(TAG, "remove: " + rMsg.getWho());
                     if (mMeetingUserLayout != null && rMsg.getWho().equals(mMeetingUserLayout.getTag().toString())) {
                         mMeetingUserLayout = null;
                         mFrameLayout.removeAllViews();
                         removeVideoUIMemberCache(rMsg.getWho());
+                        if (mSurfaceContainer.getChildCount() != 0) {
+                            switchToBigScreen((MeetingUserLayout)mSurfaceContainer.getChildAt(0));
+                        }
                     } else {
                         removeSurfaceViewLayout((MeetingUserLayout) mSurfaceContainer.findViewWithTag(rMsg.getWho()), true);
                     }
@@ -775,7 +793,7 @@ public class TestMeetingActivity extends Activity {
                 case SWITCH:
                     // 视频会议消息类型-主屏切换
                     ECVideoMeetingSwitchMsg sMsg = (ECVideoMeetingSwitchMsg) msg;
-                    Log.d(TAG, "SWITCH");
+                    Log.i(TAG, "SWITCH");
                     break;
                 case VIDEO_FRAME_ACTION:
                     // 视频会议消息类型-成员图象发布或者取消发布
@@ -798,13 +816,13 @@ public class TestMeetingActivity extends Activity {
                     }
                     if (meetingUserLayout != null) {
                         if (actionMsg.isPublish()) {  // 发布
-                            Log.d(TAG, actionMsg.getWho() + "发布");
+                            Log.i(TAG, actionMsg.getWho() + "发布");
                             if (meetingUserLayout.getTextViewText().equals(getString(R.string.cancel_publish))) {
-                                meetingUserLayout.invisiableTextView();
+                                meetingUserLayout.setTextViewText("");
                             }
                         } else {  //取消发布
                             meetingUserLayout.setTextViewText(getString(R.string.cancel_publish));
-                            Log.d(TAG, actionMsg.getWho() + "取消发布");
+                            Log.i(TAG, actionMsg.getWho() + "取消发布");
                         }
                     }
                     break;
@@ -815,10 +833,15 @@ public class TestMeetingActivity extends Activity {
                     Message message = mHandler.obtainMessage(INVITE_REFUSE_MESSAGE);
                     message.obj = rejectMsg.getWho();
                     mHandler.sendMessage(message);
-                    Log.d(TAG, "reject:" + rejectMsg.describeContents());
+                    Log.i(TAG, "reject:" + rejectMsg.describeContents());
                     break;
                 case CUT:
-                //    mHandler.sendEmptyMessage(CUT);
+                    Log.i(TAG, "CUT");
+                    if (progressDialog != null) {
+                        progressDialog.dismiss();
+                    }
+                    mHandler.sendEmptyMessage(CUT);
+                    finish();
                     break;
                 default:
                     Log.e(TAG, "can't handle notice msg "
@@ -831,12 +854,20 @@ public class TestMeetingActivity extends Activity {
         public void onVideoRatioChanged(VideoRatio videoRatio) {
             int height = videoRatio.getHeight();
             int width = videoRatio.getWidth();
-            Log.d(TAG, "height:" + height);
-            Log.d(TAG, "width:" + width);
-            View view = mSurfaceContainer.findViewWithTag(videoRatio.getAccount());
-            if (view instanceof  MeetingUserLayout) {
-                ((MeetingUserLayout)view).invisiableTextView();
+            Log.i(TAG, "height:" + height);
+            Log.i(TAG, "width:" + width);
+            Log.i(TAG, "account:" + videoRatio.getAccount());
+            View view;
+            if (mMeetingUserLayout != null && mMeetingUserLayout.getTag().equals(videoRatio.getAccount())) {
+                view = mMeetingUserLayout;
+            } else {
+                view = mSurfaceContainer.findViewWithTag(videoRatio.getAccount());
+                meetingManager.resetVideoMeetingWindow((String)mMeetingUserLayout.getTag(), getBigSurfaceView((String)mMeetingUserLayout.getTag()));
+                String account = (String)mMeetingUserLayout.getTag();
+                MeetingMemberObj obj = getMeetingMemberObjByAccount(account);
+                requestVideo(obj, mMeetingUserLayout);
             }
+            ((MeetingUserLayout)view).setTextViewText("");
         }
     }
 
@@ -861,7 +892,7 @@ public class TestMeetingActivity extends Activity {
                             }
 
                         } else {
-                            Log.d(TAG, "query fail:" + reason.errorCode);
+                            Log.i(TAG, "query fail:" + reason.errorCode);
                         }
                     }
                 });
@@ -886,33 +917,31 @@ public class TestMeetingActivity extends Activity {
 
     /**
      * 静音按钮
-     * @param v
      */
-    public void mute(View v) {
+    public void mute() {
         ECDevice.getECVoIPSetupManager().setMute(!ECDevice.getECVoIPSetupManager().getMuteStatus());
-        mMuteBtn.setTextColor(ECDevice.getECVoIPSetupManager().getMuteStatus() ? getResources().getColor(R.color.red) : getResources().getColor(R.color.black_deep));
+        setMuteIcon(ECDevice.getECVoIPSetupManager().getMuteStatus());
     }
 
     /**
      * 切换摄像头按钮
-     * @param v
      */
-    public void switchCamera(View v) {
+    public void switchCamera() {
         mECCaptureView.switchCamera();
     }
 
-    /**
-     * 切换语音按钮
-     * @param v
-     */
-    public void switchVoice(View v) {
-        mSwitchPublishStateBtn.setEnabled(true);
-        if (isVideo) {
-            cancelVideo();
-        } else {
-            publishVideo();
-        }
-    }
+//    /**
+//     * 切换语音按钮
+//     * @param v
+//     */
+//    public void switchVoice(View v) {
+//        mSwitchPublishStateBtn.setEnabled(true);
+//        if (isVideo) {
+//            cancelVideo();
+//        } else {
+//            publishVideo();
+//        }
+//    }
 
     /**
      *  取消视频发布
@@ -950,19 +979,28 @@ public class TestMeetingActivity extends Activity {
      * @param member
      */
     private void addJoinedUsers(ECVideoMeetingMember member) {
+        if (mTimeCount == 0) {
+            startTime();
+        }
         // 调用请求视频会议成员图像接口
         // meetingNo :所在的会议号
         // meetingPwd :所在的会议密码
         // account :需要请求视频的成员账号，比如需要请求John的视频图像则 account 为John账号
         // displayView :视频图像显示View
         // ip和port :成员视频图像所在的IP地址和端口可以参考ECVideoMeetingMember.java和ECVideoMeetingJoinMsg.java 参数
-        Log.d(TAG, "account:" + member.getNumber());
+        Log.i(TAG, "account:" + member.getNumber());
         MeetingUserLayout meetingUserLayout = getSmallSurfaceViewLayout(member.getNumber());
         putVideoUIMemberCache(member.getNumber());
         MeetingMemberObj obj = new MeetingMemberObj(member.getNumber(), member.getIp(), member.getPort());
         addMeetingMemberObj(obj);
         requestVideo(obj, meetingUserLayout);
-        ECDevice.getECVoIPSetupManager().enableLoudSpeaker(true);
+        if (mMeetingUserLayout == null) {
+            switchToBigScreen(meetingUserLayout);
+        }
+    //    ECDevice.getECVoIPSetupManager().enableLoudSpeaker(true);
+        if (mInviteState) {
+            setInviteIcon(false);
+        }
     }
 
     /**
@@ -970,7 +1008,7 @@ public class TestMeetingActivity extends Activity {
      * @param obj
      * @param meetingUserLayout
      */
-    private void requestVideo(MeetingMemberObj obj, MeetingUserLayout meetingUserLayout) {
+    private void requestVideo(final MeetingMemberObj obj, MeetingUserLayout meetingUserLayout) {
         if (obj != null) {
             meetingManager.requestMemberVideoInVideoMeeting(mVideoConferenceId, "",
                     obj.getAccount(), meetingUserLayout.getSurfaceView(), obj.getIp(), obj.getPort(),
@@ -979,6 +1017,12 @@ public class TestMeetingActivity extends Activity {
                         public void onMemberVideoFrameChanged(boolean isRequest, ECError reason, String meetingNo, String account) {
                             if(reason.errorCode == SdkErrorCode.REQUEST_SUCCESS || reason.errorCode == 0) {
                                 mHandler.sendEmptyMessage(REQUEST_VIDEO_SUCCESS);
+                                mHandler.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        ToastUtil.showtomain(TestMeetingActivity.this, obj.getAccount() + getString(R.string.join_meetin));
+                                    }
+                                });
                             } else {
                                 mHandler.sendEmptyMessage(REQUEST_VIDEO_FAIL);
                             }
@@ -988,55 +1032,72 @@ public class TestMeetingActivity extends Activity {
     }
 
     public void putVideoUIMemberCache(String who) {
-        synchronized (mLock) {
-            if (mUserAccounts != null) {
-                mUserAccounts.add(who);
+        if (mLock != null) {
+            synchronized (mLock) {
+                if (mUserAccounts != null) {
+                    mUserAccounts.add(who);
+                }
             }
         }
     }
 
     public void removeVideoUIMemberCache(String who) {
-        synchronized (mLock) {
-            if (mUserAccounts != null) {
-                mUserAccounts.remove(who);
+        if (mLock != null) {
+            synchronized (mLock) {
+                if (mUserAccounts != null) {
+                    mUserAccounts.remove(who);
+                }
             }
         }
     }
 
     private boolean isVideoUIMemberExist(String who) {
-        synchronized (mLock) {
-            if (TextUtils.isEmpty(who)) {
+        if (mLock != null) {
+            synchronized (mLock) {
+                if (TextUtils.isEmpty(who)) {
+                    return false;
+                }
+
+                if (mUserAccounts != null) {
+                    if (mUserAccounts.contains(who)) {
+                        return true;
+                    }
+                }
+
                 return false;
             }
-
-            if (mUserAccounts != null) {
-                if (mUserAccounts.contains(who)) {
-                    return true;
-                }
-            }
-
-            return false;
         }
+        return false;
     }
 
-    /**
-     * 录制
-     * @param v
-     */
-    public void transcribe(View v) {
-        ECDevice.getECVoIPSetupManager().enableLoudSpeaker(!ECDevice.getECVoIPSetupManager().getLoudSpeakerStatus());
-    }
 
     /**
      * 邀请
-     * @param v
      */
-    public void invite(View v) {
+    public void invite() {
         if (!host) {
             ToastUtil.showtomain(this, "只有房主能邀请");
+            return;
         } else {
-            mFriendsRl.setVisibility(View.VISIBLE);
-            mFunctionRightLL.setVisibility(View.GONE);
+            if (!mInviteState) {
+                ToastUtil.showtomain(this, "用户已进入房间");
+                return;
+            }
+//            mFriendsRl.setVisibility(View.VISIBLE);
+//            mFunctionRightLL.setVisibility(View.GONE);
+        }
+
+        String account = getSharedPreferences("Receipt", MODE_PRIVATE).getString(
+                "robotid", null);
+        if (!TextUtils.isEmpty(account)) {
+            if (progressDialog != null) {
+                progressDialog.setMessage(getString(R.string.inviting_wait));
+                progressDialog.show();
+            }
+            inviteMember(account);
+        } else {
+            ToastUtil.showtomain(this, "error");
+            finish();
         }
     }
 
@@ -1045,7 +1106,10 @@ public class TestMeetingActivity extends Activity {
      * 退出会议
      */
     private void exitMeeting() {
-        meetingManager.exitMeeting(ECMeetingManager.ECMeetingType.MEETING_MULTI_VIDEO);
+        boolean exitMeeting = meetingManager.exitMeeting(ECMeetingManager.ECMeetingType.MEETING_MULTI_VIDEO);
+        if (!exitMeeting) {
+            Log.i(TAG, "exitMeeting false");
+        }
     }
 
     /**
@@ -1053,7 +1117,8 @@ public class TestMeetingActivity extends Activity {
      * @param user
      */
     private void inviteMember(String user) {
-        String members[] = {user};
+        Log.i(TAG, "user:" + user);
+        final String members[] = {user};
         // isLandingCall:表示是否以落地电话形式或者VoIP来电方式
         // 获取一个会议管理接口对象
         // 发起邀请加入会议请求
@@ -1061,103 +1126,35 @@ public class TestMeetingActivity extends Activity {
                 new ECMeetingManager.OnInviteMembersJoinToMeetingListener() {
                     @Override
                     public void onInviteMembersJoinToMeeting(ECError reason, String meetingNo) {
-//                        if (reason.errorCode == SdkErrorCode.REQUEST_SUCCESS) {
-//                            mHandler.sendEmptyMessage(INVITE_SUCCESS);
-//                            return;
-//                        }
-//                        mHandler.sendEmptyMessage(INVITE_FAIL);
+                        if (progressDialog != null) {
+                            progressDialog.dismiss();
+                        }
+                        if (reason.errorCode == SdkErrorCode.REQUEST_SUCCESS) {
+                            Message msg = mHandler.obtainMessage(INVITE_SUCCESS);
+                            msg.obj = members[0];
+                            mHandler.sendMessage(msg);
+                            return;
+                        }
+                        Message message = mHandler.obtainMessage(INVITE_FAIL);
+                        message.obj = reason.errorCode;
+                        mHandler.sendMessage(message);
                     }
                 });
     }
 
-    /**
-     *
-     * @param user
-     */
-    private void inviteMemberByMessage(String user){
-        try {
-            String msgType = Constants.INVITE_MESSAGE;
-            String body = mVideoConferenceId;    // 会议号
-
-            ECMessage msg = ECMessage.createECMessage(ECMessage.Type.TXT);
-            msg.setForm(mAccount);
-            msg.setMsgTime(System.currentTimeMillis());
-            msg.setTo(user);
-            msg.setSessionId(user);
-            msg.setDirection(ECMessage.Direction.SEND);
-            msg.setUserData(Constants.MESSAGE_PREFIX + msgType);
-
-            ECTextMessageBody msgBody = new ECTextMessageBody(body);
-            msg.setBody(msgBody);
-            ECChatManager manager = ECDevice.getECChatManager();
-            manager.sendMessage(msg, new ECChatManager.OnSendMessageListener() {
-                @Override
-                public void onSendMessageComplete(ECError error, ECMessage message) {
-
-                    // 处理消息发送结果
-                    if (message == null) {
-                        return;
-                    }
-                    //                Message msg = mHandler.obtainMessage(ERROR_CODE);
-                    //                msg.arg1 = error.errorCode;
-                    //                mHandler.sendMessage(msg);
-                    // 将发送的消息更新到本地数据库并刷新UI
-                }
-
-                @Override
-                public void onProgress(String msgId, int totalByte, int progressByte) {
-                }
-            });
-        } catch (Exception e) {
-            // 处理发送异常
-            Log.e(TAG, "send message fail , e=" + e.getMessage());
-        }
-    }
-
-    /**
-     * 截屏
-     * @param v
-     */
-    public void screenshot(View v) {
-    //    showScreenshotDialog(getScreenshotBitmap());
-    }
-
-    private Bitmap getScreenshotBitmap(){
-        return null;
-    }
-
-    private void showScreenshotDialog(final Bitmap bitmap){
-        ScreenshotDialog dialog = new ScreenshotDialog(this);
-        dialog.setImage(bitmap);
-        dialog.showDialog(getScreenWidth() / 6 * 5, getScreenHeight() / 6 * 5, new ScreenshotDialog.OnSavingListener() {
-            @Override
-            public void save() {
-                String albumPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getPath() + "/" + "screenshot";
-                Long photoName = System.currentTimeMillis();
-                com.yongyida.robot.utils.Utils.saveFile(bitmap, albumPath + "/" + photoName);
-            }
-        });
-    }
-
-    /**
-     * 挂断
-     * @param v
-     */
-    public void hangup(View v) {
-        exitRoom();
-    }
 
     /**
      * 退出房间
      */
     public void exitRoom() {
+        stopTime();
+        progressDialog.setMessage(getString(R.string.hanguping));
+        progressDialog.show();
         if (host) {
             exitMeeting();
             releaseMeeting(mVideoConferenceId);
         } else {
-        //    releaseCall(mCallId);
-            exitMeeting();
-            finish();
+            releaseCall(mCallId);
         }
     }
 
@@ -1187,11 +1184,7 @@ public class TestMeetingActivity extends Activity {
         mFunctionRightLL.setVisibility(View.VISIBLE);
         String account = mInviteEditText.getText().toString().trim();
         if (!TextUtils.isEmpty(account)) {
-        //    inviteMember(account);
-            inviteMemberByMessage(account);
-            if (mInviteList != null && !mInviteList.contains(account)) {
-                mInviteList.add(account);
-            }
+            inviteMember(account);
         }
     }
 
@@ -1212,21 +1205,9 @@ public class TestMeetingActivity extends Activity {
                     @Override
                     public void onMeetingDismiss(ECError reason, String meetingNo) {
                         if (reason.errorCode == SdkErrorCode.REQUEST_SUCCESS) {
-                            if (!TextUtils.isEmpty(mUnreleaseMeetingNo)) {
-                                mUnreleaseMeetingNo = "";
-                                createMeetingRoom();
-                                return;
-                            }
                             // 解散会议成功
                             mHandler.sendEmptyMessage(RELEASE_SUCCESS);
                         } else {
-                            Intent intent = new Intent();
-                            if (TextUtils.isEmpty(mVideoConferenceId)) {
-                                intent.putExtra(Constants.UNRELEASE_MEETING_NO, mUnreleaseMeetingNo);
-                            } else {
-                                intent.putExtra(Constants.UNRELEASE_MEETING_NO, mVideoConferenceId);
-                            }
-                            setResult(RELEASE_MEETING_FAIL_CODE, intent);
                             mHandler.sendEmptyMessage(RELEASE_FAIL);
                         }
                     }
@@ -1245,22 +1226,22 @@ public class TestMeetingActivity extends Activity {
             String bigSurfaceTag = (String) mMeetingUserLayout.getTag();
             String bigSurfaceText = mMeetingUserLayout.getTextViewText();
             ret = meetingManager.resetVideoMeetingWindow(viewTag, getBigSurfaceView(viewTag));
-            if (meetingUserLayout.getTextViewText().equals(getString(R.string.cancel_publish))) {
-                mMeetingUserLayout.setTextViewText(getString(R.string.cancel_publish));
+            if (!TextUtils.isEmpty(meetingUserLayout.getTextViewText())) {
+                mMeetingUserLayout.setTextViewText(meetingUserLayout.getTextViewText());
             } else {
-                mMeetingUserLayout.invisiableTextView();
+                mMeetingUserLayout.setTextViewText("");
             }
             ret = ret + meetingManager.resetVideoMeetingWindow(bigSurfaceTag, meetingUserLayout.getSurfaceView());
-            if (getString(R.string.cancel_publish).equals(bigSurfaceText)) {
-                meetingUserLayout.setTextViewText(getString(R.string.cancel_publish));
+            if (!TextUtils.isEmpty(bigSurfaceText)) {
+                meetingUserLayout.setTextViewText(bigSurfaceText);
             } else {
-                meetingUserLayout.invisiableTextView();
+                mMeetingUserLayout.setTextViewText("");
             }
             meetingUserLayout.setTag(bigSurfaceTag);
         } else {
             ret = meetingManager.resetVideoMeetingWindow(viewTag, getBigSurfaceView(viewTag));
-            if (meetingUserLayout.getTextViewText().equals(getString(R.string.cancel_publish))) {
-                mMeetingUserLayout.setTextViewText(getString(R.string.cancel_publish));
+            if (!TextUtils.isEmpty(meetingUserLayout.getTextViewText())) {
+                mMeetingUserLayout.setTextViewText(meetingUserLayout.getTextViewText());
             }
             removeSurfaceViewLayout(meetingUserLayout, false);
         }
@@ -1279,9 +1260,13 @@ public class TestMeetingActivity extends Activity {
 
         @Override
         public void onSurfaceViewClick(View v) {
-            showPopupWindow(v);
+        //    showPopupWindow(v);
+            MeetingUserLayout meetingUserLayout = (MeetingUserLayout) v.getParent();
+            switchToBigScreen(meetingUserLayout);
         }
     }
+
+
 
     /**
      * 显示popupWindow
@@ -1318,7 +1303,6 @@ public class TestMeetingActivity extends Activity {
         surfaceView.getLocationOnScreen(location);
 
         mPopupWindow.showAtLocation(surfaceView, Gravity.NO_GRAVITY, location[0], location[1]);
-
     }
 
     /**
@@ -1367,87 +1351,37 @@ public class TestMeetingActivity extends Activity {
         mMeetingUserLayout.setSurfaceViewClickListener(new MeetingUserLayout.OnSurfaceViewClickListener() {
             @Override
             public void onSurfaceViewClick(View v) {
-                showFullScreenViewPopupWindow(v);
+            //    showFullScreenViewPopupWindow(v);
+                MeetingUserLayout meetingUserLayout = (MeetingUserLayout) v.getParent();
+                String account = (String)meetingUserLayout.getTag();
+                MeetingMemberObj obj = getMeetingMemberObjByAccount(account);
+                requestVideo(obj, meetingUserLayout);
             }
         });
         mFrameLayout.addView(mMeetingUserLayout);
         return mMeetingUserLayout.getSurfaceView();
     }
 
-
-    /**
-     * 取消邀请
-     * @param to
-     */
-    private void sendInviteCancelMessage(String to){
-        try {
-            //取消邀请
-            String msgType = Constants.MEETING_CANCEL_INVITE;
-            String body = mVideoConferenceId;    // 会议号
-
-            ECMessage msg = ECMessage.createECMessage(ECMessage.Type.TXT);
-            msg.setForm(mAccount);
-            msg.setMsgTime(System.currentTimeMillis());
-            msg.setTo(to);
-            msg.setSessionId(to);
-            msg.setDirection(ECMessage.Direction.SEND);
-            msg.setUserData(Constants.MESSAGE_PREFIX + msgType);
-
-            ECTextMessageBody msgBody = new ECTextMessageBody(body);
-            msg.setBody(msgBody);
-            ECChatManager manager = ECDevice.getECChatManager();
-            manager.sendMessage(msg, new ECChatManager.OnSendMessageListener() {
-                @Override
-                public void onSendMessageComplete(ECError error, ECMessage message) {
-
-                    // 处理消息发送结果
-                    if (message == null) {
-                        return;
-                    }
-                    //                Message msg = mHandler.obtainMessage(ERROR_CODE);
-                    //                msg.arg1 = error.errorCode;
-                    //                mHandler.sendMessage(msg);
-                    // 将发送的消息更新到本地数据库并刷新UI
-                }
-
-                @Override
-                public void onProgress(String msgId, int totalByte, int progressByte) {
-                }
-            });
-        } catch (Exception e) {
-            // 处理发送异常
-            Log.e(TAG, "send message fail , e=" + e.getMessage());
-        }
-    }
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (meetingManager != null) {
-            exitMeeting();
-        }
-        if (mInviteList != null && mInviteList.size() != 0) {
-            for (String account : mInviteList) {
-                sendInviteCancelMessage(account);
-                Log.d(TAG, "account:" + account);
-            }
+        Constants.NetBrInterrupt = true;
+        if (progressDialog != null) {
+            progressDialog.dismiss();
+            progressDialog = null;
         }
         if (mUserAccounts != null) {
             mUserAccounts.clear();
             mUserAccounts = null;
         }
-        if (mInviteList != null) {
-            mInviteList.clear();
-            mInviteList = null;
+        if (!mNetworkFlag) {
+            startActivity(new Intent(this, ConnectActivity.class)
+                    .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
         }
+        Utils.unRegisterReceiver(mNetOffBR, this);
         mLock = null;
-        if (ECDevice.getECVoIPSetupManager() != null) {
-            ECDevice.getECVoIPSetupManager().enableLoudSpeaker(false);
-        }
         SDKCoreHelper.getInstance().setmBusyFlag(false);
-        SDKCoreHelper.getInstance().unRegistOnChatReceiveListener(mOnChatReceiveListener);
         SDKCoreHelper.getInstance().unRegistOnMeetingListener(mOnMeetingListener);
-        SDKCoreHelper.getInstance().unRegistOnVoIPCallListener(mOnVoIPListener);
     }
 
 }

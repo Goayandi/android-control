@@ -55,6 +55,7 @@ public class GuideActivity extends Activity {
 			public Object instantiateItem(ViewGroup container, int position) {
 				ImageView img1 = new ImageView(GuideActivity.this);
 				setparams(img1);
+				/*img1.setImageResource(R.drawable.img1);*/
 				img1.setImageResource(R.drawable.img1);
 				container.addView(img1);
 				ImageView img2 = new ImageView(GuideActivity.this);

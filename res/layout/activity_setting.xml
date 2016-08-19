@@ -171,7 +171,7 @@
             android:layout_width="wrap_content"
             android:layout_height="50dip"
             android:orientation="horizontal"
-            android:paddingLeft="15dip" >
+            android:paddingLeft="15dip">
 
             <TextView
                 android:id="@+id/about"
@@ -183,6 +183,7 @@
             android:layout_width="wrap_content"
             android:layout_height="50dip"
             android:orientation="horizontal"
+            android:visibility="gone"
             android:paddingLeft="15dip" >
 
             <TextView
@@ -195,7 +196,8 @@
         <RelativeLayout
             android:layout_width="wrap_content"
             android:layout_height="50dip"
-            android:paddingLeft="15dip" >
+            android:paddingLeft="15dip"
+            >
 
             <TextView
                 android:layout_width="wrap_content"
@@ -234,6 +236,7 @@
                 android:layout_marginRight="15dp"
                 android:text="@string/contact_number"
                 android:textColor="@android:color/white"/>
+            <!--android:text="@string/contact_number"-->
         </RelativeLayout>
     </LinearLayout>
 

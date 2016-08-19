@@ -112,9 +112,8 @@ public class BigImageActivity extends Activity {
 								if (!folder.exists()) {
 									folder.mkdir();
 								}
-								String fileName = FileUtil.restorePhotoName(fs[position]);
 								File sourceFile = new File(file.getAbsolutePath() + "/" + fs[position]);
-								File file = new File(albumPath + "/" + fileName);
+								File file = new File(albumPath + "/" + fs[position]);
 								if (file.exists()) {
 									ToastUtil.showtomain(BigImageActivity.this, getString(R.string.already_exist));
 								} else {

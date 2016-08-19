@@ -40,6 +40,8 @@ import com.yongyida.robot.utils.Constants;
 import com.yongyida.robot.utils.StartUtil;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -112,12 +114,13 @@ public class TaskFragment extends Fragment implements OnFragmentRefresh {
 		list_task = tasks;
 		if (list_task != null && list_task.size() != 0) {
 			if (list_task.get(0) instanceof Remind) {
+				sortRemindList();
 				mAdapter = new EventRemindAdapter(getActivity(), list_task);
 			} else if (list_task.get(0) instanceof Alarm) {
 				mAdapter = new AlarmAdapter(getActivity(), list_task);
 			}
 		} else {
-			mAdapter = new EventRemindAdapter(getActivity(), list_task);
+			mAdapter = new EventRemindAdapter(getActivity(), new ArrayList());
 		}
 
 		SwipeMenuCreator creator = new SwipeMenuCreator() {
@@ -192,6 +195,24 @@ public class TaskFragment extends Fragment implements OnFragmentRefresh {
 			}
 		});
 		task_listview.setAdapter(mAdapter);
+	}
+
+	private void sortRemindList() {
+		Collections.sort(list_task, new Comparator<Task>() {
+			@Override
+			public int compare(Task t1, Task t2) {
+				String dateString1 = t1.getSettime();
+				String dateString2 = t2.getSettime();
+				long date1 = Long.parseLong(dateString1);
+				long date2 = Long.parseLong(dateString2);
+				if (date1 > date2) {
+					return 1;
+				} else if (date1 == date2) {
+					return 0;
+				}
+				return -1;
+			}
+		});
 	}
 
 	private OnItemClickListener onitemclick = new OnItemClickListener() {

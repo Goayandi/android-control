@@ -1,14 +1,21 @@
 package com.yongyida.robot.utils;
 
+import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.Service;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
+import android.hardware.Camera;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.View;
 
 import com.yongyida.robot.service.SocketService;
@@ -384,5 +391,86 @@ public class Utils {
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
         }
+    }
+
+    public static int dp2px(Context context, int dp) {
+        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp,
+                context.getResources().getDisplayMetrics());
+    }
+
+    public static String showTimeCount(long time) {
+        String timeCount = "";
+        long hourc = time / 3600000;
+        String hour = "0" + hourc;
+        hour = hour.substring(hour.length()-2, hour.length());
+
+        long minuec = (time-hourc*3600000)/(60000);
+        String minue = "0" + minuec;
+        minue = minue.substring(minue.length()-2, minue.length());
+
+        long secc = (time-hourc*3600000-minuec*60000)/1000;
+        String sec = "0" + secc;
+        sec = sec.substring(sec.length()-2, sec.length());
+        timeCount = hour + ":" + minue + ":" + sec;
+
+        return timeCount;
+    }
+
+    public static void doStartApplicationWithPackageName(Activity activity, String packagename) {
+
+        // 通过包名获取此APP详细信息，包括Activities、services、versioncode、name等等
+        PackageInfo packageinfo = null;
+        try {
+            packageinfo = activity.getPackageManager().getPackageInfo(packagename, 0);
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+        if (packageinfo == null) {
+            return;
+        }
+
+        // 创建一个类别为CATEGORY_LAUNCHER的该包名的Intent
+        Intent resolveIntent = new Intent(Intent.ACTION_MAIN, null);
+        resolveIntent.addCategory(Intent.CATEGORY_LAUNCHER);
+        resolveIntent.setPackage(packageinfo.packageName);
+
+        // 通过getPackageManager()的queryIntentActivities方法遍历
+        List<ResolveInfo> resolveinfoList = activity.getPackageManager()
+                .queryIntentActivities(resolveIntent, 0);
+
+        ResolveInfo resolveinfo = resolveinfoList.iterator().next();
+        if (resolveinfo != null) {
+            // packagename = 参数packname
+            String packageName = resolveinfo.activityInfo.packageName;
+            // 这个就是我们要找的该APP的LAUNCHER的Activity[组织形式：packagename.mainActivityname]
+            String className = resolveinfo.activityInfo.name;
+            // LAUNCHER Intent
+            Intent intent = new Intent(Intent.ACTION_MAIN);
+            intent.addCategory(Intent.CATEGORY_LAUNCHER);
+
+            // 设置ComponentName参数1:packagename参数2:MainActivity路径
+            ComponentName cn = new ComponentName(packageName, className);
+
+            intent.setComponent(cn);
+            activity.startActivity(intent);
+        }
+    }
+
+    public static boolean isCameraCanUse() {
+        boolean canUse = true;
+        Camera mCamera = null;
+        try {
+            mCamera = Camera.open();
+            // setParameters 是针对魅族MX5 做的。MX5 通过Camera.open() 拿到的Camera
+            // 对象不为null
+            Camera.Parameters mParameters = mCamera.getParameters();
+            mCamera.setParameters(mParameters);
+        } catch (Exception e) {
+            canUse = false;
+        }
+        if (mCamera != null) {
+            mCamera.release();
+        }
+        return canUse;
     }
 }

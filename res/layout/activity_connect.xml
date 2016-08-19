@@ -41,7 +41,7 @@
         app:layout_widthPercent="30%"
         android:gravity="center"
         android:singleLine="true"
-        android:text="@string/yongyida_robot"
+        android:text="@string/robot_list"
         android:textColor="@color/white" />
 
     <ImageView
@@ -64,6 +64,7 @@
         <com.baoyz.swipemenulistview.SwipeMenuListView
             android:id="@+id/robotlist_bind"
             android:background="@android:color/transparent"
+            android:cacheColorHint="@android:color/transparent"
             android:divider="@null"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"

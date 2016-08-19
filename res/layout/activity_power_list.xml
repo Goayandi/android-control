@@ -19,7 +19,7 @@
         android:drawableLeft="@drawable/back"
         android:textColor="@color/white" />
 
-    <com.layout.utils.PercentRelativeLayout
+    <!--<com.layout.utils.PercentRelativeLayout
         android:id="@+id/rl"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -50,8 +50,26 @@
             android:layout_centerInParent="true"
             android:background="@drawable/robot1" />
 
-    </com.layout.utils.PercentRelativeLayout>
+    </com.layout.utils.PercentRelativeLayout>-->
 
+    <com.layout.utils.PercentRelativeLayout
+        android:id="@+id/rl"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_below="@+id/power_title"
+        app:layout_heightPercent="35%"
+        app:layout_marginLeftPercent="2%"
+        app:layout_marginRightPercent="2%"
+        app:layout_marginBottomPercent="3%"
+        app:layout_widthPercent="96%" >
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:background="@drawable/robot2" />
+        <!--android:background="@drawable/robot2"-->
+    </com.layout.utils.PercentRelativeLayout>
     <TextView
         android:id="@+id/tv_battery"
         android:layout_width="wrap_content"
@@ -168,12 +186,16 @@
         android:layout_below="@id/video_monitor"
         android:layout_toRightOf="@id/power_task"
         style="@style/style_rl_control" >
-
+        <ImageView
+            android:id="@+id/iv_message_in"
+            android:layout_width="3dp"
+            android:layout_height="3dp"
+            android:visibility="gone"/>
         <Button
             android:id="@+id/power_setting_img"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:background="@drawable/setting1"
+            android:background="@drawable/sqhd"
             style="@style/style_bt_control" />
 
         <TextView
@@ -197,14 +219,14 @@
             android:id="@+id/bt_more"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:background="@drawable/more1"
+            android:background="@drawable/jjzx"
             style="@style/style_bt_control" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             android:layout_below="@id/bt_more"
-            android:text="@string/zhinengjiating"
+            android:text="@string/more"
             style="@style/style_tv_control" />
     </com.layout.utils.PercentRelativeLayout>
     

@@ -7,124 +7,64 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
     <LinearLayout
-        android:id="@+id/ll_top_function"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <Button
-            android:id="@+id/bt_switch_camera"
-            android:layout_width="100dp"
-            android:layout_height="wrap_content"
-            style="@style/style_bt_meeting_control4"
-            android:onClick="switchCamera"
-            android:text="@string/switch_camera"/>
-        <Button
-            android:id="@+id/bt_mute"
-            android:layout_width="100dp"
-            android:layout_height="wrap_content"
-            style="@style/style_bt_meeting_control4"
-            android:onClick="mute"
-            android:text="@string/sound_off"/>
-        <Button
-            android:id="@+id/bt_switch_voice"
-            android:layout_width="100dp"
-            android:layout_height="wrap_content"
-            style="@style/style_bt_meeting_control4"
-            android:onClick="switchVoice"
-            android:text="@string/switch_voice"/>
-        <Button
-            android:id="@+id/bt_hang_up"
-            android:layout_width="100dp"
-            android:layout_height="wrap_content"
-            android:onClick="hangup"
-            style="@style/style_bt_meeting_control4"
-            android:text="@string/hang_up"/>
-    </LinearLayout>
-    <LinearLayout
+        android:id="@+id/ll_bottom"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
+        android:layout_height="100dp"
+        android:orientation="horizontal"
+        android:layout_alignParentBottom="true"
         android:background="@android:color/transparent">
-        <View
-            android:layout_width="1dp"
-            android:layout_height="0dp"
-            android:layout_weight="1"/>
-        <View
-            android:layout_width="1dp"
-            android:layout_height="0dp"
+        <com.yuntongxun.ecsdk.voip.video.ECCaptureView
+            android:id="@+id/ec_capture_view"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
             android:layout_weight="1"/>
         <LinearLayout
-            android:id="@+id/ll_bottom"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
+            android:id="@+id/ll_container"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="3"
             android:orientation="horizontal"
-            android:background="@android:color/transparent">
-            <com.yuntongxun.ecsdk.voip.video.ECCaptureView
-                android:id="@+id/ec_capture_view"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"/>
-            <LinearLayout
-                android:id="@+id/ll_container"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="3"
-                android:orientation="horizontal"
-                android:background="@android:color/transparent"/>
-        </LinearLayout>
+            android:background="@android:color/transparent"/>
     </LinearLayout>
     <LinearLayout
         android:id="@+id/ll_right_function"
-        android:layout_width="100dp"
+        android:layout_width="300dp"
         android:layout_height="match_parent"
         android:layout_alignParentRight="true"
         android:orientation="vertical"
         android:background="@android:color/transparent">
-        <Button
+        <TextView
+            android:id="@+id/tv_invite"
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:visibility="invisible"/>
-        <Button
-            android:id="@+id/bt_invite"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:onClick="invite"
-            style="@style/style_bt_meeting_control3"
+            style="@style/style_tv_meeting_control3"
+            android:drawableTop="@drawable/tv_invite"
             android:text="@string/invite"/>
-        <Button
+        <TextView
+            android:id="@+id/tv_mute"
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:visibility="invisible"/>
-        <Button
-            android:id="@+id/bt_transcribe"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:onClick="transcribe"
-            style="@style/style_bt_meeting_control3"
-            android:text="@string/transcribe"/>
-        <Button
+            style="@style/style_tv_meeting_control3"
+            android:drawableTop="@drawable/tv_not_mute"
+            android:text="@string/sound_off"/>
+        <TextView
+            android:id="@+id/tv_switch_camera"
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:visibility="invisible"/>
-        <Button
-            android:id="@+id/bt_screenshot"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:onClick="screenshot"
-            style="@style/style_bt_meeting_control3"
-            android:text="@string/screenshot"/>
-        <Button
+            style="@style/style_tv_meeting_control3"
+            android:drawableTop="@drawable/tv_switch"
+            android:text="@string/switch_camera"/>
+        <TextView
+            android:id="@+id/tv_hang_up"
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:visibility="invisible"/>
+            style="@style/style_tv_meeting_control3"
+            android:drawableTop="@drawable/tv_hangup"
+            android:text="@string/hang_up"/>
     </LinearLayout>
     <RelativeLayout
         android:id="@+id/rl_invite"
@@ -154,4 +94,12 @@
             android:onClick="inviteConfirm"
             android:text="@string/invite"/>
     </RelativeLayout>
+    <TextView
+        android:id="@+id/tv_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:visibility="gone"
+        android:textColor="@color/white"
+        android:text="00:00:00"/>
 </RelativeLayout>

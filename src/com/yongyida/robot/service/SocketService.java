@@ -12,6 +12,8 @@ import android.graphics.Matrix;
 import android.net.ConnectivityManager;
 import android.os.Environment;
 import android.os.IBinder;
+import android.text.TextUtils;
+import android.util.Log;
 
 import com.yongyida.robot.R;
 import com.yongyida.robot.bean.Result;
@@ -348,31 +350,31 @@ public class SocketService extends Service {
                     if (!file.exists()) {
                         file.mkdir();
                     }
-                    name = FileUtil.confusePhotoName(name);
+                    String robotName = getSharedPreferences("Receipt", MODE_PRIVATE).getString("username", null);
                     FileUtil.writefile(
                             getApplication().getExternalFilesDir(
                                     null).getAbsolutePath()
                                     + "/"
-                                    + getSharedPreferences(
-                                    "Receipt", MODE_PRIVATE)
-                                    .getString("username",
-                                            null) + size,
+                                    + robotName + size,
                             res.datas, name);
-                                /* 照片先转成bitmap 旋转90度再存起来 */
-                    File picture = new File(file.getAbsolutePath() + "/" + name);
-                    Bitmap b = BitmapFactory.decodeFile(picture.getAbsolutePath());
-                    Matrix matrix = new Matrix();
-                    matrix.setRotate(-90);
-                    Bitmap bm = b.createBitmap(b, 0, 0, b.getWidth(),
-                            b.getHeight(), matrix, true);
-                    b.recycle();
-                    FileOutputStream fos = null;
-                    try {
-                        fos = new FileOutputStream(picture);
-                    } catch (FileNotFoundException e1) {
-                        e1.printStackTrace();
+                    if (!TextUtils.isEmpty(robotName) && robotName.startsWith("Y50")) {
+                        Log.i(TAG, "Y50");
+                        /* 照片先转成bitmap 旋转90度再存起来 */
+                        File picture = new File(file.getAbsolutePath() + "/" + name);
+                        Bitmap b = BitmapFactory.decodeFile(picture.getAbsolutePath());
+                        Matrix matrix = new Matrix();
+                        matrix.setRotate(-90);
+                        Bitmap bm = b.createBitmap(b, 0, 0, b.getWidth(),
+                                b.getHeight(), matrix, true);
+                        b.recycle();
+                        FileOutputStream fos = null;
+                        try {
+                            fos = new FileOutputStream(picture);
+                        } catch (FileNotFoundException e1) {
+                            e1.printStackTrace();
+                        }
+                        bm.compress(Bitmap.CompressFormat.JPEG, 100, fos);
                     }
-                    bm.compress(Bitmap.CompressFormat.JPEG, 100, fos);
 
                     Intent reply = new Intent(Constants.Photo_Reply);
                     sendBroadcast(reply);
@@ -395,6 +397,53 @@ public class SocketService extends Service {
                 if (ctx != null) {
                     JSONObject params = new JSONObject();
                     NetUtil.Scoket(params, 2, ctx);
+                } else {
+                    handleError();
+                }
+            }
+        }
+    };
+
+    BroadcastReceiver mQuestionnaireBR = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (ctx != null) {
+                JSONObject params = new JSONObject();
+                NetUtil.Scoket(params, 6, ctx);
+            } else {
+                handleError();
+            }
+        }
+    };
+
+    BroadcastReceiver mEmergencyBR = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (ctx != null) {
+                JSONObject params = new JSONObject();
+                try {
+                    params.put("username",intent.getStringExtra("username"));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                NetUtil.Scoket(params, 7, ctx);
+            } else {
+                handleError();
+            }
+        }
+    };
+
+
+
+    BroadcastReceiver talk = new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context arg0, Intent intent) {
+
+            if (intent.getAction().equals(Constants.Talk)) {
+                if (ctx != null) {
+                    JSONObject params = new JSONObject();
+                    NetUtil.Scoket(params, 5, ctx);
                 } else {
                     handleError();
                 }
@@ -556,6 +605,7 @@ public class SocketService extends Service {
             }
         }
     };
+
 
     BroadcastReceiver mLogoutVideoRoomBR = new BroadcastReceiver() {
         @Override
@@ -806,6 +856,9 @@ public class SocketService extends Service {
         BroadcastReceiverRegister.reg(this,
                 new String[]{Constants.Speech_action}, speak);
 
+        /* 语音复读 */
+        BroadcastReceiverRegister.reg(this, new String[]{Constants.Talk}, talk);
+
         /* 任务提醒 */
         BroadcastReceiverRegister.reg(this, new String[]{
                 Constants.Task_Remove, Constants.Task_Add,
@@ -853,6 +906,12 @@ public class SocketService extends Service {
 
         /* 登出视频房间 */
         BroadcastReceiverRegister.reg(this, new String[]{Constants.LOGOUT_VIDEO_ROOM}, mLogoutVideoRoomBR);
+
+        /*问卷调查*/
+        BroadcastReceiverRegister.reg(this, new String[]{Constants.QUESTIONNAIRE}, mQuestionnaireBR);
+
+        /*急救中心*/
+        BroadcastReceiverRegister.reg(this, new String[]{Constants.EMERGENCY}, mEmergencyBR);
         /**
          *  建立socket连接
          */
@@ -1073,6 +1132,9 @@ public class SocketService extends Service {
         Utils.unRegisterReceiver(mCancelDialBR, this);
         Utils.unRegisterReceiver(mCancelDialBR, this);
         Utils.unRegisterReceiver(mLogoutVideoRoomBR, this);
+        Utils.unRegisterReceiver(talk, this);
+        Utils.unRegisterReceiver(mQuestionnaireBR, this);
+        Utils.unRegisterReceiver(mEmergencyBR, this);
 
         if (time != null) {
             time.cancel();

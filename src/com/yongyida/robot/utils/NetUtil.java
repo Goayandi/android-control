@@ -519,7 +519,7 @@ public class NetUtil {
 	// socket方法
 	public static void Scoket(JSONObject params, int flag, ChannelHandlerContext handler) {
 		if (params != null) {
-			Log.d("NetUtil", params.toString());
+			Log.i("NetUtil", params.toString());
 		}
 		ChannelBuffer channelBuffer = null;
 		String str = null;
@@ -546,7 +546,22 @@ public class NetUtil {
 		case 1:
 			str = "{\"cmd\":\"/robot/push\",\"command\":{\"cmd\":\"move\",\"type\":\""
 					+ Constants.execode + "\"}}";
-			Log.d("JsonString", str);
+//			if (Constants.execode.equals("forward")) {
+//				str = "{\"cmd\":\"/robot/push\",\"command\":{\"cmd\":\"204\",\"content\":{\"ms\":\"10\",\"ma\":\"0\",\"ro\":\"0\"}}}";
+//			} else if (Constants.execode.equals("turn_left")) {
+//                str = "{\"cmd\":\"/robot/push\",\"command\":{\"cmd\":\"204\",\"content\":{\"ms\":\"10\",\"ma\":\"270\",\"ro\":\"270\"}}}";
+//			} else if (Constants.execode.equals("back")) {
+//                str = "{\"cmd\":\"/robot/push\",\"command\":{\"cmd\":\"204\",\"content\":{\"ms\":\"10\",\"ma\":\"180\",\"ro\":\"180\"}}}";
+//			} else if (Constants.execode.equals("turn_right")) {
+//                str = "{\"cmd\":\"/robot/push\",\"command\":{\"cmd\":\"204\",\"content\":{\"ms\":\"10\",\"ma\":\"90\",\"ro\":\"90\"}}}";
+//			} else if (Constants.execode.equals("stop")) {
+//                str = "{\"cmd\":\"/robot/push\",\"command\":{\"cmd\":\"204\",\"content\":{\"ms\":\"0\",\"ma\":\"0\",\"ro\":\"0\"}}}";
+//			//	str = "{\"cmd\":\"204\",\"content\":{\"ms\":\"0\",\"ma\":\"0\",\"ro\":\"0\"}}";
+//			} else {
+//				str = "{\"cmd\":\"/robot/push\",\"command\":{\"cmd\":\"move\",\"type\":\""
+//					+ Constants.execode + "\"}}";
+//			}
+			Log.i("JsonString", str);
 			channelBuffer = new DynamicChannelBuffer(ByteOrder.BIG_ENDIAN,
 					(12 + str.getBytes().length));
 			channelBuffer.writeByte((byte) 1);
@@ -584,7 +599,7 @@ public class NetUtil {
 			for (int i = 0; i < 8; i++) {
 				channelBuffer.writeByte(0);
 			}
-			Log.d("Heart", System.currentTimeMillis() + "");
+			Log.i("Heart", System.currentTimeMillis() + "");
 			break;
 		case 4:
 			try {
@@ -604,6 +619,62 @@ public class NetUtil {
 			channelBuffer.writeBytes(int2Byte(str.length()));
 			channelBuffer.writeBytes(str.getBytes());
 
+			break;
+		case 5:
+			str = "{\"cmd\":\"/robot/push\",\"command\":{\"cmd\":\"talk\",\"type\":\""
+					+ Constants.text + "\"}}";
+			channelBuffer = new DynamicChannelBuffer(ByteOrder.BIG_ENDIAN,
+					(12 + str.getBytes().length));
+			channelBuffer.writeByte((byte) 1);
+			for (int i = 0; i < 7; i++) {
+				channelBuffer.writeByte((byte) 0);
+			}
+			try {
+				channelBuffer
+						.writeBytes(int2Byte(str.getBytes("utf-8").length));
+			} catch (UnsupportedEncodingException e) {
+				e.printStackTrace();
+			}
+			channelBuffer.writeBytes(str.getBytes());
+			break;
+		case 6:
+			str = "{\"cmd\":\"/robot/push\",\"command\":{\"cmd\":\"question\"}}";
+			channelBuffer = new DynamicChannelBuffer(ByteOrder.BIG_ENDIAN,
+					(12 + str.getBytes().length));
+			channelBuffer.writeByte((byte) 1);
+			for (int i = 0; i < 7; i++) {
+				channelBuffer.writeByte((byte) 0);
+			}
+			try {
+				channelBuffer
+						.writeBytes(int2Byte(str.getBytes("utf-8").length));
+			} catch (UnsupportedEncodingException e) {
+				e.printStackTrace();
+			}
+			channelBuffer.writeBytes(str.getBytes());
+			break;
+		case 7:
+			try {
+				String s = "您儿子有消息了，请回应";
+				str = "{\"cmd\":\"/robot/push\",\"command\":{\"cmd\":\"emergency\",\"type\":\""
+						+ s + "\", \"angel\":\"0\",\"username\":\"" + params.getString("username") + "\"}}";
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+
+			channelBuffer = new DynamicChannelBuffer(ByteOrder.BIG_ENDIAN,
+					(12 + str.getBytes().length));
+			channelBuffer.writeByte((byte) 1);
+			for (int i = 0; i < 7; i++) {
+				channelBuffer.writeByte((byte) 0);
+			}
+			try {
+				channelBuffer
+						.writeBytes(int2Byte(str.getBytes("utf-8").length));
+			} catch (UnsupportedEncodingException e) {
+				e.printStackTrace();
+			}
+			channelBuffer.writeBytes(str.getBytes());
 			break;
 		default:
 			break;
@@ -723,7 +794,7 @@ public class NetUtil {
 			}
 		}
 
-		Log.d("request", request_content);
+		Log.i("request", request_content);
 		try {
 			channelBuffer = new DynamicChannelBuffer(ByteOrder.BIG_ENDIAN, 1024);
 		} catch (Throwable e1) {
@@ -765,7 +836,7 @@ public class NetUtil {
 			photo_operation = "{\"cmd\":\"/robot/push\",\"command\":{\"cmd\":\"photo_query\",\"type\":\"photo_query_original\",\"name\":\""
 					+ intent.getStringExtra("name") + "\"}}";
 		}
-		Log.d("request", photo_operation);
+		Log.i("request", photo_operation);
 		try {
 			channelBuffer = new DynamicChannelBuffer(ByteOrder.BIG_ENDIAN, 1024);
 		} catch (Throwable e1) {
@@ -791,7 +862,7 @@ public class NetUtil {
 		String robotinfo_operation = "{\"cmd\":\"/robot/flush\",\"rname\":\""
 				+ intent.getStringExtra("name") + "\"}";
 
-		Log.d("request", robotinfo_operation);
+		Log.i("request", robotinfo_operation);
 		try {
 			channelBuffer = new DynamicChannelBuffer(ByteOrder.BIG_ENDIAN, 1024);
 		} catch (Throwable e1) {

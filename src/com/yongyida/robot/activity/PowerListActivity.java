@@ -2,12 +2,8 @@ package com.yongyida.robot.activity;
 
 import android.animation.ObjectAnimator;
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -32,11 +28,11 @@ import com.yongyida.robot.utils.BroadcastReceiverRegister;
 import com.yongyida.robot.utils.Constants;
 import com.yongyida.robot.utils.StartUtil;
 import com.yongyida.robot.utils.ToastUtil;
-
-import java.util.List;
+import com.yongyida.robot.utils.Utils;
 
 public class PowerListActivity extends BaseActivity implements OnClickListener {
 
+	private static final String TAG = "PowerListActivity";
 	private RelativeLayout video_chat;
 	private RelativeLayout video_monitor;
 	private RelativeLayout power_task;
@@ -49,7 +45,7 @@ public class PowerListActivity extends BaseActivity implements OnClickListener {
 	private TextView mBattery;
 	private String mVersion;
 
-	@Override
+    @Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_power_list);
@@ -60,7 +56,7 @@ public class PowerListActivity extends BaseActivity implements OnClickListener {
 	private void initBase() {
 		more = (RelativeLayout) findViewById(R.id.more);
 		more.setOnClickListener(this);
-		more.setOnTouchListener(ontouch);
+	//	more.setOnTouchListener(ontouch);
 		power_title = (TextView) findViewById(R.id.power_title);
 		power_title.setOnClickListener(this);
 		power_setting = (RelativeLayout) findViewById(R.id.power_setting);
@@ -79,22 +75,26 @@ public class PowerListActivity extends BaseActivity implements OnClickListener {
 		power_task.setOnClickListener(this);
 		power_task.setOnTouchListener(ontouch);
 		mBattery = ((TextView) findViewById(R.id.tv_battery));
-		int battery = getIntent().getExtras().getInt("battery");
+
+
+        int battery = getIntent().getExtras().getInt("battery");
 		mVersion = getIntent().getExtras().getString("version");
 		setBattery(battery);
 		BroadcastReceiverRegister.reg(PowerListActivity.this, new String[]{Constants.BATTERY}, mBatteryBR);
+
+//		findViewById(R.id.rl).setOnClickListener(new OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                sendBroadcast(new Intent(Constants.QUESTIONNAIRE));
+//                ToastUtil.showtomain(PowerListActivity.this, getString(R.string.start_question));
+//            }
+//        });
 	}
 
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
-		try {
-			if (mBatteryBR != null) {
-				unregisterReceiver(mBatteryBR);
-			}
-		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
-		}
+		Utils.unRegisterReceiver(mBatteryBR, this);
 	}
 
 	private BroadcastReceiver mBatteryBR = new BroadcastReceiver() {
@@ -218,45 +218,7 @@ public class PowerListActivity extends BaseActivity implements OnClickListener {
 			});
 		}
 	};
-	private void doStartApplicationWithPackageName(String packagename) {
 
-		// 通过包名获取此APP详细信息，包括Activities、services、versioncode、name等等
-		PackageInfo packageinfo = null;
-		try {
-			packageinfo = getPackageManager().getPackageInfo(packagename, 0);
-		} catch (PackageManager.NameNotFoundException e) {
-			e.printStackTrace();
-		}
-		if (packageinfo == null) {
-			return;
-		}
-
-		// 创建一个类别为CATEGORY_LAUNCHER的该包名的Intent
-		Intent resolveIntent = new Intent(Intent.ACTION_MAIN, null);
-		resolveIntent.addCategory(Intent.CATEGORY_LAUNCHER);
-		resolveIntent.setPackage(packageinfo.packageName);
-
-		// 通过getPackageManager()的queryIntentActivities方法遍历
-		List<ResolveInfo> resolveinfoList = getPackageManager()
-				.queryIntentActivities(resolveIntent, 0);
-
-		ResolveInfo resolveinfo = resolveinfoList.iterator().next();
-		if (resolveinfo != null) {
-			// packagename = 参数packname
-			String packageName = resolveinfo.activityInfo.packageName;
-			// 这个就是我们要找的该APP的LAUNCHER的Activity[组织形式：packagename.mainActivityname]
-			String className = resolveinfo.activityInfo.name;
-			// LAUNCHER Intent
-			Intent intent = new Intent(Intent.ACTION_MAIN);
-			intent.addCategory(Intent.CATEGORY_LAUNCHER);
-
-			// 设置ComponentName参数1:packagename参数2:MainActivity路径
-			ComponentName cn = new ComponentName(packageName, className);
-
-			intent.setComponent(cn);
-			startActivity(intent);
-		}
-	}
 
 	@Override
 	public void onClick(View v) {
@@ -264,8 +226,14 @@ public class PowerListActivity extends BaseActivity implements OnClickListener {
 
 		switch (v.getId()) {
 		case R.id.more:
-		//	ToastUtil.showtomain(this, getString(R.string.waitting));
-			doStartApplicationWithPackageName("com.orvibo.homemate");
+//			Intent i = new Intent(Constants.EMERGENCY);
+//			i.putExtra("username", getSharedPreferences("userinfo", MODE_PRIVATE)
+//                    .getString("phonenumber", null));
+//            sendBroadcast(i);
+//			ToastUtil.showtomain(PowerListActivity.this, "消息已发送");
+			//    v.setBackgroundColor(getResources().getColor(R.color.transparent));
+			ToastUtil.showtomain(this, getString(R.string.waitting));
+		//	doStartApplicationWithPackageName("com.orvibo.homemate");
 		//	startActivity(new Intent(PowerListActivity.this,FriendsActivity.class));
 		//	startActivity(new Intent(this, DialByContactsActivity.class));
 			break;
@@ -291,6 +259,11 @@ public class PowerListActivity extends BaseActivity implements OnClickListener {
 			params.putString("flag", "main");
 			params.putString("version", mVersion);
 			StartUtil.startintent(this, SettingActivity.class, "no", params);
+//            Intent intent = new Intent(PowerListActivity.this, VoiceChatActivity.class);
+//            intent.putExtra("chatType", 1);
+//            intent.putExtra("userId", getSharedPreferences("Receipt", MODE_PRIVATE).getString("username", null).toLowerCase());
+//			startActivity(intent);
+			//	Log.e(TAG, "name:" + getSharedPreferences("Receipt", MODE_PRIVATE).getString("username", null));
 			break;
 		case R.id.power_task:
 			StartUtil.startintent(this, TaskRemindActivity.class, "no");
@@ -319,5 +292,6 @@ public class PowerListActivity extends BaseActivity implements OnClickListener {
 	public boolean onCreateOptionsMenu(Menu menu) {
 		return true;
 	}
+
 
 }

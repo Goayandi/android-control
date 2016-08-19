@@ -24,7 +24,6 @@ import com.yuntongxun.ecsdk.OnMeetingListener;
 import com.yuntongxun.ecsdk.SdkErrorCode;
 import com.yuntongxun.ecsdk.VideoRatio;
 import com.yuntongxun.ecsdk.im.ECMessageNotify;
-import com.yuntongxun.ecsdk.im.ECTextMessageBody;
 import com.yuntongxun.ecsdk.im.group.ECGroupNoticeMessage;
 import com.yuntongxun.ecsdk.meeting.intercom.ECInterPhoneMeetingMsg;
 import com.yuntongxun.ecsdk.meeting.video.ECVideoMeetingMsg;
@@ -55,7 +54,6 @@ public class SDKCoreHelper implements ECDevice.InitListener , ECDevice.OnLogoutL
     public static SoftUpdate mSoftUpdate;
     private List<OnMeetingListener> mOnMeetingListenerList;
     private List<OnChatReceiveListener> mOnChatReceiveListenerList;
-    private List<ECVoIPCallManager.OnVoIPListener> mOnVoIPListenerList;
 
 
     private Handler handler;
@@ -63,7 +61,6 @@ public class SDKCoreHelper implements ECDevice.InitListener , ECDevice.OnLogoutL
         initNotifyOptions();
         mOnChatReceiveListenerList = new ArrayList<OnChatReceiveListener>();
         mOnMeetingListenerList = new ArrayList<OnMeetingListener>();
-        mOnVoIPListenerList = new ArrayList<ECVoIPCallManager.OnVoIPListener>();
     }
 
     public static SDKCoreHelper getInstance() {
@@ -158,9 +155,6 @@ public class SDKCoreHelper implements ECDevice.InitListener , ECDevice.OnLogoutL
             ECDevice.getECMeetingManager().setOnMeetingListener(new MyOnMeetingListener());
         }
 
-        if(getVoIPCallManager() != null) {
-            getVoIPCallManager().setOnVoIPCallListener(new MyOnVoIPListener());
-        }
 
         // 构建注册所需要的参数信息
         //5.0.3的SDK初始参数的方法：ECInitParams params = new ECInitParams();
@@ -178,57 +172,13 @@ public class SDKCoreHelper implements ECDevice.InitListener , ECDevice.OnLogoutL
         // 3 LoginMode（强制上线：FORCE_LOGIN  默认登录：AUTO）
         params.setMode(ECInitParams.LoginMode.FORCE_LOGIN);
         ECDevice.login(params);
-        Log.d(TAG, "login");
-    }
-
-    public void registOnVoIPCallListener(ECVoIPCallManager.OnVoIPListener listener) {
-        if (mOnVoIPListenerList != null && !mOnVoIPListenerList.contains(listener)) {
-            mOnVoIPListenerList.add(listener);
-        }
-    }
-
-    public void unRegistOnVoIPCallListener(ECVoIPCallManager.OnVoIPListener listener) {
-        if (mOnVoIPListenerList != null && mOnVoIPListenerList.contains(listener)) {
-            mOnVoIPListenerList.remove(listener);
-        }
+        Log.i(TAG, "login");
     }
 
     public void setmBusyFlag(boolean mBusyFlag) {
         this.mBusyFlag = mBusyFlag;
     }
 
-    private class MyOnVoIPListener implements  ECVoIPCallManager.OnVoIPListener {
-
-        @Override
-        public void onDtmfReceived(String s, char c) {
-
-        }
-
-        @Override
-        public void onCallEvents(ECVoIPCallManager.VoIPCall voIPCall) {
-            if (mOnVoIPListenerList == null || mOnVoIPListenerList.size() == 0) {
-                return;
-            }
-            for (ECVoIPCallManager.OnVoIPListener listener : mOnVoIPListenerList) {
-                listener.onCallEvents(voIPCall);
-            }
-        }
-
-        @Override
-        public void onSwitchCallMediaTypeRequest(String s, ECVoIPCallManager.CallType callType) {
-
-        }
-
-        @Override
-        public void onSwitchCallMediaTypeResponse(String s, ECVoIPCallManager.CallType callType) {
-
-        }
-
-        @Override
-        public void onVideoRatioChanged(VideoRatio videoRatio) {
-
-        }
-    }
 
     private class MyOnChatReceiveListener implements OnChatReceiveListener {
 
@@ -236,19 +186,6 @@ public class SDKCoreHelper implements ECDevice.InitListener , ECDevice.OnLogoutL
         public void OnReceivedMessage(ECMessage ecMessage) {
             if(ecMessage.getType() == ECMessage.Type.TXT) {
                 // 在这里处理文本消息
-                ECTextMessageBody textMessageBody = (ECTextMessageBody) ecMessage.getBody();
-                if (textMessageBody != null) {
-                    if (!mBusyFlag) {
-                        if (ecMessage.getUserData().equals(Constants.MESSAGE_PREFIX + Constants.INVITE_MESSAGE)) {
-                            Intent intent = new Intent(mContext, InviteActivity.class);
-                            intent.putExtra(Constants.CALL_NO, ecMessage.getForm());
-                            intent.putExtra(Constants.CONFERENCE_ID, textMessageBody.getMessage());
-                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                            mContext.startActivity(intent);
-                            return;
-                        }
-                    }
-                }
             }
 
             if (mOnChatReceiveListenerList != null && mOnChatReceiveListenerList.size() != 0) {
@@ -366,14 +303,16 @@ public class SDKCoreHelper implements ECDevice.InitListener , ECDevice.OnLogoutL
         public void onConnectState(ECDevice.ECConnectState ecConnectState, ECError ecError) {
             getInstance().mConnect = ecConnectState;
             if (ecConnectState == ECDevice.ECConnectState.CONNECT_SUCCESS) {
-                Log.d(TAG, "CONNECT_SUCCESS");
+                Log.i(TAG, "CONNECT_SUCCESS");
+                mContext.sendBroadcast(new Intent(Constants.CONNECT_SUCCESS));
             } else if (ecConnectState == ECDevice.ECConnectState.CONNECTING) {
-                Log.d(TAG, "CONNECTING");
+                Log.i(TAG, "CONNECTING");
             } else if (ecConnectState == ECDevice.ECConnectState.CONNECT_FAILED) {
                 if (ecError.errorCode == SdkErrorCode.SDK_KICKED_OFF) {
-                    Log.e(TAG, "SDK_KICKED_OFF");
+                    Log.w(TAG, "SDK_KICKED_OFF");
+                    mContext.sendBroadcast(new Intent(Constants.RLY_KICK_OFF));
                 } else {
-                    Log.e(TAG, "CONNECT_FAILED");
+                    Log.i(TAG, "CONNECT_FAILED");
                 }
             }
         }
@@ -389,7 +328,7 @@ public class SDKCoreHelper implements ECDevice.InitListener , ECDevice.OnLogoutL
 
     @Override
     public void onLogout() {
-        Log.e(TAG, "logout success");
+        Log.i(TAG, "logout success");
         getInstance().mConnect = ECDevice.ECConnectState.CONNECT_FAILED;
         if(mInitParams != null && mInitParams.getInitParams() != null) {
             mInitParams.getInitParams().clear();

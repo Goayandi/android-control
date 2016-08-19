@@ -1,7 +1,5 @@
 package com.yongyida.robot.activity;
 
-import java.lang.reflect.Field;
-
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -11,6 +9,8 @@ import android.webkit.WebView;
 import android.widget.ZoomButtonsController;
 
 import com.yongyida.robot.R;
+
+import java.lang.reflect.Field;
 
 public class AboutActivity extends Activity {
 
@@ -25,6 +25,7 @@ public class AboutActivity extends Activity {
 		set.setJavaScriptEnabled(true);
 		set.setBuiltInZoomControls(true);
 		setZoomControlGone(about);	
+	//	about.loadUrl("http://www.gaojunkeji.com");
 		about.loadUrl(getString(R.string.about_url));
 	}
 

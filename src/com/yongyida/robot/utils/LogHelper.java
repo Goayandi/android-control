@@ -12,6 +12,7 @@ import java.io.InputStreamReader;
 
 public class LogHelper {
 
+	private static final String TAG = "LogHelper";
 	private static LogHelper INSTANCE = null;
 	private static String PATH_LOGCAT;
 	private LogDumper mLogDumper = null;
@@ -117,7 +118,7 @@ public class LogHelper {
 					if (out != null && line.contains(mPID)
 							&& !line.contains("println needs a message")
 							&& !line.contains("SMACK-Voe")
-							&& !line.contains("boolean org.jboss.netty.channel.Channel.isConnected()")
+							&& !line.contains("org.jboss.netty.channel.Channel.isConnected")
 							&& !line.contains("Reading a NULL string not supported here")
 							) {
 						out.write((System.currentTimeMillis() + "  " + line + "\n")

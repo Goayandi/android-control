@@ -7,23 +7,23 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
 import android.os.Message;
 import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
+import android.util.Log;
 import android.view.Menu;
 
 import com.yongyida.robot.R;
-import com.yongyida.robot.ronglianyun.SDKCoreHelper;
+import com.yongyida.robot.service.SocketService;
 import com.yongyida.robot.service.UpdateService;
 import com.yongyida.robot.utils.Constants;
 import com.yongyida.robot.utils.HandlerUtil;
 import com.yongyida.robot.utils.NetUtil;
-import com.yongyida.robot.utils.NetUtil.callback;
 import com.yongyida.robot.utils.StartUtil;
 import com.yongyida.robot.utils.ThreadPool;
 import com.yongyida.robot.utils.Utils;
 import com.yongyida.robot.utils.XmlUtil;
+import com.yongyida.robot.video.comm.log;
 
 import org.json.JSONObject;
 
@@ -34,10 +34,11 @@ public class WelComeActivity extends BaseActivity {
 	private static final String TAG = "WelComeActivity";
 	private String address;
 	private String fotaAddress;
+	private Timer timer;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		SDKCoreHelper.init(this);
 	}
 
 	private AlertDialog alert;
@@ -77,6 +78,9 @@ public class WelComeActivity extends BaseActivity {
 			StartUtil.startintent(WelComeActivity.this, GuideActivity.class,
 					"finish");
 		} else if (msg.what == 2) {
+//			StartUtil.startintent(WelComeActivity.this, GuideActivity.class,
+//					"finish");
+//			return;
 			ThreadPool.execute(new Runnable() {
 
 				@Override
@@ -88,7 +92,7 @@ public class WelComeActivity extends BaseActivity {
 								NetUtil.getinstance().downloadfile(
 										WelComeActivity.this,
 										address,
-										new callback() {
+										new NetUtil.callback() {
 
 											@Override
 											public void success(JSONObject json) {
@@ -114,7 +118,7 @@ public class WelComeActivity extends BaseActivity {
 									android.R.anim.fade_out);
 							finish();
 						}
-					} catch (NameNotFoundException e) {
+					} catch (PackageManager.NameNotFoundException e) {
 						e.printStackTrace();
 						HandlerUtil.sendmsg(handler, e.getMessage(), 1);
 					}
@@ -122,29 +126,29 @@ public class WelComeActivity extends BaseActivity {
 				}
 			});
 
-			ThreadPool.execute(new Runnable() {
-
-				@Override
-				public void run() {
-					String version = XmlUtil.xmlFota(
-							NetUtil.getinstance().downloadfile(
-									WelComeActivity.this,
-									fotaAddress,
-									new callback() {
-
-										@Override
-										public void success(JSONObject json) {
-
-										}
-
-										@Override
-										public void error(String errorresult) {
-										}
-									}), XmlUtil.Y50B, XmlUtil.YYD);
-					getSharedPreferences("Receipt", MODE_PRIVATE).edit().putString("fota", version).apply();
-
-				}
-			});
+//			ThreadPool.execute(new Runnable() {
+//
+//				@Override
+//				public void run() {
+//					String version = XmlUtil.xmlFota(
+//							NetUtil.getinstance().downloadfile(
+//									WelComeActivity.this,
+//									fotaAddress,
+//									new NetUtil.callback() {
+//
+//										@Override
+//										public void success(JSONObject json) {
+//
+//										}
+//
+//										@Override
+//										public void error(String errorresult) {
+//										}
+//									}), XmlUtil.Y50B, XmlUtil.YYD);
+//					getSharedPreferences("Receipt", MODE_PRIVATE).edit().putString("fota", version).apply();
+//
+//				}
+//			});
 		}
 		super.onHandlerMessage(msg);
 	}
@@ -156,22 +160,26 @@ public class WelComeActivity extends BaseActivity {
 		return true;
 	}
 
-
-	@Override
+    @Override
 	public void initlayout(OnRefreshListener onRefreshListener) {
 		setContentView(R.layout.activity_wel_come);
 //		String stateCode = getSharedPreferences("Receipt", MODE_PRIVATE).getString("state_code", null);
 //		if (Constants.HK_CODE.equals(stateCode))
+		if (Utils.isServiceRunning(this, SocketService.class.getCanonicalName())) {
+			Log.i(TAG, "service start");
+		}
 		String serverState = getSharedPreferences("net_state", MODE_PRIVATE).getString("state",null);
 		if (serverState != null && !serverState.equals("official")){
 			Utils.switchServer(Utils.TEST);
 		} else {
 			Utils.switchServer(Utils.CN);
 		}
-
+        Runtime rt=Runtime.getRuntime();
+        long maxMemory=rt.maxMemory();
+        log.i("maxMemory:", Long.toString(maxMemory / (1024 * 1024)));
 		address = Constants.download_address;
 		fotaAddress = Constants.download_fota_address;
-		Timer timer = new Timer();
+		timer = new Timer();
 		timer.schedule(new TimerTask() {
 			@Override
 			public void run() {
@@ -180,4 +188,13 @@ public class WelComeActivity extends BaseActivity {
 		}, 1000);
 	}
 
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		if (timer != null) {
+			timer.cancel();
+			timer = null;
+		}
+		handler.removeCallbacksAndMessages(null);
+	}
 }

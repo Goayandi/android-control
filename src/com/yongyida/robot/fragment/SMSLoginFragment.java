@@ -476,7 +476,7 @@ public class SMSLoginFragment extends BaseFragment implements View.OnClickListen
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
         }
-
+        handler.removeCallbacksAndMessages(null);
     }
 
 }

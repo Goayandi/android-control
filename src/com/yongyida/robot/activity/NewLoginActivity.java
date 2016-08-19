@@ -83,6 +83,7 @@ public class NewLoginActivity extends FragmentActivity implements OnCheckedChang
         }
         if (System.currentTimeMillis() - starttime < 500) {
             starttime = System.currentTimeMillis();
+            Log.i(TAG, "index_mode:" + index_mode);
             index_mode++;
         } else {
             index_mode = 0;

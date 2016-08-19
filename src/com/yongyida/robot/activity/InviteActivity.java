@@ -8,8 +8,11 @@ import android.media.SoundPool;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.PowerManager;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -17,6 +20,7 @@ import com.yongyida.robot.R;
 import com.yongyida.robot.ronglianyun.SDKCoreHelper;
 import com.yongyida.robot.utils.Constants;
 import com.yongyida.robot.utils.ToastUtil;
+import com.yongyida.robot.utils.Utils;
 import com.yongyida.robot.video.comm.log;
 import com.yuntongxun.ecsdk.ECChatManager;
 import com.yuntongxun.ecsdk.ECDevice;
@@ -24,6 +28,7 @@ import com.yuntongxun.ecsdk.ECError;
 import com.yuntongxun.ecsdk.ECMessage;
 import com.yuntongxun.ecsdk.ECVoIPCallManager;
 import com.yuntongxun.ecsdk.OnChatReceiveListener;
+import com.yuntongxun.ecsdk.SdkErrorCode;
 import com.yuntongxun.ecsdk.VideoRatio;
 import com.yuntongxun.ecsdk.im.ECMessageNotify;
 import com.yuntongxun.ecsdk.im.ECTextMessageBody;
@@ -42,11 +47,11 @@ public class InviteActivity extends Activity implements View.OnClickListener {
     /**
      * 呼叫唯一标识号
      */
- //   protected String mCallId;
+    protected String mCallId;
     /**
      * 通话号码
      */
- //   protected String mCallNumber;
+    protected String mCallNumber;
     /**
      * 会议id
      **/
@@ -72,40 +77,55 @@ public class InviteActivity extends Activity implements View.OnClickListener {
     private Button mAcceptBT;
     private Button mRefuseBT;
     private OnChatReceiveListener mOnChatReceiveListener;
+    private final static String SCREEN_ON = "screen_on";
+    private PowerManager.WakeLock mWakeLock;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_invite);
-    //    mCallId = getIntent().getStringExtra(ECDevice.CALLID);
-    //    mCallNumber = getIntent().getStringExtra(ECDevice.CALLER);
-        mCallName = getIntent().getStringExtra(Constants.CALL_NO);
-        mConferenceId = getIntent().getStringExtra(Constants.CONFERENCE_ID);
-//        String[] infos = getIntent().getExtras().getStringArray(ECDevice.REMOTE);
-//        mAccount = Utils.getAccount(this);
-//        mConferenceId = "";
-//        for (String s : infos) {
-//            if (s.startsWith("confid=")) {
-//                mConferenceId = s.substring(7);
-//            }
-//            if (s.startsWith("dpname=")) {
-//                mCallName = s.substring(7);
-//            }
-//        }
+        mCallId = getIntent().getStringExtra(ECDevice.CALLID);
+        mCallNumber = getIntent().getStringExtra(ECDevice.CALLER);
+
+//        mCallName = getIntent().getStringExtra(Constants.CALL_NO);
+//        mConferenceId = getIntent().getStringExtra(Constants.CONFERENCE_ID);
+
+        String[] infos = getIntent().getExtras().getStringArray(ECDevice.REMOTE);
+        mAccount = Utils.getAccount(this);
+        mConferenceId = "";
+        for (String s : infos) {
+            if (s.startsWith("confid=")) {
+                mConferenceId = s.substring(7);
+            }
+            if (s.startsWith("dpname=")) {
+                mCallName = s.substring(7);
+            }
+        }
+
         init();
         mOnVoIPListener = new MyOnVoIPListener();
         mOnChatReceiveListener = new MyOnChatReceiveListener();
-        SDKCoreHelper.getInstance().registOnVoIPCallListener(mOnVoIPListener);
+        ECDevice.getECVoIPCallManager().setOnVoIPCallListener(mOnVoIPListener);
         SDKCoreHelper.getInstance().registOnChatReceiveListener(mOnChatReceiveListener);
         playCallSound();
         mTimer = new Timer();
         mTimer.schedule(new TimerTask() {
             @Override
             public void run() {
-                stopCallSound();
-                finish();
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        hangup();
+                    }
+                });
             }
-        }, 50000);
+        }, 25000);
+        PowerManager pm =(PowerManager) getSystemService(POWER_SERVICE);
+        mWakeLock = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP,
+                SCREEN_ON);
+        mWakeLock.acquire();
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD,
+                WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
     }
 
     private void init() {
@@ -141,7 +161,7 @@ public class InviteActivity extends Activity implements View.OnClickListener {
                 case ECCALL_FAILED:
                     break;
                 case ECCALL_RELEASED:
-                    //    finish();
+                    finish();
                     break;
                 default:
                     break;
@@ -207,12 +227,20 @@ public class InviteActivity extends Activity implements View.OnClickListener {
     }
 
     private void enterMeetingRoom() {
-        Intent intent = new Intent(this, TestMeetingActivity.class);
-        intent.putExtra(Constants.HOST, false);
-        intent.putExtra(Constants.CONFERENCE_ID, mConferenceId);
-    //    intent.putExtra(Constants.CALL_ID, mCallId);
-        intent.putExtra(Constants.CALL_NAME, mCallName);
-        startActivity(intent);
+        if (TextUtils.isEmpty(mConferenceId)) {
+            Intent intent = new Intent(this, MonitoringActivity.class);
+            intent.putExtra(Constants.CALL_ID, mCallId);
+            intent.putExtra(Constants.IS_VIDEO, true);
+            startActivity(intent);
+        } else {
+            Intent intent = new Intent(this, TestMeetingActivity.class);
+            intent.putExtra(Constants.HOST, false);
+            intent.putExtra(Constants.CONFERENCE_ID, mConferenceId);
+            intent.putExtra(Constants.CALL_ID, mCallId);
+            intent.putExtra(Constants.CALL_NAME, mCallName);
+            startActivity(intent);
+        }
+
         finish();
     }
 
@@ -220,22 +248,32 @@ public class InviteActivity extends Activity implements View.OnClickListener {
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_accept:
-                mAcceptBT.setEnabled(false);
-                //    SDKCoreHelper.getVoIPCallManager().acceptCall(mCallId);
-                sendAcceptMessage(mCallName);
-                stopCallSound();
-                enterMeetingRoom();
+                accept();
                 break;
             case R.id.btn_refuse:
-                mRefuseBT.setEnabled(false);
-                //    SDKCoreHelper.getVoIPCallManager().rejectCall(mCallId, SdkErrorCode.REMOTE_CALL_BUSY);
-                stopCallSound();
-                sendRejectMessage(mCallName);
-                finish();
+                hangup();
                 break;
             default:
                 break;
         }
+    }
+
+    private void accept(){
+        mAcceptBT.setEnabled(false);
+        mRefuseBT.setEnabled(false);
+        SDKCoreHelper.getVoIPCallManager().acceptCall(mCallId);
+        //    sendAcceptMessage(mCallName);
+        stopCallSound();
+        enterMeetingRoom();
+    }
+
+    private void hangup(){
+        mAcceptBT.setEnabled(false);
+        mRefuseBT.setEnabled(false);
+        SDKCoreHelper.getVoIPCallManager().rejectCall(mCallId, SdkErrorCode.REMOTE_CALL_BUSY);
+        stopCallSound();
+        //    sendRejectMessage(mCallName);
+        finish();
     }
 
     /**
@@ -334,15 +372,15 @@ public class InviteActivity extends Activity implements View.OnClickListener {
         public void OnReceivedMessage(ECMessage ecMessage) {
             if (ecMessage.getType() == ECMessage.Type.TXT) {
                 // 在这里处理文本消息
-                ECTextMessageBody textMessageBody = (ECTextMessageBody) ecMessage.getBody();
-                if (textMessageBody != null) {
-                    if (ecMessage.getUserData().equals(Constants.MESSAGE_PREFIX + Constants.MEETING_CANCEL_INVITE)) {
-                        if (textMessageBody.getMessage().equals(mConferenceId)) {
-                            finish();
-                        }
-                    }
-
-                }
+//                ECTextMessageBody textMessageBody = (ECTextMessageBody) ecMessage.getBody();
+//                if (textMessageBody != null) {
+//                    if (ecMessage.getUserData().equals(Constants.MESSAGE_PREFIX + Constants.MEETING_CANCEL_INVITE)) {
+//                        if (textMessageBody.getMessage().equals(mConferenceId)) {
+//                            finish();
+//                        }
+//                    }
+//
+//                }
             }
         }
 
@@ -395,12 +433,14 @@ public class InviteActivity extends Activity implements View.OnClickListener {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        if (mWakeLock != null) {
+            mWakeLock.release();
+        }
         if (mTimer != null) {
             mTimer.cancel();
             mTimer = null;
         }
         stopCallSound();
         SDKCoreHelper.getInstance().unRegistOnChatReceiveListener(mOnChatReceiveListener);
-        SDKCoreHelper.getInstance().unRegistOnVoIPCallListener(mOnVoIPListener);
     }
 }

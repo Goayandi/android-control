@@ -19,7 +19,7 @@ import android.content.Context;
 import android.content.Intent;
 
 import com.easemob.util.EMLog;
-import com.yongyida.robot.activity.ControlActivity;
+import com.yongyida.robot.activity.InviteHuanxinActivity;
 
 public class CallReceiver extends BroadcastReceiver{
 
@@ -32,7 +32,7 @@ public class CallReceiver extends BroadcastReceiver{
 		//call type
 		String type = intent.getStringExtra("type");
 		if("video".equals(type)){ //视频通话
-		    context.startActivity(new Intent(context, ControlActivity.class).
+		    context.startActivity(new Intent(context, InviteHuanxinActivity.class).
                     putExtra("username", from).putExtra("isComingCall", true).
                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
 		}else{ //音频通话

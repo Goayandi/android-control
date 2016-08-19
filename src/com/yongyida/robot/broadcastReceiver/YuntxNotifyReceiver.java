@@ -113,6 +113,7 @@ public class YuntxNotifyReceiver extends ECNotifyReceiver {
 
     @Override
     public void onCallArrived(Context context, Intent intent) {
+        Log.e(TAG,"com.yongyida.robot.broadcastReceiver.YuntxNotifyReceiver.NotifyService");
         Intent serviceAction = buildServiceAction(EVENT_TYPE_CALL);
         serviceAction.putExtras(intent);
         context.startService(serviceAction);
@@ -153,11 +154,13 @@ public class YuntxNotifyReceiver extends ECNotifyReceiver {
 
 
     public static class NotifyService extends Service {
+
         @Override
         public IBinder onBind(Intent intent) {
             return null;
         }
         private void receiveImp(Intent intent) {
+            Log.e(TAG, "NotifyService receiveImp");
             if(intent == null) {
                 Log.e(TAG, "receiveImp receiveIntent == null");
                 return ;
@@ -174,6 +177,7 @@ public class YuntxNotifyReceiver extends ECNotifyReceiver {
             switch (optCode) {
                 case EVENT_TYPE_CALL:
                     Log.e(TAG, "receive call event ");
+                    //TODO
 //                    Intent call = new Intent(this ,InviteActivity.class);
 //                    call.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 //                    call.putExtras(intent);
@@ -197,6 +201,7 @@ public class YuntxNotifyReceiver extends ECNotifyReceiver {
         // Android 2.0以上版本回调/同时会执行onStart方法
         @Override
         public int onStartCommand(Intent intent, int flags, int startId) {
+            Log.e(TAG, "onStartCommand");
             Log.v(TAG, String.format("onStartCommand flags :%d startId :%d intent %s", flags, startId, intent));
             receiveImp(intent);
             return super.onStartCommand(intent, flags, startId);

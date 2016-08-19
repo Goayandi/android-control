@@ -9,6 +9,7 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.yongyida.robot.R;
@@ -17,6 +18,7 @@ import com.yongyida.robot.activity.TaskRemindActivity;
 import com.yongyida.robot.bean.Remind;
 import com.yongyida.robot.utils.Constants;
 import com.yongyida.robot.utils.ToastUtil;
+import com.yongyida.robot.widget.ModifyRobotNameDialog;
 import com.yongyida.robot.widget.RobotDialog;
 
 import java.text.SimpleDateFormat;
@@ -25,7 +27,7 @@ import java.util.Calendar;
 /**
  * Created by Administrator on 2016/6/27 0027.
  */
-public class NewAddRemindFragment extends Fragment implements AddTaskActivity.onChooseListener {
+public class NewAddRemindFragment extends Fragment implements AddTaskActivity.onChooseListener ,View.OnClickListener{
     public static final String DATEPICKER_TAG = "datepicker";
     public static final String TIMEPICKER_TAG = "timepicker";
     private TextView date;
@@ -38,6 +40,7 @@ public class NewAddRemindFragment extends Fragment implements AddTaskActivity.on
     private Calendar settime;
     boolean dateflag = false;
     boolean timeflag = false;
+    private ModifyRobotNameDialog mDialog;
 
     @SuppressLint("SimpleDateFormat")
     @Override
@@ -49,6 +52,8 @@ public class NewAddRemindFragment extends Fragment implements AddTaskActivity.on
         time = (TextView) v.findViewById(R.id.tv_remind_time);
         taskcontent = (TextView) v.findViewById(R.id.tv_remind_content);
         edit_title = (TextView) v.findViewById(R.id.tv_remind_title);
+        RelativeLayout contentRL = (RelativeLayout) v.findViewById(R.id.rl_content);
+        contentRL.setOnClickListener(this);
         if (state.equals(Constants.Update)) {
             task = getActivity().getIntent().getParcelableExtra("task");
             settime = Calendar.getInstance();
@@ -199,5 +204,26 @@ public class NewAddRemindFragment extends Fragment implements AddTaskActivity.on
     public void onChoose(String text) {
         edit_title.setText(text);
 
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.rl_content:
+                mDialog = new ModifyRobotNameDialog(getActivity(), new ModifyRobotNameDialog.OnSaveListener() {
+                    @Override
+                    public void save(String name) {
+                        if (TextUtils.isEmpty(name)) {
+                            taskcontent.setText("");
+                        } else {
+                            taskcontent.setText(name);
+                        }
+                        mDialog.dismiss();
+                    }
+                }, taskcontent.getText().toString());
+                mDialog.setTitle(getString(R.string.remind_content));
+                mDialog.show();
+                break;
+        }
     }
 }

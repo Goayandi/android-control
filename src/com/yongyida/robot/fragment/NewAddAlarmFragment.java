@@ -2,18 +2,17 @@ package com.yongyida.robot.fragment;
 
 import android.app.Fragment;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.CompoundButton;
-import android.widget.EditText;
+import android.widget.TextView;
 
 import com.yongyida.robot.R;
 import com.yongyida.robot.activity.AddTaskActivity;
+import com.yongyida.robot.activity.ChooseWeekActivity;
 import com.yongyida.robot.activity.TaskRemindActivity;
 import com.yongyida.robot.bean.Alarm;
 import com.yongyida.robot.utils.Constants;
@@ -28,29 +27,18 @@ import java.util.Calendar;
  * Created by Administrator on 2016/6/29 0029.
  */
 public class NewAddAlarmFragment extends Fragment implements View.OnClickListener,
-        AddTaskActivity.onChooseListener {
-    private Calendar calendar;
-    private boolean timeflag;
-    private Button alarmtime;
-    private Button zhou1;
-    private Button zhou2;
-    private Button zhou3;
-    private Button zhou4;
-    private Button zhou5;
-    private Button zhou6;
-    private Button zhou7;
-    private boolean[] bs = new boolean[] { false, false, false, false, false,
-            false, false };
-
+        AddTaskActivity.onChooseListener{
+    private static final int REQUEST_CODE = 1;
+    private static final int Sunday = 7;
     private Calendar settime;
     private String state;
-    private EditText edit_title;
-    private EditText edit_content;
+    private TextView mTVTitle;
+    private TextView mTVTime;
+    private TextView mTVWeek;
     private Alarm alarm;
     private int index;
-    private static final int Sunday = 7;
-
-    private SwitchButton switchbutton;
+    private String mWeeksString;
+    private SwitchButton mSwitchButton;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -59,29 +47,14 @@ public class NewAddAlarmFragment extends Fragment implements View.OnClickListene
                 R.layout.fragment_add_alarm, null);
         state = getActivity().getIntent().getExtras().getString("state");
         Log.i("state", state);
-        calendar = Calendar.getInstance();
-        alarmtime = (Button) v.findViewById(R.id.alarm_time);
-        edit_title = (EditText) v.findViewById(R.id.task_title_alarm);
-        edit_content = (EditText) v.findViewById(R.id.task_content_alarm);
-        switchbutton = (SwitchButton) v.findViewById(R.id.isaways_setting);
-        switchbutton.setOnCheckedChangeListener(onCheckedChangeListener);
-        zhou1 = (Button) v.findViewById(R.id.zhou1);
-        zhou1.setOnClickListener(this);
-        zhou2 = (Button) v.findViewById(R.id.zhou2);
-        zhou2.setOnClickListener(this);
-        zhou3 = (Button) v.findViewById(R.id.zhou3);
-        zhou3.setOnClickListener(this);
-        zhou4 = (Button) v.findViewById(R.id.zhou4);
-        zhou4.setOnClickListener(this);
-        zhou5 = (Button) v.findViewById(R.id.zhou5);
-        zhou5.setOnClickListener(this);
-        zhou6 = (Button) v.findViewById(R.id.zhou6);
-        zhou6.setOnClickListener(this);
-        zhou7 = (Button) v.findViewById(R.id.zhou7);
-        zhou7.setOnClickListener(this);
+        mTVTime = (TextView) v.findViewById(R.id.tv_alarm_time);
+        mTVWeek = (TextView) v.findViewById(R.id.tv_week);
+        mTVTitle = (TextView) v.findViewById(R.id.tv_alarm_title);
+        mSwitchButton = (SwitchButton) v.findViewById(R.id.isaways_setting);
+        v.findViewById(R.id.rl_week).setOnClickListener(this);
         if (state.equals(Constants.Update)) {
             alarm = getActivity().getIntent().getParcelableExtra("task");
-            edit_title.setText(alarm.getTitle());
+            mTVTitle.setText(alarm.getTitle());
             settime = Calendar.getInstance();
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm:ss");
             try {
@@ -91,94 +64,78 @@ public class NewAddAlarmFragment extends Fragment implements View.OnClickListene
             }
             if (settime.get(Calendar.HOUR_OF_DAY) >= 10
                     && settime.get(Calendar.MINUTE) >= 10) {
-                alarmtime.setText(settime.get(Calendar.HOUR_OF_DAY) + ":"
+                mTVTime.setText(settime.get(Calendar.HOUR_OF_DAY) + ":"
                         + settime.get(Calendar.MINUTE));
             } else if (settime.get(Calendar.HOUR_OF_DAY) < 10
                     && settime.get(Calendar.MINUTE) >= 10) {
-                alarmtime.setText("0"+settime.get(Calendar.HOUR_OF_DAY) + ":"
+                mTVTime.setText("0"+settime.get(Calendar.HOUR_OF_DAY) + ":"
                         + settime.get(Calendar.MINUTE));
             }else if(settime.get(Calendar.HOUR_OF_DAY) >= 10
                     && settime.get(Calendar.MINUTE) < 10){
-                alarmtime.setText(settime.get(Calendar.HOUR_OF_DAY) + ":"
+                mTVTime.setText(settime.get(Calendar.HOUR_OF_DAY) + ":"
                         +"0"+ settime.get(Calendar.MINUTE));
             }else{
-                alarmtime.setText("0"+settime.get(Calendar.HOUR_OF_DAY) + ":"
+                mTVTime.setText("0"+settime.get(Calendar.HOUR_OF_DAY) + ":"
                         +"0"+ settime.get(Calendar.MINUTE));
             }
-            edit_content.setText(alarm.getContent() + "");
-            if (alarm.getIsaways() == 0) {
-                switchbutton.setChecked(false);
+            if (alarm.getIsaways() == 1) {
+                mSwitchButton.setChecked(true);
             } else {
-                switchbutton.setChecked(true);
+                mSwitchButton.setChecked(false);
             }
-//			edit_title.setText("闹钟");
-            setweek(alarm.getWeek());
-            timeflag = true;
+            mWeeksString = alarm.getWeek();
             index = getActivity().getIntent().getExtras().getInt("index");
         } else {
             alarm = new Alarm();
-            alarm.setIsaways(1);
             settime = Calendar.getInstance();
         }
+        setWeek();
 
         return v;
     }
 
-    public void setweek(String week) {
-        String[] weeks = week.split(",");
-        for (int i = 0; i < weeks.length; i++) {
-            switch (Integer.parseInt(weeks[i])) {
-                case 1:
-                    bs[0] = true;
-                    zhou1.setBackgroundColor(Color.parseColor("#00C5CD"));
-                    break;
-                case 2:
-                    bs[1] = true;
-                    zhou2.setBackgroundColor(Color.parseColor("#00C5CD"));
-                    break;
-                case 3:
-                    bs[2] = true;
-                    zhou3.setBackgroundColor(Color.parseColor("#00C5CD"));
-                    break;
-                case 4:
-                    bs[3] = true;
-                    zhou4.setBackgroundColor(Color.parseColor("#00C5CD"));
-                    break;
-                case 5:
-                    bs[4] = true;
-                    zhou5.setBackgroundColor(Color.parseColor("#00C5CD"));
-                    break;
-                case 6:
-                    bs[5] = true;
-                    zhou6.setBackgroundColor(Color.parseColor("#00C5CD"));
-                    break;
-                case 7:
-                    bs[6] = true;
-                    zhou7.setBackgroundColor(Color.parseColor("#00C5CD"));
-                    break;
-                default:
-                    break;
-            }
+    private void setWeekText() {
+        String[] weeks = mWeeksString.split(",");
+        String text = "";
+        for (String s : weeks) {
+            text += getWeekText(s) + " ";
         }
+        mTVWeek.setText(text);
     }
 
-    private CompoundButton.OnCheckedChangeListener onCheckedChangeListener = new CompoundButton.OnCheckedChangeListener() {
-
-        @Override
-        public void onCheckedChanged(CompoundButton arg0, boolean is) {
-            if (is) {
-                alarm.setIsaways(1);
-            } else {
-                alarm.setIsaways(0);
-            }
+    private String getWeekText(String i){
+        if (i.equals("1")) {
+            return getString(R.string.monday);
+        } else if (i.equals("2")) {
+            return getString(R.string.tuesday);
+        } else if (i.equals("3")) {
+            return getString(R.string.wednesday);
+        } else if (i.equals("4")) {
+            return getString(R.string.thursday);
+        } else if (i.equals("5")) {
+            return getString(R.string.friday);
+        } else if (i.equals("6")) {
+            return getString(R.string.saturday);
+        } else if (i.equals("7")) {
+            return getString(R.string.sunday);
         }
-    };
+        return "";
+    }
 
     @Override
     public void onOver() {
+        String title = mTVTitle.getText().toString().trim();
+        if (TextUtils.isEmpty(mTVTime.getText().toString())) {
+            ToastUtil.showtomain(getActivity(), getActivity().getString(R.string.choose_time));
+            return;
+        }
+        if (TextUtils.isEmpty(mTVTitle.getText().toString())) {
+            ToastUtil.showtomain(getActivity(), getActivity().getString(R.string.input_title));
+            return;
+        }
+
+        boolean[] bs = getChooseWeekArr();
         Calendar calendar = Calendar.getInstance();
-        StringBuilder stringBuilder = new StringBuilder();
-        // {星期日，星期一，星期二，星期三，星期四，星期五，星期六} === {1,2,3,4,5,6,7}
         int currnweek = calendar.get(Calendar.DAY_OF_WEEK) - 1 == 0 ? Sunday
                 : calendar.get(Calendar.DAY_OF_WEEK) - 1;
         boolean fg = true;         //是否没选小于当前星期的星期值    false选了  true没选
@@ -204,7 +161,6 @@ public class NewAddAlarmFragment extends Fragment implements View.OnClickListene
                 } else {
                     fg = fg && true;
                 }
-                stringBuilder.append((i + 1) + ",");
             }
         }
 
@@ -213,43 +169,18 @@ public class NewAddAlarmFragment extends Fragment implements View.OnClickListene
             return;
         }
 
-        Log.i("settime", settime.get(Calendar.DATE) + "DATE");
-        Log.i("settime", settime.get(Calendar.HOUR_OF_DAY) + "HOUR_OF_DAY");
-        Log.i("settime", settime.get(Calendar.MINUTE) + "MINUTE");
-        Log.i("settime", settime.get(Calendar.WEEK_OF_MONTH) + "WEEK_OF_MONTH");
-
-        if (!timeflag) {
-            ToastUtil.showtomain(getActivity(), getActivity().getString(R.string.choose_time));
-            return;
-        }
-        if(alarm.getIsaways() == 0){
+        if(!mSwitchButton.isChecked()){
             if(!fg){        //如果星期都是
                 ToastUtil.showtomain(getActivity(), getActivity().getString(R.string.exist_time_expire));
                 return;
             }
         }
 
-        String zhou = null;
-        if (stringBuilder.length() != 0) {
-            zhou = stringBuilder.toString();
-            zhou = zhou.substring(0, zhou.length() - 1);
-        } else {
-            return;
-        }
-        String title = edit_title.getText().toString().trim();
-        String content = edit_content.getText().toString().trim();
-        // if ("".equals(title)) {
-        // ToastUtil.showtomain(getActivity(), "请输入标题");
-        // return;
-        // }
-        // if ("".equals(content)) {
-        // ToastUtil.showtomain(getActivity(), "请输入内容");
-        // return;
-        // }
-        alarm.setContent(content);
+        int repeat = mSwitchButton.isChecked() ? 1 : 0;
+        alarm.setWeek(mWeeksString);
+        alarm.setIsaways(repeat);
         alarm.setTitle(title);
-        alarm.setWeek(zhou);
-        alarm.setSettime(alarmtime.getText().toString());
+        alarm.setSettime(mTVTime.getText().toString());
         Intent in = new Intent();
         Intent intent = new Intent(getActivity(), TaskRemindActivity.class);
         intent.putExtra("task", alarm);
@@ -266,6 +197,15 @@ public class NewAddAlarmFragment extends Fragment implements View.OnClickListene
 
     }
 
+    private boolean[] getChooseWeekArr() {
+        boolean[] weekArrBoolean = new boolean[7];
+        String[] weekArrString = mWeeksString.split(",");
+        for (int i = 0; i < weekArrString.length; i++) {
+            weekArrBoolean[Integer.parseInt(weekArrString[i]) - 1] = true;
+        }
+        return weekArrBoolean;
+    }
+
     @Override
     public void onDate(int year, int monthOfYear, int dayOfMonth) {
 
@@ -275,7 +215,6 @@ public class NewAddAlarmFragment extends Fragment implements View.OnClickListene
     public void onTime(int hourOfDay, int minute) {
         settime.set(Calendar.HOUR_OF_DAY, hourOfDay);
         settime.set(Calendar.MINUTE, minute);
-        timeflag = true;
         String hour = "";
         String min = "";
         if (hourOfDay < 10) {
@@ -288,67 +227,16 @@ public class NewAddAlarmFragment extends Fragment implements View.OnClickListene
         } else {
             min = "" + minute;
         }
-        alarmtime.setText(hour + ":" + min);
+        mTVTime.setText(hour + ":" + min);
     }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.zhou1:
-                toggle_click(v, bs[0]);
-                if (bs[0]) {
-                    bs[0] = false;
-                } else {
-                    bs[0] = true;
-                }
-                break;
-            case R.id.zhou2:
-                toggle_click(v, bs[1]);
-                if (bs[1]) {
-                    bs[1] = false;
-                } else {
-                    bs[1] = true;
-                }
-                break;
-            case R.id.zhou3:
-                toggle_click(v, bs[2]);
-                if (bs[2]) {
-                    bs[2] = false;
-                } else {
-                    bs[2] = true;
-                }
-                break;
-            case R.id.zhou4:
-                toggle_click(v, bs[3]);
-                if (bs[3]) {
-                    bs[3] = false;
-                } else {
-                    bs[3] = true;
-                }
-                break;
-            case R.id.zhou5:
-                toggle_click(v, bs[4]);
-                if (bs[4]) {
-                    bs[4] = false;
-                } else {
-                    bs[4] = true;
-                }
-                break;
-            case R.id.zhou6:
-                toggle_click(v, bs[5]);
-                if (bs[5]) {
-                    bs[5] = false;
-                } else {
-                    bs[5] = true;
-                }
-                break;
-            case R.id.zhou7:
-                toggle_click(v, bs[6]);
-                if (bs[6]) {
-                    bs[6] = false;
-                } else {
-                    bs[6] = true;
-                }
+            case R.id.rl_week:
+                Intent intent = new Intent(getActivity(), ChooseWeekActivity.class);
+                intent.putExtra(Constants.CHOOSED_WEEK, mWeeksString);
+                startActivityForResult(intent, REQUEST_CODE);
                 break;
             default:
                 break;
@@ -356,18 +244,31 @@ public class NewAddAlarmFragment extends Fragment implements View.OnClickListene
     }
 
     @Override
-    public void onChoose(String text) {
-        edit_title.setText(text);
-
-    }
-
-    public void toggle_click(View v, boolean b) {
-        if (b) {
-            v.setBackgroundColor(Color.parseColor("#40E0D0"));
-        } else {
-            v.setBackgroundColor(Color.parseColor("#00C5CD"));
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == ChooseWeekActivity.CHOOSE_WEEK_ACTIVITY_RESULT) {
+            String weeks = data.getStringExtra(Constants.CHOOSED_WEEK_RESULT);
+            mWeeksString = weeks;
+            setWeek();
         }
     }
 
+    private void setWeek(){
+        if (TextUtils.isEmpty(mWeeksString)) {
+            setDefaultWeek();
+        } else {
+            setWeekText();
+        }
+    }
+
+    private void setDefaultWeek(){
+        mWeeksString = "1";
+        mTVWeek.setText(getString(R.string.monday));
+    }
+
+    @Override
+    public void onChoose(String text) {
+        mTVTitle.setText(text);
+    }
 
 }

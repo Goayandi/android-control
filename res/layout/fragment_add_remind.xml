@@ -5,9 +5,9 @@
     android:paddingTop="20dp">
 
     <View
-    android:layout_width="match_parent"
-    android:layout_height="1dp"
-    android:background="@color/task_title_stroke"/>
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/task_title_stroke"/>
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -63,6 +63,7 @@
         android:paddingBottom="10dp"
         android:paddingLeft="5dp"
         android:paddingRight="5dp"
+        android:onClick="choose"
         android:gravity="center_vertical">
         <TextView
             android:layout_width="wrap_content"
@@ -80,6 +81,7 @@
         android:layout_height="1dp"
         android:background="@color/task_title_stroke"/>
     <RelativeLayout
+        android:id="@+id/rl_content"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingTop="10dp"

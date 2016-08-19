@@ -61,7 +61,7 @@
     <color name="calendar_selected_date_text">#ffd1d2d4</color>
     <color name="red_pure">#ffff00</color>
     <color name="green">#00ff00</color>
-
+    <color name="transparent">#00000000</color>
 
     <!-- Colors for red theme -->
     <color name="red_focused">#853333</color>
@@ -93,5 +93,8 @@
     <color name="task_choose_text_color">#CCCFD0</color>
     <color name="vaild_code_bg">#3ABAB0</color>
     <color name="task_tv_with_arrow">#CCCFD0</color>
+    <color name="et_hint">#D0D0D0</color>
+    <color name="dialog_tv">#848484</color>
+    <color name="dialog_tv_press">#59A6FE</color>
 
 </resources>
