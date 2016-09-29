@@ -145,17 +145,18 @@ public class PowerListActivity extends BaseActivity implements OnClickListener {
 
 	private OnTouchListener ontouch = new OnTouchListener() {
 
-		@Override
-		public boolean onTouch(View v, MotionEvent event) {
-			if (event.getAction() == MotionEvent.ACTION_DOWN) {
-				Drawable background = v.getBackground();
-				v.setBackgroundColor(Color.DKGRAY);
-			} else if (event.getAction() == MotionEvent.ACTION_UP) {
-				v.setBackgroundColor(Color.TRANSPARENT);
-			}
-			return false;
-		}
-	};
+        @Override
+        public boolean onTouch(View v, MotionEvent event) {
+            if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                Drawable background = v.getBackground();
+                v.setBackgroundColor(Color.DKGRAY);
+            } else if (event.getAction() == MotionEvent.ACTION_UP) {
+                v.setBackgroundColor(Color.TRANSPARENT);
+            }
+            return false;
+        }
+    };
+
 	int width;
 	int height;
 
@@ -226,13 +227,16 @@ public class PowerListActivity extends BaseActivity implements OnClickListener {
 
 		switch (v.getId()) {
 		case R.id.more:
+//			startActivity(new Intent(PowerListActivity.this, InteractActivity.class));
+
+			v.setBackgroundColor(getResources().getColor(R.color.transparent));
+			ToastUtil.showtomain(this, getString(R.string.waitting));
+
 //			Intent i = new Intent(Constants.EMERGENCY);
 //			i.putExtra("username", getSharedPreferences("userinfo", MODE_PRIVATE)
 //                    .getString("phonenumber", null));
 //            sendBroadcast(i);
 //			ToastUtil.showtomain(PowerListActivity.this, "消息已发送");
-			//    v.setBackgroundColor(getResources().getColor(R.color.transparent));
-			ToastUtil.showtomain(this, getString(R.string.waitting));
 		//	doStartApplicationWithPackageName("com.orvibo.homemate");
 		//	startActivity(new Intent(PowerListActivity.this,FriendsActivity.class));
 		//	startActivity(new Intent(this, DialByContactsActivity.class));
@@ -244,13 +248,13 @@ public class PowerListActivity extends BaseActivity implements OnClickListener {
 			mMode = "chat";
 			Bundle bundle1 = new Bundle();
 			bundle1.putString("mode", mMode);
-			StartUtil.startintent(PowerListActivity.this, ControlActivity.class, "no", bundle1);
+			StartUtil.startintent(PowerListActivity.this, ControlYidongActivity.class, "no", bundle1);
 			break;
 		case R.id.video_monitor:
 			mMode = "control";
 			Bundle bundle2 = new Bundle();
 			bundle2.putString("mode", mMode);
-			StartUtil.startintent(PowerListActivity.this, ControlActivity.class, "no", bundle2);
+			StartUtil.startintent(PowerListActivity.this, ControlYidongActivity.class, "no", bundle2);
 			break;
 		case R.id.power_photo:
 		 	StartUtil.startintent(this, PhotoActivity.class, "no");

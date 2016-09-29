@@ -1,19 +1,8 @@
 package com.yongyida.robot.utils;
 
-import java.io.File;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.LinkedList;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Semaphore;
-
-import com.yongyida.robot.utils.ImageSizeUtil.ImageSize;
-
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Matrix;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
@@ -21,6 +10,16 @@ import android.os.Message;
 import android.support.v4.util.LruCache;
 import android.util.Log;
 import android.widget.ImageView;
+
+import com.yongyida.robot.utils.ImageSizeUtil.ImageSize;
+
+import java.io.File;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.LinkedList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Semaphore;
 
 /**
  * 图片加载类 http://blog.csdn.net/lmj623565791/article/details/41874561
@@ -170,10 +169,6 @@ public class ImageLoader {
 					String path = holder.path;
 					// 将path与getTag存储路径进行比较
 					if (imageview.getTag().toString().equals(path)) {
-				//		Matrix m = new Matrix();
-				//		m.setRotate(-90);
-				//		imageview.setImageBitmap(bm.createBitmap(bm, 0, 0,
-				//				bm.getWidth(), bm.getHeight(), m, true));
 						imageview.setImageBitmap(bm);
 					}
 				};

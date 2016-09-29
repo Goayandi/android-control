@@ -73,11 +73,12 @@ public class MyCrashHandler implements Thread.UncaughtExceptionHandler {
             // 如果用户没有处理则让系统默认的异常处理器来处理
             mDefaultHandler.uncaughtException(thread, ex);
         } else {
+            Log.e(TAG, "E:" + ex.getMessage());
             if (Utils.isServiceRunning(mContext, SocketService.class.getCanonicalName())) {
                 Utils.stopSocketService(mContext);
             }
             try {
-                Thread.sleep(3000);
+                Thread.sleep(30000);
             } catch (InterruptedException e) {
                 Log.e(TAG, "error1 : ", e);
             }

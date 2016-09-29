@@ -13,7 +13,10 @@ import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.util.Log;
 import android.view.Menu;
 
+import com.tencent.android.tpush.XGPushClickedResult;
+import com.tencent.android.tpush.XGPushManager;
 import com.yongyida.robot.R;
+import com.yongyida.robot.huanxin.DemoApplication;
 import com.yongyida.robot.service.SocketService;
 import com.yongyida.robot.service.UpdateService;
 import com.yongyida.robot.utils.Constants;
@@ -25,6 +28,7 @@ import com.yongyida.robot.utils.Utils;
 import com.yongyida.robot.utils.XmlUtil;
 import com.yongyida.robot.video.comm.log;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Timer;
@@ -78,9 +82,6 @@ public class WelComeActivity extends BaseActivity {
 			StartUtil.startintent(WelComeActivity.this, GuideActivity.class,
 					"finish");
 		} else if (msg.what == 2) {
-//			StartUtil.startintent(WelComeActivity.this, GuideActivity.class,
-//					"finish");
-//			return;
 			ThreadPool.execute(new Runnable() {
 
 				@Override
@@ -163,29 +164,62 @@ public class WelComeActivity extends BaseActivity {
     @Override
 	public void initlayout(OnRefreshListener onRefreshListener) {
 		setContentView(R.layout.activity_wel_come);
+        Log.e(TAG, "onCreate");
 //		String stateCode = getSharedPreferences("Receipt", MODE_PRIVATE).getString("state_code", null);
 //		if (Constants.HK_CODE.equals(stateCode))
+
 		if (Utils.isServiceRunning(this, SocketService.class.getCanonicalName())) {
 			Log.i(TAG, "service start");
-		}
-		String serverState = getSharedPreferences("net_state", MODE_PRIVATE).getString("state",null);
-		if (serverState != null && !serverState.equals("official")){
-			Utils.switchServer(Utils.TEST);
-		} else {
-			Utils.switchServer(Utils.CN);
 		}
         Runtime rt=Runtime.getRuntime();
         long maxMemory=rt.maxMemory();
         log.i("maxMemory:", Long.toString(maxMemory / (1024 * 1024)));
-		address = Constants.download_address;
-		fotaAddress = Constants.download_fota_address;
-		timer = new Timer();
-		timer.schedule(new TimerTask() {
-			@Override
-			public void run() {
-				handler.sendEmptyMessage(2);
-			}
-		}, 1000);
+
+	}
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        XGPushClickedResult result = XGPushManager.onActivityStarted(this);
+        if (result != null) {
+            try {
+                JSONObject jsonObject = new JSONObject(result.getCustomContent());
+                ((DemoApplication) getApplication()).setFromPush(true);
+                ((DemoApplication) getApplication()).setAgoraId(Long.parseLong(jsonObject.getString("id")));
+                ((DemoApplication) getApplication()).setAgoraChannelId(jsonObject.getString("channel_id"));
+                StartUtil.startintent(WelComeActivity.this, GuideActivity.class,
+                        "finish");
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+        }
+        address = Constants.download_address;
+        fotaAddress = Constants.download_fota_address;
+        timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                handler.sendEmptyMessage(2);
+            }
+        }, 1000);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        XGPushManager.onActivityStoped(this);
+    }
+
+    private boolean fromPush() {
+        boolean fromPush = getIntent().getBooleanExtra(Constants.FROM_PUSH, false);
+        if (fromPush) {
+            ((DemoApplication) getApplication()).setFromPush(true);
+            ((DemoApplication) getApplication()).setAgoraChannelId(getIntent().getStringExtra(Constants.AGORA_CHANNEL_ID));
+            ((DemoApplication) getApplication()).setAgoraId(getIntent().getLongExtra(Constants.AGORA_ID, -1));
+            return true;
+        }
+        return false;
 	}
 
 	@Override

@@ -24,6 +24,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.easemob.EMCallBack;
+import com.tencent.android.tpush.XGPushManager;
 import com.yongyida.robot.R;
 import com.yongyida.robot.huanxin.DemoHXSDKHelper;
 import com.yongyida.robot.utils.BroadcastReceiverRegister;
@@ -112,7 +113,7 @@ public class SettingActivity<AndroidLearn> extends BaseActivity implements
 						});
 			}
 		});
-	//	SDKCoreHelper.logout(false);
+		XGPushManager.unregisterPush(getApplicationContext());
 	}
 
 	@Override

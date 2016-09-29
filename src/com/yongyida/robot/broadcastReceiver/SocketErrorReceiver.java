@@ -24,6 +24,7 @@ public class SocketErrorReceiver extends BroadcastReceiver {
     @Override
 	public void onReceive(final Context context, Intent intent) {
 		if (intent.getAction().equals("socket_error")) {
+            Log.e(TAG, "socket_error");
 			context.sendBroadcast(new Intent(Constants.Stop));
 			EMChatManager.getInstance().endCall();
 			ToastUtil.showtomain(context, intent.getStringExtra("content"));

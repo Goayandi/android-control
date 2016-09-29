@@ -541,11 +541,11 @@ public class ControlActivity extends CallActivity implements OnClickListener,
         mHeadTableLayout = (TableLayout) findViewById(R.id.tl_head);
         mMoveTableLayout = (TableLayout) findViewById(R.id.tl_move);
         mRobotName = getSharedPreferences("Receipt", MODE_PRIVATE).getString("username", null);
-        if (!TextUtils.isEmpty(mRobotName) && mRobotName.startsWith("Y50")) {
-            mHeadTableLayout.setVisibility(View.VISIBLE);
-        } else {
-            mHeadTableLayout.setVisibility(View.GONE);
-        }
+        if (!TextUtils.isEmpty(mRobotName) && Utils.isSeries(mRobotName, "20")) {
+			mHeadTableLayout.setVisibility(View.GONE);
+		} else {
+			mHeadTableLayout.setVisibility(View.VISIBLE);
+		}
 	}
 
 	InitListener init = new InitListener() {
@@ -1032,11 +1032,11 @@ public class ControlActivity extends CallActivity implements OnClickListener,
 		//	}
 			play.setVisibility(View.GONE);
 		} else {
-            if (!TextUtils.isEmpty(mRobotName) && mRobotName.startsWith("Y50")) {
-                mHeadTableLayout.setVisibility(View.VISIBLE);
-            } else {
-                mHeadTableLayout.setVisibility(View.GONE);
-            }
+            if (!TextUtils.isEmpty(mRobotName) && Utils.isSeries(mRobotName, "20")) {
+				mHeadTableLayout.setVisibility(View.GONE);
+			} else {
+				mHeadTableLayout.setVisibility(View.VISIBLE);
+			}
             mMoveTableLayout.setVisibility(View.VISIBLE);
             if (runningMode.equals("control")) {
                 speak.setVisibility(View.VISIBLE);

@@ -15,17 +15,19 @@ package com.yongyida.robot.huanxin;
 
 import android.app.Application;
 import android.content.Context;
+import android.util.Log;
 
 import com.easemob.EMCallBack;
 import com.google.code.microlog4android.Logger;
 import com.google.code.microlog4android.LoggerFactory;
-import com.google.code.microlog4android.config.PropertyConfigurator;
 import com.yongyida.robot.utils.MyCrashHandler;
 import com.yongyida.robot.utils.NetUtil;
+import com.yongyida.robot.utils.Utils;
 
 public class DemoApplication extends Application {
 
-	public static Context applicationContext;
+    private static final String TAG = "DemoApplication";
+    public static Context applicationContext;
 	private static DemoApplication instance;
 	// login user name
 	public final String PREF_USERNAME = "username";
@@ -42,19 +44,26 @@ public class DemoApplication extends Application {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		MyCrashHandler myCrashHandler = MyCrashHandler.getInstance();
+        Log.e(TAG, "onCreate");
+        MyCrashHandler myCrashHandler = MyCrashHandler.getInstance();
 		myCrashHandler.init(this);
-	//	Thread.setDefaultUncaughtExceptionHandler(myCrashHandler);
+
 		applicationContext = this;
 		instance = this;
 		new NetUtil();
 	//	LogHelper.getInstance(instance).start();
-		PropertyConfigurator.getConfigurator(this).configure();
+	//	PropertyConfigurator.getConfigurator(this).configure();
 		String net_state = getSharedPreferences("net_state", 0).getString(
 				"state", null);
 		if (net_state == null) {
 			getSharedPreferences("net_state", MODE_PRIVATE).edit()
 					.putString("state", "official").commit();
+		}
+		String serverState = getSharedPreferences("net_state", MODE_PRIVATE).getString("state",null);
+		if (serverState != null && !serverState.equals("official")){
+			Utils.switchServer(Utils.TEST);
+		} else {
+			Utils.switchServer(Utils.CN);
 		}
 		/**
 		 * this function will initialize the HuanXin SDK
@@ -124,4 +133,31 @@ public class DemoApplication extends Application {
 		hxSDKHelper.logout(isGCM, emCallBack);
 	}
 
+    private String agoraChannelId; //视频邀请推送时需要保存的参数
+    private long agoraId;          //视频邀请推送时需要保存的参数
+    private boolean fromPush;      //是否是点击推送启动
+
+    public String getAgoraChannelId() {
+        return agoraChannelId;
+    }
+
+    public void setAgoraChannelId(String agoraChannelId) {
+        this.agoraChannelId = agoraChannelId;
+    }
+
+    public long getAgoraId() {
+        return agoraId;
+    }
+
+    public void setAgoraId(long agoraId) {
+        this.agoraId = agoraId;
+    }
+
+    public boolean isFromPush() {
+        return fromPush;
+    }
+
+    public void setFromPush(boolean fromPush) {
+        this.fromPush = fromPush;
+    }
 }

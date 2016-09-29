@@ -16,7 +16,8 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.yongyida.robot.R;
-import com.yongyida.robot.bean.Result;
+import com.yongyida.robot.activity.AgoraInviteActivity;
+import com.yongyida.robot.activity.VideoMeetingActivity;
 import com.yongyida.robot.broadcastReceiver.NetStateBroadcastReceiver;
 import com.yongyida.robot.broadcastReceiver.SocketErrorReceiver;
 import com.yongyida.robot.net.helper.Decoder;
@@ -56,6 +57,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -73,7 +75,7 @@ public class SocketService extends Service {
     private ChannelHandlerContext ctx;          //用于发送一般的socket请求
     private ChannelHandlerContext mMediaCtx;    //用于发送视频部分 进入房间之后的请求
     private NetStateBroadcastReceiver netstate = new NetStateBroadcastReceiver();
-    private String size = "";
+    private final String size = "small";
     private SocketErrorReceiver mSocketErrorReceiver = new SocketErrorReceiver();
 
     @Override
@@ -102,10 +104,9 @@ public class SocketService extends Service {
             ArrayList arr = (ArrayList) o;
             for (int n = 0; n < arr.size(); n++) {
                 obj = arr.get(n);
-                if (obj instanceof  JSONObject) {
+                if (obj instanceof JSONObject) {
                     o = obj;
-                }
-                if (obj instanceof Decoder.Result2) {
+                } else if (obj instanceof Decoder.Result2) {
                     o = obj;
                 }
             }
@@ -164,6 +165,47 @@ public class SocketService extends Service {
                         intent.putExtra("id", id);
                     }
                     intent.putExtra("reply", reply);
+                    sendBroadcast(intent);
+                } else if (Constants.AGORA_CMD_INVITE_REPONSE.equals(cmd)) {  //AGORA invite
+                    int ret = Result.getInt("ret");
+                    Intent intent = new Intent(Constants.AGORA_INVITE_REPONSE);
+                    intent.putExtra(Constants.AGORA_RET, ret);
+                    sendBroadcast(intent);
+                } else if (Constants.AGORA_CMD_INVITE.equals(cmd)) { //AGORA 被邀请
+                    Log.d(TAG, "meeting");
+                    long id = Result.getLong(Constants.AGORA_ID);
+                    String channel_id = Result.getString(Constants.AGORA_CHANNEL_ID);
+                    String mode = Result.getString(Constants.AGORA_MODE);
+                    if (Utils.isForeground(this, VideoMeetingActivity.class.getCanonicalName())) {
+                        NetUtil.agoraVideoMeetingScoketInviteReply(Long.parseLong(Utils.getUserID(this)),
+                                "User",
+                                "Robot",
+                                id + "",
+                                0,
+                                getString(R.string.meeting),
+                                ctx);
+                        return;
+                    }
+                    if (mode.equals("meeting")) {
+                        Intent intent = new Intent(this, AgoraInviteActivity.class);
+                        intent.putExtra(Constants.AGORA_ID, id);
+                        intent.putExtra(Constants.AGORA_CHANNEL_ID, channel_id);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        startActivity(intent);
+                    }
+                } else if (Constants.AGORA_CMD_INVITE_CANCEL.equals(cmd)) {  //对方取消邀请
+                    sendBroadcast(new Intent(Constants.AGORA_INVITE_CANCEL));
+                } else if (Constants.AGORA_CMD_INVITE_REPLY.equals(cmd)) {
+                    long id = Result.getLong(Constants.AGORA_ID);
+                    int reply = Result.getInt(Constants.AGORA_REPLY);
+                    Intent intent = new Intent(Constants.AGORA_INVITE_REPLY);
+                    intent.putExtra(Constants.AGORA_REPLY, reply);
+                    intent.putExtra(Constants.AGORA_ID, id);
+                    sendBroadcast(intent);
+                } else if (Constants.AGORA_CMD_MEETING_TIME_REPONSE.equals(cmd)) {  //计时response
+                    int ret = Result.getInt(Constants.AGORA_RET);
+                    Intent intent = new Intent(Constants.AGORA_MEETING_TIME_REPONSE);
+                    intent.putExtra(Constants.AGORA_RET, ret);
                     sendBroadcast(intent);
                 }
             }
@@ -323,72 +365,84 @@ public class SocketService extends Service {
             }
 
         } else if (o instanceof Decoder.Result2) {
-            final Decoder.Result2 res = (Decoder.Result2) o;
-            com.yongyida.robot.bean.Result result = new Result();
-            result.setDw(BitmapFactory.decodeByteArray(res.datas,
-                    0, res.datas.length));
-            try {
-                name = new JSONObject(res.json.getString("command"))
-                        .getString("name");
+            handlePhoto((Decoder.Result2)o);
 
-                result.setName(name);
-            } catch (JSONException e1) {
-                e1.printStackTrace();
-            }
-            size = "small";
-            ThreadPool.execute(new Runnable() {
 
-                @Override
-                public void run() {
-                    File file = new File(getApplication()
-                            .getExternalFilesDir(null)
-                            .getAbsolutePath()
-                            + "/"
-                            + getSharedPreferences("Receipt",
-                            MODE_PRIVATE).getString(
-                            "username", null) + size);
-                    if (!file.exists()) {
-                        file.mkdir();
-                    }
+        }
+    }
+
+    private void handlePhoto(final Decoder.Result2 res) {
+        ThreadPool.execute(new Runnable() {
+
+            @Override
+            public void run() {
+                try {
+                    String fileName = new JSONObject(res.json.getString("command"))
+                            .getString("name");
                     String robotName = getSharedPreferences("Receipt", MODE_PRIVATE).getString("username", null);
-                    FileUtil.writefile(
-                            getApplication().getExternalFilesDir(
-                                    null).getAbsolutePath()
-                                    + "/"
-                                    + robotName + size,
-                            res.datas, name);
-                    if (!TextUtils.isEmpty(robotName) && robotName.startsWith("Y50")) {
-                        Log.i(TAG, "Y50");
+                    String path = getApplication().getExternalFilesDir(null).getAbsolutePath()
+                            + "/"
+                            + getSharedPreferences("Receipt", MODE_PRIVATE).getString("username", null)
+                            + size;
+                    if (!TextUtils.isEmpty(robotName) && !Utils.isSeries(robotName, "20")) {
                         /* 照片先转成bitmap 旋转90度再存起来 */
-                        File picture = new File(file.getAbsolutePath() + "/" + name);
-                        Bitmap b = BitmapFactory.decodeFile(picture.getAbsolutePath());
+                        Bitmap b = BitmapFactory.decodeByteArray(res.datas, 0, res.datas.length);
                         Matrix matrix = new Matrix();
                         matrix.setRotate(-90);
                         Bitmap bm = b.createBitmap(b, 0, 0, b.getWidth(),
                                 b.getHeight(), matrix, true);
                         b.recycle();
+                        File dir = new File(path);
+                        if (!dir.exists()) {
+                            dir.mkdir();
+                        }
+                        File picture = new File(path + "/" + fileName);
+
                         FileOutputStream fos = null;
                         try {
                             fos = new FileOutputStream(picture);
+                            bm.compress(Bitmap.CompressFormat.JPEG, 100, fos);
                         } catch (FileNotFoundException e1) {
                             e1.printStackTrace();
+                        } finally {
+                            try {
+                                fos.close();
+                            } catch (IOException e1) {
+                                e1.printStackTrace();
+                            }
                         }
-                        bm.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+                        Intent reply = new Intent(Constants.Photo_Reply);
+                        reply.putExtra(Constants.PHOTO_PATH, path + "/" + fileName);
+                        sendBroadcast(reply);
+                    } else {
+                        File file = new File(path);
+                        if (!file.exists()) {
+                            file.mkdir();
+                        }
+                        FileUtil.writefile(
+                                getApplication().getExternalFilesDir(
+                                        null).getAbsolutePath()
+                                        + "/"
+                                        + robotName + size,
+                                res.datas, fileName);
+                        Intent reply = new Intent(Constants.Photo_Reply);
+                        reply.putExtra(Constants.PHOTO_PATH, file.getAbsolutePath() + "/" + fileName);
+                        sendBroadcast(reply);
                     }
-
-                    Intent reply = new Intent(Constants.Photo_Reply);
-                    sendBroadcast(reply);
+                } catch (JSONException e1) {
+                    e1.printStackTrace();
                 }
-            });
 
-        }
+
+            }
+        });
     }
 
     public void connectSocketByLanguage(){
         connectsocket(listener, Constants.ip, Constants.port);
     }
 
-    BroadcastReceiver speak = new BroadcastReceiver() {
+    private BroadcastReceiver speak = new BroadcastReceiver() {
 
         @Override
         public void onReceive(Context arg0, Intent intent) {
@@ -404,7 +458,7 @@ public class SocketService extends Service {
         }
     };
 
-    BroadcastReceiver mQuestionnaireBR = new BroadcastReceiver() {
+    private BroadcastReceiver mQuestionnaireBR = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (ctx != null) {
@@ -416,7 +470,7 @@ public class SocketService extends Service {
         }
     };
 
-    BroadcastReceiver mEmergencyBR = new BroadcastReceiver() {
+    private BroadcastReceiver mEmergencyBR = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (ctx != null) {
@@ -433,9 +487,73 @@ public class SocketService extends Service {
         }
     };
 
+    private BroadcastReceiver mAgoraVideoMeetingInviteBR = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (ctx != null) {
+                NetUtil.agoraVideoMeetingScoketInvite(intent.getLongExtra(Constants.AGORA_ID, -1),
+                        intent.getLongExtra(Constants.AGORA_NUMBER, -1),
+                        intent.getStringExtra(Constants.AGORA_ROLE),
+                        intent.getStringExtra(Constants.AGORA_NICKNAME),
+                        intent.getStringExtra(Constants.AGORA_CHANNEL_ID),
+                        intent.getStringExtra(Constants.AGORA_TYPE),
+                        intent.getStringExtra(Constants.AGORA_MODE), ctx);
+            } else {
+                handleError();
+            }
+        }
+    };
+
+    private BroadcastReceiver mAgoraVideoMeetingInviteCancelBR = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (ctx != null) {
+                NetUtil.agoraVideoMeetingScoketInviteCancel(intent.getLongExtra(Constants.AGORA_ID, -1),
+                        intent.getLongExtra(Constants.AGORA_NUMBER, -1),
+                        intent.getStringExtra(Constants.AGORA_ROLE),
+                        intent.getStringExtra(Constants.AGORA_TYPE), ctx);
+            } else {
+                handleError();
+            }
+        }
+    };
+
+    private BroadcastReceiver mAgoraVideoMeetingInviteReplyBR = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (ctx != null) {
+                NetUtil.agoraVideoMeetingScoketInviteReply(intent.getLongExtra(Constants.AGORA_ID, -1),
+                        intent.getStringExtra(Constants.AGORA_ROLE),
+                        intent.getStringExtra(Constants.AGORA_INVITE_TYPE),
+                        intent.getStringExtra(Constants.AGORA_INVITE_ID),
+                        intent.getIntExtra(Constants.AGORA_REPLY, -1),
+                        "", ctx);
+            } else {
+                handleError();
+            }
+        }
+    };
+
+    private BroadcastReceiver mAgoraVideoMeetingTimeBR = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (ctx != null) {
+                NetUtil.agoraVideoMeetingScoketTime(intent.getLongExtra(Constants.AGORA_ID, -1),
+                        intent.getStringExtra(Constants.AGORA_ROLE),
+                        intent.getStringExtra(Constants.AGORA_BEGINTIME),
+                        intent.getStringExtra(Constants.AGORA_ENDTIME),
+                        intent.getIntExtra(Constants.AGORA_TOTALTIME, 0),
+                        intent.getFloatExtra(Constants.AGORA_TOTALSIZE, 0),
+                        ctx);
+            } else {
+                handleError();
+            }
+        }
+    };
 
 
-    BroadcastReceiver talk = new BroadcastReceiver() {
+
+    private BroadcastReceiver talk = new BroadcastReceiver() {
 
         @Override
         public void onReceive(Context arg0, Intent intent) {
@@ -460,7 +578,7 @@ public class SocketService extends Service {
         connectSocketByLanguage();
     }
 
-    BroadcastReceiver move = new BroadcastReceiver() {
+    private BroadcastReceiver move = new BroadcastReceiver() {
 
         @Override
         public void onReceive(Context arg0, Intent intent) {
@@ -476,8 +594,7 @@ public class SocketService extends Service {
         }
 
     };
-    ;;
-    BroadcastReceiver task = new BroadcastReceiver() {
+    private BroadcastReceiver task = new BroadcastReceiver() {
         @Override
         public void onReceive(Context arg0, Intent intent) {
             if (ctx != null) {
@@ -487,7 +604,7 @@ public class SocketService extends Service {
             }
         }
     };
-    BroadcastReceiver stop = new BroadcastReceiver() {
+    private BroadcastReceiver stop = new BroadcastReceiver() {
 
         @Override
         public void onReceive(Context arg0, Intent intent) {
@@ -521,7 +638,7 @@ public class SocketService extends Service {
             }
         }
     };
-    BroadcastReceiver photo = new BroadcastReceiver() {
+    private BroadcastReceiver photo = new BroadcastReceiver() {
 
         @Override
         public void onReceive(Context arg0, Intent intent) {
@@ -532,7 +649,7 @@ public class SocketService extends Service {
             }
         }
     };
-    BroadcastReceiver flush = new BroadcastReceiver() {
+    private BroadcastReceiver flush = new BroadcastReceiver() {
         @Override
         public void onReceive(Context arg0, Intent intent) {
             if (ctx != null) {
@@ -543,7 +660,7 @@ public class SocketService extends Service {
         }
     };
 
-    BroadcastReceiver connectRobot = new BroadcastReceiver() {
+    private BroadcastReceiver connectRobot = new BroadcastReceiver() {
         @Override
         public void onReceive(Context arg0, Intent intent) {
             if (ctx != null) {
@@ -554,7 +671,7 @@ public class SocketService extends Service {
         }
     };
 
-    BroadcastReceiver socketLogout = new BroadcastReceiver() {
+    private BroadcastReceiver socketLogout = new BroadcastReceiver() {
         @Override
         public void onReceive(Context arg0, Intent intent) {
             if (ctx != null) {
@@ -567,7 +684,7 @@ public class SocketService extends Service {
         }
     };
 
-    BroadcastReceiver mFotaUpdateBR = new BroadcastReceiver() {
+    private BroadcastReceiver mFotaUpdateBR = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (ctx != null) {
@@ -580,7 +697,7 @@ public class SocketService extends Service {
         }
     };
 
-    BroadcastReceiver mCancelDialBR = new BroadcastReceiver() {
+    private BroadcastReceiver mCancelDialBR = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (ctx != null) {
@@ -593,7 +710,7 @@ public class SocketService extends Service {
         }
     };
 
-    BroadcastReceiver mVideoReplyBR = new BroadcastReceiver() {
+    private BroadcastReceiver mVideoReplyBR = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (ctx != null) {
@@ -607,7 +724,7 @@ public class SocketService extends Service {
     };
 
 
-    BroadcastReceiver mLogoutVideoRoomBR = new BroadcastReceiver() {
+    private BroadcastReceiver mLogoutVideoRoomBR = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (ctx != null) {
@@ -621,7 +738,7 @@ public class SocketService extends Service {
         }
     };
 
-    BroadcastReceiver mLoginVideoRoomBR = new BroadcastReceiver() {
+    private BroadcastReceiver mLoginVideoRoomBR = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             final int id = intent.getIntExtra(Constants.ID, -1);
@@ -752,7 +869,7 @@ public class SocketService extends Service {
         }
     };
 
-    BroadcastReceiver mVideoRequestBR = new BroadcastReceiver() {
+    private BroadcastReceiver mVideoRequestBR = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (ctx != null) {
@@ -912,6 +1029,18 @@ public class SocketService extends Service {
 
         /*急救中心*/
         BroadcastReceiverRegister.reg(this, new String[]{Constants.EMERGENCY}, mEmergencyBR);
+
+        /*Agora视频会议邀请*/
+        BroadcastReceiverRegister.reg(this, new String[]{Constants.AGORA_VIDEO_MEETING_INVITE}, mAgoraVideoMeetingInviteBR);
+
+        /*Agora视频会议邀请取消*/
+        BroadcastReceiverRegister.reg(this, new String[]{Constants.AGORA_VIDEO_MEETING_INVITE_CANCEL}, mAgoraVideoMeetingInviteCancelBR);
+
+        /*Agora视频会议邀请回复*/
+        BroadcastReceiverRegister.reg(this, new String[]{Constants.AGORA_VIDEO_MEETING_INVITE_REPLY}, mAgoraVideoMeetingInviteReplyBR);
+
+        /*Agora视频会议计时*/
+        BroadcastReceiverRegister.reg(this, new String[]{Constants.AGORA_VIDEO_MEETING_TIME}, mAgoraVideoMeetingTimeBR);
         /**
          *  建立socket连接
          */
@@ -1135,6 +1264,10 @@ public class SocketService extends Service {
         Utils.unRegisterReceiver(talk, this);
         Utils.unRegisterReceiver(mQuestionnaireBR, this);
         Utils.unRegisterReceiver(mEmergencyBR, this);
+        Utils.unRegisterReceiver(mAgoraVideoMeetingInviteBR, this);
+        Utils.unRegisterReceiver(mAgoraVideoMeetingInviteCancelBR, this);
+        Utils.unRegisterReceiver(mAgoraVideoMeetingInviteReplyBR, this);
+        Utils.unRegisterReceiver(mAgoraVideoMeetingTimeBR, this);
 
         if (time != null) {
             time.cancel();

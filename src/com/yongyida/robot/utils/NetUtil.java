@@ -169,21 +169,6 @@ public class NetUtil {
 
 	/**
 	 * socket视频请求
-	 * @param id     数字id
-	 * @param role   角色
-	 *                 Robot
-	 *                 User
-	 * @param nickname 昵称
-	 * @param pic   图片url
-	 * @param type      Robot 小勇号
-	 *                  Room房间号
-	 *                  Phone 手机号
-	 * @param number  请求拨号
-	 * @param handler
-	 */
-
-	/**
-	 * socket视频请求
 	 * @param id   数字id
 	 * @param role    角色
 	 *                 Robot
@@ -516,9 +501,159 @@ public class NetUtil {
 		channel.write(channelBuffer);
 	}
 
+	/**
+	 * 视频会议邀请
+	 * @param id  数字id
+	 * @param number  请求拨号
+	 * @param role
+	 * 角色
+		Robot  机器人
+		User   用户
+	 * @param nickname  昵称    (非必须参数)
+	 * @param channel_id   Agora视频通道号
+	 * @param type
+	 * 类型
+		Robot  小勇号
+		Room   房间号
+		Phone  手机号
+	 * @param mode
+	 *        meeting    视频会议
+	          monitor   视频监控
+	 * @param handler
+	 */
+	public static void agoraVideoMeetingScoketInvite(long id, long number, String role,
+												String nickname, String channel_id, String type,
+												String mode, ChannelHandlerContext handler){
+		String str = "{\"id\":\"" + id
+				+ "\",\"number\":\"" + number
+				+ "\",\"role\":\"" + role
+				+ "\",\"nickname\":\"" + nickname
+				+ "\",\"channel_id\":\"" + channel_id
+				+ "\",\"type\":\"" + type
+				+ "\",\"mode\":\"" + mode
+				+ "\",\"cmd\":\"/avm/invite\"}";
+		ChannelBuffer channelBuffer = new DynamicChannelBuffer(ByteOrder.BIG_ENDIAN,
+				12 + str.getBytes().length);
+		channelBuffer.writeByte((byte) 1);
+		for (int i = 0; i < 7; i++) {
+			channelBuffer.writeByte((byte) 0);
+		}
+		channelBuffer.writeBytes(int2Byte(str.length()));
+		channelBuffer.writeBytes(str.getBytes());
+		Channel channel = handler.getChannel();
+		channel.write(channelBuffer);
+	}
+
+	/**
+	 * 视频会议邀请取消
+	 * @param id  数字id
+	 * @param number  请求拨号
+	 * @param role
+	 * 角色
+		Robot  机器人
+		User   用户
+	 * @param type
+	 * 类型
+		Robot  小勇号
+		Room   房间号
+		Phone  手机号
+	 * @param handler
+	 */
+	public static void agoraVideoMeetingScoketInviteCancel(long id, long number, String role,
+												 String type, ChannelHandlerContext handler){
+		String str = "{\"id\":\"" + id
+				+ "\",\"number\":\"" + number
+				+ "\",\"role\":\"" + role
+				+ "\",\"type\":\"" + type
+				+ "\",\"cmd\":\"/avm/invite/cancel\"}";
+		ChannelBuffer channelBuffer = new DynamicChannelBuffer(ByteOrder.BIG_ENDIAN,
+				12 + str.getBytes().length);
+		channelBuffer.writeByte((byte) 1);
+		for (int i = 0; i < 7; i++) {
+			channelBuffer.writeByte((byte) 0);
+		}
+		channelBuffer.writeBytes(int2Byte(str.length()));
+		channelBuffer.writeBytes(str.getBytes());
+		Channel channel = handler.getChannel();
+		channel.write(channelBuffer);
+	}
+
+    /**
+     * 视频会议邀请答复
+     * @param id  数字id
+     * @param role
+     * 角色
+        Robot  机器人
+        User   用户
+     * @param invite_type
+     * 邀请人的类型
+        Robot  机器人
+        User   手机用户
+     * @param invite_id 邀请人的id
+     * @param reply  0  拒绝
+                    1  接受
+       @param  message
+     * @param handler
+     */
+	public static void agoraVideoMeetingScoketInviteReply(long id,  String role, String invite_type,
+                                                          String invite_id, int reply,
+                                                          String message, ChannelHandlerContext handler){
+		String str = "{\"id\":\"" + id
+				+ "\",\"role\":\"" + role
+				+ "\",\"invite_type\":\"" + invite_type
+				+ "\",\"invite_id\":\"" + invite_id
+				+ "\",\"reply\":\"" + reply
+				+ "\",\"message\":\"" + message
+				+ "\",\"cmd\":\"/avm/invite/reply\"}";
+		ChannelBuffer channelBuffer = new DynamicChannelBuffer(ByteOrder.BIG_ENDIAN,
+				12 + str.getBytes().length);
+		channelBuffer.writeByte((byte) 1);
+		for (int i = 0; i < 7; i++) {
+			channelBuffer.writeByte((byte) 0);
+		}
+		channelBuffer.writeBytes(int2Byte(str.length()));
+		channelBuffer.writeBytes(str.getBytes());
+		Channel channel = handler.getChannel();
+		channel.write(channelBuffer);
+	}
+
+    /**
+     * 视频会议时间流量上报
+     * @param id  数字id
+     * @param role
+     * 角色
+        Robot  机器人
+        User   手机用户
+     * @param begintime  会议开始时间  long型currentTimeMillis
+     * @param endtime    会议结束时间  long型currentTimeMillis
+     * @param totaltime   会议时长（单位：秒）   (非必须参数)
+     * @param totalsize   占用流量（单位：MB）   (非必须参数)
+     */
+    public static void agoraVideoMeetingScoketTime(long id, String role, String begintime, String endtime,
+                                                   int totaltime, float totalsize, ChannelHandlerContext handler){
+        String str = "{\"id\":\"" + id
+                + "\",\"role\":\"" + role
+                + "\",\"begintime\":\"" + begintime
+                + "\",\"endtime\":\"" + endtime
+                + "\",\"totaltime\":\"" + totaltime
+                + "\",\"totalsize\":\"" + totalsize
+                + "\",\"cmd\":\"/media/meeting/report\"}";
+        ChannelBuffer channelBuffer = new DynamicChannelBuffer(ByteOrder.BIG_ENDIAN,
+                12 + str.getBytes().length);
+        channelBuffer.writeByte((byte) 1);
+        for (int i = 0; i < 7; i++) {
+            channelBuffer.writeByte((byte) 0);
+        }
+        channelBuffer.writeBytes(int2Byte(str.length()));
+        channelBuffer.writeBytes(str.getBytes());
+        Channel channel = handler.getChannel();
+        channel.write(channelBuffer);
+    }
+
+
 	// socket方法
 	public static void Scoket(JSONObject params, int flag, ChannelHandlerContext handler) {
-		if (params != null) {
+		if (params != null && params.length() != 0) {
 			Log.i("NetUtil", params.toString());
 		}
 		ChannelBuffer channelBuffer = null;
@@ -544,23 +679,9 @@ public class NetUtil {
 
 			break;
 		case 1:
-			str = "{\"cmd\":\"/robot/push\",\"command\":{\"cmd\":\"move\",\"type\":\""
-					+ Constants.execode + "\"}}";
-//			if (Constants.execode.equals("forward")) {
-//				str = "{\"cmd\":\"/robot/push\",\"command\":{\"cmd\":\"204\",\"content\":{\"ms\":\"10\",\"ma\":\"0\",\"ro\":\"0\"}}}";
-//			} else if (Constants.execode.equals("turn_left")) {
-//                str = "{\"cmd\":\"/robot/push\",\"command\":{\"cmd\":\"204\",\"content\":{\"ms\":\"10\",\"ma\":\"270\",\"ro\":\"270\"}}}";
-//			} else if (Constants.execode.equals("back")) {
-//                str = "{\"cmd\":\"/robot/push\",\"command\":{\"cmd\":\"204\",\"content\":{\"ms\":\"10\",\"ma\":\"180\",\"ro\":\"180\"}}}";
-//			} else if (Constants.execode.equals("turn_right")) {
-//                str = "{\"cmd\":\"/robot/push\",\"command\":{\"cmd\":\"204\",\"content\":{\"ms\":\"10\",\"ma\":\"90\",\"ro\":\"90\"}}}";
-//			} else if (Constants.execode.equals("stop")) {
-//                str = "{\"cmd\":\"/robot/push\",\"command\":{\"cmd\":\"204\",\"content\":{\"ms\":\"0\",\"ma\":\"0\",\"ro\":\"0\"}}}";
-//			//	str = "{\"cmd\":\"204\",\"content\":{\"ms\":\"0\",\"ma\":\"0\",\"ro\":\"0\"}}";
-//			} else {
-//				str = "{\"cmd\":\"/robot/push\",\"command\":{\"cmd\":\"move\",\"type\":\""
-//					+ Constants.execode + "\"}}";
-//			}
+			str = "{\"cmd\":\"/robot/push\",\"command\":{\"cmd\":\"move\"" +
+					",\"type\":\"" + Constants.execode + "\"" +
+					",\"speed\":\"" + Constants.speed + "\" }}";
 			Log.i("JsonString", str);
 			channelBuffer = new DynamicChannelBuffer(ByteOrder.BIG_ENDIAN,
 					(12 + str.getBytes().length));
@@ -655,7 +776,7 @@ public class NetUtil {
 			break;
 		case 7:
 			try {
-				String s = "您儿子有消息了，请回应";
+				String s = "奶奶在吗？您有新消息了，在的话，请说句话";
 				str = "{\"cmd\":\"/robot/push\",\"command\":{\"cmd\":\"emergency\",\"type\":\""
 						+ s + "\", \"angel\":\"0\",\"username\":\"" + params.getString("username") + "\"}}";
 			} catch (JSONException e) {

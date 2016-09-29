@@ -37,7 +37,7 @@
         android:layout_weight="3"
         android:layout_marginTop="30dp"
         android:layout_gravity="center_horizontal"
-        android:src="@drawable/yongyida_logo"
+        android:src="@drawable/xiaoyu_logo"
         />
     <!--android:src="@drawable/yongyida_logo"-->
 
@@ -80,8 +80,8 @@
         android:layout_height="0dp"
         android:layout_weight="1"/>
     <Button
-        android:layout_width="20dp"
-        android:layout_height="20dp"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
         android:background="@null"
         android:onClick="togglemode" />
 </LinearLayout>

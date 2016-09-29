@@ -1,29 +1,27 @@
 package com.yongyida.robot.activity;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.os.Handler;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.yongyida.robot.R;
-import com.yongyida.robot.ronglianyun.SDKCoreHelper;
 import com.yongyida.robot.utils.BroadcastReceiverRegister;
 import com.yongyida.robot.utils.Constants;
 import com.yongyida.robot.utils.StartUtil;
 import com.yongyida.robot.utils.Utils;
-import com.yuntongxun.ecsdk.ECDevice;
 
 /**
  * Created by Administrator on 2016/6/16 0016.
  */
-public class MeetingFunctionListActivity extends RLYBaseActivity implements View.OnClickListener {
+public class MeetingFunctionListActivity extends Activity implements View.OnClickListener {
     private static final String TAG = "MeetingFunctionListA";
     private RelativeLayout mFunction1RL;
     private RelativeLayout mFunction2RL;
@@ -32,20 +30,10 @@ public class MeetingFunctionListActivity extends RLYBaseActivity implements View
     private RelativeLayout mFunction5RL;
     private RelativeLayout mFunction6RL;
     private TextView power_title;
-    private Handler mHandler = new Handler();
     private TextView mBattery;
     private String mVersion;
     private ProgressDialog mProgressDialog;
-    private BroadcastReceiver mConnectSuccessBR = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (mProgressDialog != null) {
-                mProgressDialog.dismiss();
-            }
-            Utils.unRegisterReceiver(mConnectSuccessBR, MeetingFunctionListActivity.this);
-            startActivity(new Intent(MeetingFunctionListActivity.this, TestMeetingActivity.class));
-        }
-    };
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,6 +72,7 @@ public class MeetingFunctionListActivity extends RLYBaseActivity implements View
         mProgressDialog = new ProgressDialog(this);
     }
 
+
     private BroadcastReceiver mBatteryBR = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -121,32 +110,16 @@ public class MeetingFunctionListActivity extends RLYBaseActivity implements View
         }
     };
 
-    /**
-     * 初始化容联云
-     */
-    private void initRonglianyun() {
-        SDKCoreHelper.init(this);
-    }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.prl1:
-                if (SDKCoreHelper.getConnectState() == ECDevice.ECConnectState.CONNECT_SUCCESS) {
-                    Intent intent = new Intent(MeetingFunctionListActivity.this, TestMeetingActivity.class);
-                    startActivity(intent);
-                } else {
-                    initRonglianyun();
-                    if (mProgressDialog != null) {
-                        mProgressDialog.setMessage(getString(R.string.connecting_wait));
-                        mProgressDialog.show();
-                    }
-                    BroadcastReceiverRegister.reg(this, new String[]{Constants.CONNECT_SUCCESS}, mConnectSuccessBR);
-                }
             //    ToastUtil.showtomain(this,"该功能暂不支持");
+                StartUtil.startintent(MeetingFunctionListActivity.this, VideoMeetingActivity.class, "no");
                 break;
             case R.id.prl2:
-                StartUtil.startintent(MeetingFunctionListActivity.this, MonitoringActivity.class, "no");
+                StartUtil.startintent(MeetingFunctionListActivity.this, AgoraMonitoringActivity.class, "no");
                 break;
             case R.id.prl3:
                 StartUtil.startintent(MeetingFunctionListActivity.this, TaskRemindActivity.class, "no");
@@ -164,7 +137,8 @@ public class MeetingFunctionListActivity extends RLYBaseActivity implements View
                 StartUtil.startintent(MeetingFunctionListActivity.this, SettingActivity.class, "no", params);
                 break;
             case R.id.power_title:
-                onBackPressed();
+                startActivity(new Intent(MeetingFunctionListActivity.this, InteractActivity.class));
+            //    onBackPressed();
                 break;
             default:
                 break;
@@ -183,7 +157,6 @@ public class MeetingFunctionListActivity extends RLYBaseActivity implements View
             mProgressDialog.dismiss();
             mProgressDialog = null;
         }
-        Utils.unRegisterReceiver(mConnectSuccessBR, MeetingFunctionListActivity.this);
         Utils.unRegisterReceiver(mBatteryBR, this);
     }
 }

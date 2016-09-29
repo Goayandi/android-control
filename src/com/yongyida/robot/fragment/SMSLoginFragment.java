@@ -50,6 +50,7 @@ import java.util.TimerTask;
  */
 public class SMSLoginFragment extends BaseFragment implements View.OnClickListener{
     private static final int REQUEST_STATE_CODE = 1;
+    private static final String TAG = "SMSLoginFragment";
     private EditText edit_phonenum;
     private EditText edit_vaildcode;
     private Button login;
@@ -235,7 +236,6 @@ public class SMSLoginFragment extends BaseFragment implements View.OnClickListen
 
                     @Override
                     public void onSuccess() {
-                        Log.i("LoginActivity", "onSuccess");
                         // 登陆成功，保存用户名密码
                         DemoApplication.getInstance().setUserName(
                                 currentUsername);
@@ -247,8 +247,7 @@ public class SMSLoginFragment extends BaseFragment implements View.OnClickListen
                                 .updateCurrentUserNick(
                                         DemoApplication.currentUserNick.trim());
                         if (!updatenick) {
-                            Log.e("LoginActivity",
-                                    "update current user nick fail");
+                            Log.d(TAG, "update current user nick fail");
                         }
 
                     }

@@ -6,7 +6,7 @@ import com.yongyida.robot.bean.Task;
 public class Constants {
 
 
-    // 请求地址
+	// 请求地址
 	public static String address_cn = "http://server.yydrobot.com";
 	public static String address_test = "http://120.24.242.163:81";
 	public static String address_hk = "http://hk.server.yydrobot.com:180";
@@ -25,12 +25,20 @@ public class Constants {
 	public static String port_tw = "18002";
 
 	// 下载地址
-	public static String download_address_cn = "http://resource.yydrobot.com/app/yyd/cn/app.version";
+//	public static String download_address_cn = "http://resource.yydrobot.com/app/yyd/cn/app.version";
+//	public static String download_address_cn = "http://resource.yydrobot.com/app/youjiaoxiaotong/cn/app.youjiaoxiaotong.version";
 //	public static String download_address_cn= "http://resource.yydrobot.com/app/gaojunkeji/cn/app.gaojunkeji.version";
 //	public static String download_address_cn= "http://resource.yydrobot.com/app/liuchaokeji/cn/app.liuchaokeji.version";
+//	public static String download_address_cn= "http://resource.yydrobot.com/app/cmcc/cn/app.cmcc.version";
+//	public static String download_address_cn= "http://resource.yydrobot.com/app/caihongwoniu/cn/app.caihongwoniu.version";
+	public static String download_address_cn= "http://resource.yydrobot.com/app/xiaoyujiqiren/cn/app.xiaoyujiqiren.version";
 //	public static String download_address_test = "http://120.24.242.163/app/gaojunkeji/cn/app.gaojunkeji.version";
 //	public static String download_address_test = "http://120.24.242.163/app/liuchaokeji/cn/app.liuchaokeji.version";
-	public static String download_address_test = "http://120.24.242.163/app/yyd/cn/app.version";
+//	public static String download_address_test = "http://120.24.242.163/app/cmcc/cn/app.cmcc.version";
+//	public static String download_address_test = "http://120.24.242.163/app/caihongwoniu/cn/app.caihongwoniu.version";
+	public static String download_address_test = "http://120.24.242.163/app/xiaoyujiqiren/cn/app.xiaoyujiqiren.version";
+//	public static String download_address_test = "http://120.24.242.163/app/yyd/cn/app.version";
+//	public static String download_address_test = "http://120.24.242.163/app/youjiaoxiaotong/cn/app.youjiaoxiaotong.version";
 	public static String download_address_hk = "http://resource.yydrobot.com/app/hk/cn/app.hk.version";
 	public static String download_address_tw = "http://resource.yydrobot.com/app/taiwan/cn/app.taiwan.version";
 
@@ -40,7 +48,10 @@ public class Constants {
 	public static String download_fota_address_hk = "http://resource.yydrobot.com/robot/robot.version";
 	public static String download_fota_address_tw = "http://resource.yydrobot.com/robot/robot.version";
 
-	public static String address;
+	public static String
+
+
+			address;
 	public static String ip;
 	public static String port;
 	public static String download_address;
@@ -73,6 +84,9 @@ public class Constants {
 
 	// 行走方向
 	public static String execode;
+
+	//行走速度
+	public static float speed = 0.25f;  // 0.10 - 0.40
 
 	// 命令内容
 	public static String text;
@@ -224,6 +238,14 @@ public class Constants {
 
 	public static final String EMERGENCY = "emergency";
 
+	public static final String AGORA_VIDEO_MEETING_INVITE = "agora_video_meeting_invite";
+
+	public static final String AGORA_VIDEO_MEETING_INVITE_CANCEL = "agora_video_meeting_invite_cancel";
+
+	public static final String AGORA_VIDEO_MEETING_INVITE_REPLY = "agora_video_meeting_invite_reply";
+
+	public static final String AGORA_VIDEO_MEETING_TIME = "agora_video_meeting_time";
+
 	public static final String MEDIA_JOIN_ROOM = "join_room";
 
 	public static final String INVITE_ID = "invite_id";
@@ -291,6 +313,44 @@ public class Constants {
     public static final String NET_OFF = "net_off";
 
     public static final String CONNECT_SUCCESS = "connect_success";
+
+	public static final String AGORA_INVITE_CANCEL = "agora_invite_cancel";
+
+	public static final String AGORA_INVITE_REPONSE = "agora_invite_reponse";
+
+	public static final String AGORA_INVITE_REPLY = "agora_invite_reply";
+
+	public static final String AGORA_MEETING_TIME_REPONSE = "agora_meeting_time_reponse";
+
+	public static final String AGORA_ID = "id";
+	public static final String AGORA_NUMBER = "number";
+	public static final String AGORA_ROLE = "role";
+	public static final String AGORA_NICKNAME = "nickname";
+	public static final String AGORA_CHANNEL_ID = "channel_id";
+	public static final String AGORA_TYPE = "type";
+	public static final String AGORA_MODE = "mode";
+	public static final String AGORA_INVITE_TYPE = "invite_type";
+	public static final String AGORA_INVITE_ID = "invite_id";
+	public static final String AGORA_REPLY = "reply";
+	public static final String AGORA_BEGINTIME = "begintime";
+	public static final String AGORA_ENDTIME = "endtime";
+	public static final String AGORA_TOTALTIME = "totaltime";
+	public static final String AGORA_TOTALSIZE = "totalsize";
+	public static final String AGORA_RET = "agora_ret";
+
+	public static final String AGORA_CMD_INVITE_REPONSE = "/avm/invite/response";
+
+	public static final String AGORA_CMD_INVITE = "/avm/invite";
+
+	public static final String AGORA_CMD_INVITE_CANCEL = "/avm/invite/cancel";
+
+	public static final String AGORA_CMD_INVITE_REPLY = "/avm/invite/reply";
+
+	public static final String AGORA_CMD_MEETING_TIME_REPONSE = "/media/meeting/report/response";
+
+	public static final String PHOTO_PATH = "photo_path";
+
+	public static final String FROM_PUSH = "from_push";
 
 	public interface Role{
 		String Robot = "Robot";

@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.os.Message;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
+import android.text.TextUtils;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Menu;
@@ -35,12 +36,16 @@ import com.baoyz.swipemenulistview.SwipeMenuListView;
 import com.baoyz.swipemenulistview.SwipeMenuListView.OnMenuItemClickListener;
 import com.easemob.EMCallBack;
 import com.easemob.chat.EMChat;
+import com.tencent.android.tpush.XGIOperateCallback;
+import com.tencent.android.tpush.XGPushConfig;
+import com.tencent.android.tpush.XGPushManager;
+import com.tencent.android.tpush.service.XGPushService;
 import com.yongyida.robot.R;
 import com.yongyida.robot.adapter.RobotAdapter;
 import com.yongyida.robot.bean.Robot;
 import com.yongyida.robot.biz.Biz;
+import com.yongyida.robot.huanxin.DemoApplication;
 import com.yongyida.robot.huanxin.DemoHXSDKHelper;
-import com.yongyida.robot.ronglianyun.SDKCoreHelper;
 import com.yongyida.robot.service.SocketService;
 import com.yongyida.robot.utils.BroadcastReceiverRegister;
 import com.yongyida.robot.utils.Constants;
@@ -66,6 +71,7 @@ public class ConnectActivity extends BaseActivity implements
         View.OnClickListener {
 
     private static final String TAG = "ConnectActivity";
+
     private SwipeMenuListView robots_bind;
     private ImageView findrobot;
     private SharedPreferences sharedPreferences;
@@ -76,38 +82,45 @@ public class ConnectActivity extends BaseActivity implements
     private long time;
     private int mBattery;
     private MyOnImageButtonClickListener mListener;
-//    private BroadcastReceiver mRlyKickOffBR = new BroadcastReceiver() {
-//        @Override
-//        public void onReceive(Context context, Intent intent) {
-//            ToastUtil.showtomain(ConnectActivity.this, getString(R.string.kick_off_relogin));
-//            fulllyExit();
-//        }
-//    };
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         setContentView(R.layout.activity_connect);
         super.onCreate(savedInstanceState);
-    //    initRonglianyun();
-    //    BroadcastReceiverRegister.reg(this, new String[]{Constants.RLY_KICK_OFF}, mRlyKickOffBR);
-        Log.i(TAG, EMChat.getInstance().getVersion());
-//        ActivityManager manager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
-//        List<ActivityManager.RunningServiceInfo> runningServices = manager.getRunningServices(Integer.MAX_VALUE);
-//        Log.e(TAG, "runningServices:" + runningServices.size());
-//        Log.e(TAG, "service:" + SocketService.class.getCanonicalName());
-//        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-//            if (SocketService.class.getCanonicalName().equals(service.service.getClassName())) {
-//                Log.e(TAG, "true");
-//            }
-//        }
+        Log.d(TAG, EMChat.getInstance().getVersion());
+        initXGPush();
+        fromPush();
     }
 
 
-    /**
-     * 初始化容联云
-     */
-    private void initRonglianyun() {
-        SDKCoreHelper.init(this);
+    private void fromPush() {
+        if(((DemoApplication) getApplication()).isFromPush()){
+            Intent intent = new Intent(this, AgoraInviteActivity.class);
+            intent.putExtra(Constants.AGORA_ID, ((DemoApplication) getApplication()).getAgoraId());
+            intent.putExtra(Constants.AGORA_CHANNEL_ID, ((DemoApplication) getApplication()).getAgoraChannelId());
+            startActivity(intent);
+            ((DemoApplication) getApplication()).setFromPush(false);
+        }
+    }
+
+    private void initXGPush() {
+        // 开启logcat输出，方便debug，发布时请关闭
+        XGPushConfig.enableDebug(this, true);
+        Log.d(TAG, "account:" + Utils.getAccount(this));
+        XGPushManager.registerPush(getApplicationContext(), Utils.getAccount(this), new XGIOperateCallback() {
+            @Override
+            public void onSuccess(Object data, int flag) {
+                Log.d(TAG, "注册成功，设备token为：" + data);
+            }
+
+            @Override
+            public void onFail(Object data, int errCode, String msg) {
+                Log.d(TAG, "注册失败，错误码：" + errCode + ",错误信息：" + msg);
+            }
+        });
+        Intent service = new Intent(getApplicationContext(), XGPushService.class);
+        startService(service);
     }
 
 
@@ -152,11 +165,6 @@ public class ConnectActivity extends BaseActivity implements
     }
 
     @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-    }
-
-    @Override
     protected void onResume() {
         Log.i(TAG, "onResume");
         if (Constants.flag) {
@@ -167,10 +175,6 @@ public class ConnectActivity extends BaseActivity implements
         getrobotinfo();
         time = 0;
         super.onResume();
-//        if (SDKCoreHelper.getConnectState() != ECDevice.ECConnectState.CONNECT_SUCCESS) {
-//            initRonglianyun();
-//        }
-
     }
 
     @Override
@@ -289,7 +293,7 @@ public class ConnectActivity extends BaseActivity implements
     }
 
     private void fulllyExit(){
-    //    SDKCoreHelper.logout(false);
+        XGPushManager.unregisterPush(getApplicationContext());
         ThreadPool.execute(new Runnable() {
 
             @Override
@@ -347,13 +351,6 @@ public class ConnectActivity extends BaseActivity implements
         switch (v.getId()) {
             case R.id.findrobot:
                 StartUtil.startintentforresult(this, BindRobotActivity.class, Constants.bindrobot_RequestCode);
-                //TODO
-            //    startActivity(new Intent(ConnectActivity.this, MonitoringActivity.class));
-            //    startActivity(new Intent(ConnectActivity.this, TestMeetingActivity.class));
-//                Intent intent = new Intent(ConnectActivity.this, VoiceChatActivity.class);
-//                intent.putExtra("chatType", 1);
-//                intent.putExtra("userId", "294392893");
-//                startActivity(intent);
 
                 break;
             case R.id.setting_into:
@@ -383,11 +380,11 @@ public class ConnectActivity extends BaseActivity implements
                         Bundle params = new Bundle();
                         params.putString("version", intent.getStringExtra("version"));
                         params.putInt("battery", mBattery);
-//                        if (!TextUtils.isEmpty(id) && id.startsWith("Y20")) {
-//                            StartUtil.startintent(ConnectActivity.this, MeetingFunctionListActivity.class, "no", params);
-//                        } else {
+                        if (!TextUtils.isEmpty(id) && Utils.isSeries(id, "20")) {
+                            StartUtil.startintent(ConnectActivity.this, MeetingFunctionListActivity.class, "no", params);
+                        } else {
                             StartUtil.startintent(ConnectActivity.this, PowerListActivity.class, "no", params);
-//                        }
+                        }
                         break;
                     case -1:
                         handler.sendEmptyMessage(4);
@@ -435,14 +432,15 @@ public class ConnectActivity extends BaseActivity implements
         List<Robot> tmpList = new ArrayList<Robot>();
         List<Robot> returnList = new ArrayList<Robot>();
         for (int i = 0; i < list.size(); i++) {
-            if (list.get(i).getId().startsWith("Y50")) {
+            if (Utils.isSeries(list.get(i).getId(), "50")) {
                 tmpList.add(list.get(i));
+
             }
         }
         returnList.addAll(sort(tmpList));
         tmpList.clear();
         for (int i = 0; i < list.size(); i++) {
-            if (list.get(i).getId().startsWith("Y20")) {
+            if (Utils.isSeries(list.get(i).getId(), "20")) {
                 tmpList.add(list.get(i));
             }
         }
@@ -664,8 +662,6 @@ public class ConnectActivity extends BaseActivity implements
         if (Utils.isServiceRunning(ConnectActivity.this, SocketService.class.getCanonicalName())) {
             Utils.stopSocketService(this);
         }
-    //    SDKCoreHelper.logout(true);
-    //    ECDevice.unInitial();
 
         super.onBackPressed();
     }
@@ -684,7 +680,6 @@ public class ConnectActivity extends BaseActivity implements
     protected void onDestroy() {
         super.onDestroy();
         handler.removeCallbacksAndMessages(null);
-    //    Utils.unRegisterReceiver(mRlyKickOffBR, this);
     }
 
 }

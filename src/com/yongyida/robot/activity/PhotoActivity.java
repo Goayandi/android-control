@@ -43,28 +43,29 @@ public class PhotoActivity extends Activity implements View.OnClickListener {
     private static final int ADD_PHOTO = 5;
     private static final int ADD = 2;
     private Button refersh;
-	private ImageLoader loader;
-	private String[] paths;
+    private ImageLoader loader;
+    private String[] paths;
+    private String[] completePaths;
     private File file;
-	private GridView photo_grid;
-	private PhotoAdapter simpleAdapter;
-	private Button delete;
+    private GridView photo_grid;
+    private PhotoAdapter simpleAdapter;
+    private Button delete;
     private List<String> localPhotoList = new ArrayList<String>();
-	private boolean choosestate = false;
-	private ArrayList<String> delete_list = new ArrayList<String>();  //存放的是.jpg的名字
-	private ProgressDialog progressDialog;
+    private boolean choosestate = false;
+    private ArrayList<String> delete_list = new ArrayList<String>();  //存放的是.jpg的名字
+    private ProgressDialog progressDialog;
     private int totalPhoto = -1;
-	private Handler mHandler = new Handler(){
-		@Override
-		public void handleMessage(Message msg) {
-			switch (msg.what) {
-				case NO_MORE_PHOTO:
-                   if (progressDialog != null) {
+    private Handler mHandler = new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case NO_MORE_PHOTO:
+                    if (progressDialog != null) {
                         progressDialog.dismiss();
                     }
                     ToastUtil.showtomain(PhotoActivity.this, getString(R.string.no_more));
                     refersh.setEnabled(true);
-					break;
+                    break;
                 case SET_LOCAL_PHOTO:
                     setadapter();
                     if (progressDialog != null) {
@@ -87,38 +88,38 @@ public class PhotoActivity extends Activity implements View.OnClickListener {
                     refersh.setEnabled(true);
                     break;
                 case ADD_PHOTO:
-                    setadapter();
+                    setadapter((String)msg.obj);
                     break;
-			}
-		}
-	};
+            }
+        }
+    };
 
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_photo);
-		file = getfile();
-		refersh = (Button) findViewById(R.id.photo_refersh);
-		refersh.setOnClickListener(this);
-		delete = (Button) findViewById(R.id.photo_delete);
-		delete.setOnClickListener(this);
-		BroadcastReceiverRegister.reg(this,
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_photo);
+        file = getfile();
+        refersh = (Button) findViewById(R.id.photo_refersh);
+        refersh.setOnClickListener(this);
+        delete = (Button) findViewById(R.id.photo_delete);
+        delete.setOnClickListener(this);
+        BroadcastReceiverRegister.reg(this,
                 new String[]{Constants.Photo_Reply}, photo_setadapter);
-		BroadcastReceiverRegister.reg(this,
-				new String[] { Constants.Photo_Reply_Names }, names_reply);
-		loader = ImageLoader.getInstance(3, ImageLoader.Type.LIFO);
-		photo_grid = (GridView) findViewById(R.id.photo);
-		photo_grid.setOnItemClickListener(clickListener);
-		photo_grid.setOnItemLongClickListener(onlongclick);
-		progressDialog = new ProgressDialog(this);
-		if (!file.exists()) {
-			file.mkdirs();
-		}
+        BroadcastReceiverRegister.reg(this,
+                new String[] { Constants.Photo_Reply_Names }, names_reply);
+        loader = ImageLoader.getInstance(3, ImageLoader.Type.LIFO);
+        photo_grid = (GridView) findViewById(R.id.photo);
+        photo_grid.setOnItemClickListener(clickListener);
+        photo_grid.setOnItemLongClickListener(onlongclick);
+        progressDialog = new ProgressDialog(this);
+        if (!file.exists()) {
+            file.mkdirs();
+        }
         progressDialog.setMessage(getString(R.string.get_picture_ing));
         progressDialog.show();
         progressDialog.setCanceledOnTouchOutside(false);
-        setLocalPhoto(UPDATE);
-	}
+        setLocalPhoto(UPDATE, null);
+    }
 
     private void setLocalPhotoList(String[] localphotos){
         localPhotoList.clear();
@@ -127,12 +128,12 @@ public class PhotoActivity extends Activity implements View.OnClickListener {
         }
     }
 
-	public File getfile() {
-		return new File(this.getExternalFilesDir(null).getAbsolutePath()
-				+ "/"
-				+ getSharedPreferences("Receipt", MODE_PRIVATE).getString(
-						"username", null) + "small");
-	}
+    public File getfile() {
+        return new File(this.getExternalFilesDir(null).getAbsolutePath()
+                + "/"
+                + getSharedPreferences("Receipt", MODE_PRIVATE).getString(
+                "username", null) + "small");
+    }
 
     private String[] getLocalPhotos(){
         return getfile().list();
@@ -140,10 +141,11 @@ public class PhotoActivity extends Activity implements View.OnClickListener {
 
     /**
      *
-     * @param flag 1是手机端删除操作
+     * @param flag
+     * @param file 添加照片的路径
      */
-	private void setLocalPhoto(final int flag) {
-		ThreadPool.execute(new Runnable() {
+    private void setLocalPhoto(final int flag, final String file) {
+        ThreadPool.execute(new Runnable() {
 
             @Override
             public void run() {
@@ -151,78 +153,82 @@ public class PhotoActivity extends Activity implements View.OnClickListener {
                 if (flag == DELETE) {
                     mHandler.sendEmptyMessage(DELETE_PHOTO);
                 } else if (flag == ADD) {
-                    mHandler.sendEmptyMessage(ADD_PHOTO);
+                    Message msg = mHandler.obtainMessage();
+                    msg.what = ADD_PHOTO;
+                    msg.obj = file;
+                    mHandler.sendMessage(msg);
                 } else {
                     mHandler.sendEmptyMessage(SET_LOCAL_PHOTO);
                 }
             }
         });
 
-	}
+    }
 
-	@Override
-	public void onClick(View v) {
-		switch (v.getId()) {
-		case R.id.photo_refersh:
-			if (refersh.getText().toString().equals(getString(R.string.refresh))) {
-                progressDialog.setMessage(getString(R.string.get_picture_ing));
-                progressDialog.show();
-                progressDialog.setCanceledOnTouchOutside(false);
-                query_photo_name();
-                refersh.setEnabled(false);
-			} else {
-				back();
-			}
-			break;
-		case R.id.photo_delete:
-			if (delete_list.size() > 0) {
-				progressDialog = new ProgressDialog(this);
-				progressDialog.setMessage(getString(R.string.delete_ing));
-				progressDialog.show();
-				progressDialog.setCanceledOnTouchOutside(false);
-				sendBroadcast(new Intent(Constants.Photo_Delete).putExtra(
-						"delete_names", delete_list.toArray(new String[] {})));
-				delete.setEnabled(false);
-				ThreadPool.execute(new Runnable() {
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.photo_refersh:
+                if (refersh.getText().toString().equals(getString(R.string.refresh))) {
+                    progressDialog.setMessage(getString(R.string.get_picture_ing));
+                    progressDialog.show();
+                    progressDialog.setCanceledOnTouchOutside(false);
+                    query_photo_name();
+                    refersh.setEnabled(false);
+                } else {
+                    back();
+                }
+                break;
+            case R.id.photo_delete:
+                if (delete_list.size() > 0) {
+                    progressDialog = new ProgressDialog(this);
+                    progressDialog.setMessage(getString(R.string.delete_ing));
+                    progressDialog.show();
+                    progressDialog.setCanceledOnTouchOutside(false);
+                    sendBroadcast(new Intent(Constants.Photo_Delete).putExtra(
+                            "delete_names", delete_list.toArray(new String[] {})));
+                    delete.setEnabled(false);
+                    ThreadPool.execute(new Runnable() {
 
-					@Override
-					public void run() {
-						for (int i = 0; i < delete_list.size(); i++) {
-							File f = new File(file.getAbsolutePath() + "/"
-									+ delete_list.get(i));
-							f.delete();
-						}
-						setLocalPhoto(DELETE);
-					}
-				});
+                        @Override
+                        public void run() {
+                            for (int i = 0; i < delete_list.size(); i++) {
+                                File f = new File(file.getAbsolutePath() + "/"
+                                        + delete_list.get(i));
+                                f.delete();
+                            }
+                            setLocalPhoto(DELETE, null);
+                        }
+                    });
 
-			} else {
-				ToastUtil.showtomain(this, getString(R.string.choose_picture));
-			}
-			break;
-		default:
-			break;
-		}
-	}
+                } else {
+                    ToastUtil.showtomain(this, getString(R.string.choose_picture));
+                }
+                break;
+            default:
+                break;
+        }
+    }
 
-	public void back() {
-		choosestate = false;
-		delete_list.clear();
-		simpleAdapter.setAllUnCheck();
-		simpleAdapter.notifyDataSetChanged();
-		delete.setVisibility(View.GONE);
-		refersh.setText(getString(R.string.refresh));
-	}
+    public void back() {
+        choosestate = false;
+        delete_list.clear();
+        simpleAdapter.setAllUnCheck();
+        simpleAdapter.notifyDataSetChanged();
+        delete.setVisibility(View.GONE);
+        refersh.setText(getString(R.string.refresh));
+    }
 
-	BroadcastReceiver names_reply = new BroadcastReceiver() {
+    BroadcastReceiver names_reply = new BroadcastReceiver() {
 
-		@Override
-		public void onReceive(Context arg0, Intent intent) {
-			final List<String> robotPhotos = intent.getStringArrayListExtra("result");
+        @Override
+        public void onReceive(Context arg0, Intent intent) {
+            final List<String> robotPhotos = intent.getStringArrayListExtra("result");
             ThreadPool.execute(new Runnable() {
                 @Override
                 public void run() {
-                    String[] localphotos = getLocalPhotos();
+                    completePaths = getLocalPhotos();
+
 //                    if (robotPhotos.size() == 0) {
 //                        if (localphotos.length != 0) {
 //                            //清除所有文件
@@ -281,8 +287,8 @@ public class PhotoActivity extends Activity implements View.OnClickListener {
                     }
                 }
             });
-		}
-	};
+        }
+    };
 
     /**
      *
@@ -290,16 +296,16 @@ public class PhotoActivity extends Activity implements View.OnClickListener {
      * @param localphotos
      * @return
      */
-	private int compareFile(List<String> names, String[] localphotos) {
-		// names.size不会为0
-		if (names.size() == localphotos.length) {
-			return EQUAL;
-		} else if (names.size() < localphotos.length) {
+    private int compareFile(List<String> names, String[] localphotos) {
+        // names.size不会为0
+        if (names.size() == localphotos.length) {
+            return EQUAL;
+        } else if (names.size() < localphotos.length) {
             return ROBOT_DELETE;
         } else {
             return ROBOT_ADD;
         }
-	}
+    }
 
     private List<String> containAll(List<String> names, String[] localphotos) {
         if (localphotos.length == 0) {
@@ -314,20 +320,46 @@ public class PhotoActivity extends Activity implements View.OnClickListener {
         return list;
     }
 
-	private AdapterView.OnItemClickListener clickListener = new AdapterView.OnItemClickListener() {
-		@Override
-		public void onItemClick(AdapterView<?> adapter, View v, int position,
-				long arg3) {
-			if (!choosestate) {
-				Bundle params = new Bundle();
-				params.putInt("position", position);
-				StartUtil.startintent(PhotoActivity.this,
+    private AdapterView.OnItemClickListener clickListener = new AdapterView.OnItemClickListener() {
+        @Override
+        public void onItemClick(AdapterView<?> adapter, View v, int position,
+                                long arg3) {
+            if (!choosestate) {
+                Bundle params = new Bundle();
+                params.putInt("position", position);
+                StartUtil.startintent(PhotoActivity.this,
                         BigImageActivity.class, "no", params);
-			}
-		}
-	};
+            }
+        }
+    };
 
-	private void setadapter() {
+    private synchronized void setadapter(String file){
+        if (completePaths == null || completePaths.length == 0) {
+            completePaths = new String [1];
+            completePaths[0] = file;
+        } else {
+            String[] tmpPaths = new String[completePaths.length + 1];
+            System.arraycopy(completePaths, 0, tmpPaths, 0, completePaths.length);
+            tmpPaths[completePaths.length] = file;
+            completePaths = tmpPaths;
+        }
+        if (completePaths.length == totalPhoto) {
+            Log.i(TAG, "dismiss");
+            totalPhoto = -1;
+            mHandler.sendEmptyMessage(DOWNLOAD_COMPLETE);
+        }
+        if (simpleAdapter == null) {
+            simpleAdapter = new PhotoAdapter(PhotoActivity.this, completePaths, loader,
+                    back);
+            photo_grid.setAdapter(simpleAdapter);
+        } else {
+            simpleAdapter.setData(completePaths);
+        }
+
+
+    }
+
+    private void setadapter() {
         if (localPhotoList.size() == 0) {
             paths = new String[]{};
         } else {
@@ -341,51 +373,57 @@ public class PhotoActivity extends Activity implements View.OnClickListener {
             totalPhoto = -1;
             mHandler.sendEmptyMessage(DOWNLOAD_COMPLETE);
         }
-		simpleAdapter = new PhotoAdapter(PhotoActivity.this, paths, loader,
-				back);
-		photo_grid.setAdapter(simpleAdapter);
-	}
+        if (simpleAdapter == null) {
+            simpleAdapter = new PhotoAdapter(PhotoActivity.this, paths, loader,
+                    back);
+            photo_grid.setAdapter(simpleAdapter);
+        } else {
+            simpleAdapter.setData(paths);
+        }
 
-	private PhotoAdapter.callback back = new PhotoAdapter.callback() {
+    }
 
-		@Override
-		public boolean IslongClick() {
+    private PhotoAdapter.callback back = new PhotoAdapter.callback() {
 
-			return choosestate;
-		}
-	};
+        @Override
+        public boolean IslongClick() {
 
-	BroadcastReceiver photo_setadapter = new BroadcastReceiver() {
+            return choosestate;
+        }
+    };
 
-		@Override
-		public void onReceive(Context arg0, Intent intent) {
-			if (intent.getAction().equals(Constants.Photo_Reply)) {
-                setLocalPhoto(ADD);
-			}
-		}
-	};
- 
-	private AdapterView.OnItemLongClickListener onlongclick = new AdapterView.OnItemLongClickListener() {
-		@Override
-		public boolean onItemLongClick(AdapterView<?> adapter, View v,
-				int position, long arg3) {
-			if (choosestate) {
-				choosestate = false;
-			} else {
-				choosestate = true;
-			}
-			simpleAdapter.notifyDataSetChanged();
-			delete.setVisibility(View.VISIBLE);
-			refersh.setText(getString(R.string.cancel));
-			return false;
-		}
-	};
+    BroadcastReceiver photo_setadapter = new BroadcastReceiver() {
 
-	public void checked(String name) {
-		delete_list.add(name);
-	}
+        @Override
+        public void onReceive(Context arg0, Intent intent) {
+            if (intent.getAction().equals(Constants.Photo_Reply)) {
+                String file = intent.getStringExtra(Constants.PHOTO_PATH);
+                setLocalPhoto(ADD , file);
+            }
+        }
+    };
 
-	public void notcheck(String name) {
+    private AdapterView.OnItemLongClickListener onlongclick = new AdapterView.OnItemLongClickListener() {
+        @Override
+        public boolean onItemLongClick(AdapterView<?> adapter, View v,
+                                       int position, long arg3) {
+            if (choosestate) {
+                choosestate = false;
+            } else {
+                choosestate = true;
+            }
+            simpleAdapter.notifyDataSetChanged();
+            delete.setVisibility(View.VISIBLE);
+            refersh.setText(getString(R.string.cancel));
+            return false;
+        }
+    };
+
+    public void checked(String name) {
+        delete_list.add(name);
+    }
+
+    public void notcheck(String name) {
         delete_list.remove(name);
     }
 
@@ -395,29 +433,29 @@ public class PhotoActivity extends Activity implements View.OnClickListener {
                 "name", name));
     }
 
-	private void query_photo_name() {
-		sendBroadcast(new Intent(Constants.Photo_Query_Name));
-	}
+    private void query_photo_name() {
+        sendBroadcast(new Intent(Constants.Photo_Query_Name));
+    }
 
-	public void back(View view) {
+    public void back(View view) {
         finish();
-	}
+    }
 
-	protected void onDestroy() {
-		if (names_reply != null) {
-			unregisterReceiver(names_reply);
+    protected void onDestroy() {
+        if (names_reply != null) {
+            unregisterReceiver(names_reply);
         }
-		if (photo_setadapter != null) {
-			unregisterReceiver(photo_setadapter);
-		}
-		super.onDestroy();
-	}
+        if (photo_setadapter != null) {
+            unregisterReceiver(photo_setadapter);
+        }
+        super.onDestroy();
+    }
 
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
 
-		return true;
-	}
+        return true;
+    }
 
 }
 

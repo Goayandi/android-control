@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black_deep"
+    android:animateLayoutChanges="true"
+    >
+
+    <SurfaceView
+        android:id="@+id/opposite_surface"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:visibility="gone"/>
+
+    <SurfaceView
+        android:id="@+id/local_surface"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_gravity="right|top" />
+
+    <Button
+        android:id="@+id/back"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:background="@android:color/transparent"
+        android:drawableStart="@drawable/back"
+        android:text="@string/return1"
+        android:textColor="@color/white" />
+
+    <SeekBar
+        android:id="@+id/seekbar"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:max="100"
+        android:progress="50"
+        android:layout_gravity="center_horizontal"/>
+
+    <RelativeLayout
+        android:id="@+id/rl_speak"
+        android:layout_width="150dp"
+        android:layout_height="50dp"
+        android:layout_marginBottom="30dp"
+        android:layout_gravity="center_horizontal|bottom">
+        <ImageView
+            android:id="@+id/speak"
+            android:layout_width="60dp"
+            android:layout_height="40dp"
+            android:layout_marginTop="10dp"
+            android:src="@drawable/speak2"/>
+        <ImageView
+            android:id="@+id/talk"
+            android:layout_width="60dp"
+            android:layout_height="40dp"
+            android:layout_marginTop="10dp"
+            android:layout_alignParentRight="true"
+            android:src="@drawable/talk2"/>
+    </RelativeLayout>
+    
+    <TableLayout
+        android:id="@+id/tl_move"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left|bottom"
+        android:layout_margin="10dp" >
+
+        <TableRow>
+
+            <ImageView
+                android:id="@+id/up"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_column="1"
+                android:src="@drawable/up2" />
+        </TableRow>
+
+        <TableRow>
+
+            <ImageView
+                android:id="@+id/left"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:src="@drawable/left2" />
+
+            <TextView
+                android:id="@+id/move"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:background="@drawable/cz2"
+                android:gravity="center"
+                android:textColor="@color/btn_white_normal" />
+
+            <ImageView
+                android:id="@+id/right"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:src="@drawable/right2" />
+        </TableRow>
+
+        <TableRow>
+
+            <ImageView
+                android:id="@+id/down"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_column="1"
+                android:src="@drawable/down2" />
+        </TableRow>
+    </TableLayout>
+
+    <TableLayout
+        android:id="@+id/tl_head"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right|bottom"
+        android:layout_marginRight="10dp"
+        android:layout_marginBottom="30dp"
+        >
+
+        <TableRow>
+
+            <ImageView
+                android:id="@+id/head_left"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:src="@drawable/left2" />
+
+            <TextView
+                android:id="@+id/head"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:background="@drawable/tou2"
+                android:gravity="center"
+                android:textColor="@color/btn_white_normal" />
+
+            <ImageView
+                android:id="@+id/head_right"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:src="@drawable/right2" />
+        </TableRow>
+
+    </TableLayout>
+
+    <TableLayout
+        android:id="@+id/tl_body"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right|bottom"
+        android:layout_marginRight="10dp"
+        android:layout_marginBottom="100dp"
+        >
+
+        <TableRow>
+
+            <ImageView
+                android:id="@+id/body_left"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:src="@drawable/left2" />
+
+            <TextView
+                android:id="@+id/body"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:background="@drawable/body2"
+                android:gravity="center"
+                android:textColor="@color/btn_white_normal" />
+
+            <ImageView
+                android:id="@+id/body_right"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:src="@drawable/right2" />
+        </TableRow>
+
+    </TableLayout>
+
+    <Button
+        android:id="@+id/play"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_gravity="center"
+        android:background="@drawable/bofang"
+        android:textColor="@color/white" />
+
+    <Button
+        android:id="@+id/mictoggole"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_gravity="right"
+        android:background="@drawable/icon_mute_on"
+        android:onClick="toggle_speak"
+        android:layout_marginTop="110dp"
+        />
+
+</FrameLayout>

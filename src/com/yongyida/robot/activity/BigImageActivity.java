@@ -33,7 +33,7 @@ public class BigImageActivity extends Activity {
 		file = new File(getExternalFilesDir(null)
 				+ "/"
 				+ getSharedPreferences("Receipt", MODE_PRIVATE).getString(
-						"username", null) + "small");
+				"username", null) + "small");
 		Log.i("user",  getSharedPreferences("Receipt", MODE_PRIVATE).getString(
 				"username", null) + "small");
 		image = (HackyViewPager) findViewById(R.id.bigimage);
@@ -73,20 +73,20 @@ public class BigImageActivity extends Activity {
 			this.loader = loader;
 		}
 
-			@Override
-			public boolean isViewFromObject (View arg0, Object arg1){
-				return arg0 == arg1;
-			}
+		@Override
+		public boolean isViewFromObject (View arg0, Object arg1){
+			return arg0 == arg1;
+		}
 
-			@Override
-			public int getCount () {
-				return file.list().length;
-			}
+		@Override
+		public int getCount () {
+			return file.list().length;
+		}
 
-			@Override
-			public Object instantiateItem (ViewGroup container,final int position){
-				final String[] fs = file.list();
-				PhotoView imageView = new PhotoView(BigImageActivity.this);
+		@Override
+		public Object instantiateItem (ViewGroup container,final int position){
+			final String[] fs = file.list();
+			PhotoView imageView = new PhotoView(BigImageActivity.this);
 //				BitmapFactory.Options options = new BitmapFactory.Options();
 //				options.inSampleSize = 4;
 //				Bitmap b = BitmapFactory.decodeFile(file.getAbsolutePath()
@@ -96,56 +96,56 @@ public class BigImageActivity extends Activity {
 //						b.getHeight(), matrix, true);
 //				b.recycle();
 //				imageView.setImageBitmap(bm);
-				loader.loadImage(file.getAbsolutePath() + "/" + fs[position], imageView, false);
-				imageView.setOnLongClickListener(new View.OnLongClickListener() {
-					@Override
-					public boolean onLongClick(View view) {
-						android.app.AlertDialog.Builder builder = new AlertDialog.Builder(BigImageActivity.this);
-						builder.setMessage(R.string.whether_local_saving);
-						builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+			loader.loadImage(file.getAbsolutePath() + "/" + fs[position], imageView, false);
+			imageView.setOnLongClickListener(new View.OnLongClickListener() {
+				@Override
+				public boolean onLongClick(View view) {
+					android.app.AlertDialog.Builder builder = new AlertDialog.Builder(BigImageActivity.this);
+					builder.setMessage(R.string.whether_local_saving);
+					builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
 
-							@Override
-							public void onClick(DialogInterface dialogInterface, int i) {
-								//转存到本地相册
-								String albumPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getPath() + "/" + "photo";
-								File folder = new File(albumPath);
-								if (!folder.exists()) {
-									folder.mkdir();
-								}
-								File sourceFile = new File(file.getAbsolutePath() + "/" + fs[position]);
-								File file = new File(albumPath + "/" + fs[position]);
-								if (file.exists()) {
-									ToastUtil.showtomain(BigImageActivity.this, getString(R.string.already_exist));
+						@Override
+						public void onClick(DialogInterface dialogInterface, int i) {
+							//转存到本地相册
+							String albumPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getPath() + "/" + "photo";
+							File folder = new File(albumPath);
+							if (!folder.exists()) {
+								folder.mkdir();
+							}
+							File sourceFile = new File(file.getAbsolutePath() + "/" + fs[position]);
+							File file = new File(albumPath + "/" + fs[position]);
+							if (file.exists()) {
+								ToastUtil.showtomain(BigImageActivity.this, getString(R.string.already_exist));
+							} else {
+								boolean success = FileUtil.fileChannelCopy(sourceFile, file);
+								if (success) {
+									ToastUtil.showtomain(BigImageActivity.this, getString(R.string.save_to_fold));
 								} else {
-									boolean success = FileUtil.fileChannelCopy(sourceFile, file);
-									if (success) {
-										ToastUtil.showtomain(BigImageActivity.this, getString(R.string.save_to_fold));
-									} else {
-										ToastUtil.showtomain(BigImageActivity.this, getString(R.string.save_fail));
-									}
+									ToastUtil.showtomain(BigImageActivity.this, getString(R.string.save_fail));
 								}
-								dialogInterface.dismiss();
 							}
-						});
-						builder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialogInterface, int i) {
-								dialogInterface.dismiss();
-							}
-						});
-						builder.create().show();
-						return true;
-					}
-				});
-				container.addView(imageView, LayoutParams.MATCH_PARENT,
-						LayoutParams.MATCH_PARENT);
-				return imageView;
-			}
+							dialogInterface.dismiss();
+						}
+					});
+					builder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialogInterface, int i) {
+							dialogInterface.dismiss();
+						}
+					});
+					builder.create().show();
+					return true;
+				}
+			});
+			container.addView(imageView, LayoutParams.MATCH_PARENT,
+					LayoutParams.MATCH_PARENT);
+			return imageView;
+		}
 
-			@Override
-			public void destroyItem (ViewGroup container,int position,
-			Object object){
-				container.removeView((View) object);
-			}
+		@Override
+		public void destroyItem (ViewGroup container,int position,
+								 Object object){
+			container.removeView((View) object);
+		}
 	}
 }

@@ -14,9 +14,12 @@ import android.graphics.Bitmap;
 import android.hardware.Camera;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.text.TextUtils;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
+import android.view.WindowManager;
 
 import com.yongyida.robot.service.SocketService;
 
@@ -66,6 +69,30 @@ public class Utils {
         return SystemLanguage.CHINA;
     }
 
+
+    /**
+     * 判断某个界面是否在前台
+     *
+     * @param context
+     * @param className
+     *            某个界面名称
+     */
+    public static boolean isForeground(Context context, String className) {
+        if (context == null || TextUtils.isEmpty(className)) {
+            return false;
+        }
+
+        ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        List<ActivityManager.RunningTaskInfo> list = am.getRunningTasks(1);
+        if (list != null && list.size() > 0) {
+            ComponentName cpn = list.get(0).topActivity;
+            if (className.equals(cpn.getClassName())) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     /**
      * 判断服务是否开启
@@ -301,11 +328,11 @@ public class Utils {
             String account = context.getSharedPreferences("userinfo", context.MODE_PRIVATE)
                     .getString("account_name", null);
             if (account != null) {
-                Log.e(TAG, "getAccount:ACCOUNT_LOGIN:account" + account);
+                Log.i(TAG, "getAccount:ACCOUNT_LOGIN:account" + account);
                 return account;
             } else {
                 if (userId != -1) {
-                    Log.e(TAG, "getAccount:ACCOUNT_LOGIN:userId" + userId);
+                    Log.i(TAG, "getAccount:ACCOUNT_LOGIN:userId" + userId);
                     return userId + "";
                 }
             }
@@ -316,13 +343,41 @@ public class Utils {
                 return username;
             } else {
                 if (userId != -1) {
-                    Log.e(TAG, "getAccount:userId:" + userId);
+                    Log.i(TAG, "getAccount:userId:" + userId);
                     return userId + "";
                 }
             }
         }
-        Log.e(TAG, "getAccount:null");
+        Log.i(TAG, "getAccount:null");
         return "";
+    }
+
+    /**
+     * 获取手机号
+     * @param context
+     * @return
+     */
+    public static String getPhoneNumber(Context context){
+        String username = context.getSharedPreferences("userinfo", context.MODE_PRIVATE)
+                .getString("phonenumber", null);
+        if (username != null) {
+            return username;
+        }
+        return "error";
+    }
+
+    /**
+     * 获取手机数字id
+     * @param context
+     * @return
+     */
+    public static String getUserID(Context context){
+        int userId = context.getSharedPreferences("userinfo", context.MODE_PRIVATE)
+                .getInt("id", -1);
+        if (userId != -1) {
+            return userId + "";
+        }
+        return "error";
     }
 
     public final static int CN = 0;
@@ -472,5 +527,40 @@ public class Utils {
             mCamera.release();
         }
         return canUse;
+    }
+
+    /**
+     * 获取屏幕宽度
+     * @return
+     */
+    public static int getScreenWidth(Activity activity){
+        WindowManager manager = activity.getWindowManager();
+        DisplayMetrics outMetrics = new DisplayMetrics();
+        manager.getDefaultDisplay().getMetrics(outMetrics);
+        return outMetrics.widthPixels;
+    }
+
+    /**
+     * 获取屏幕高度
+     * @return
+     */
+    public static int getScreenHeight(Activity activity){
+        WindowManager manager = activity.getWindowManager();
+        DisplayMetrics outMetrics = new DisplayMetrics();
+        manager.getDefaultDisplay().getMetrics(outMetrics);
+        return outMetrics.heightPixels;
+    }
+
+    /**
+     * 是否属于当前系列
+     * @param id   机器人id Y20... Y50...
+     * @param series  系列  20 50
+     * @return
+     */
+    public static boolean isSeries(String id, String series) {
+        if (series.equals(id.substring(1,3))) {
+            return true;
+        }
+        return false;
     }
 }
