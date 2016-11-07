@@ -1,11 +1,10 @@
 package com.yongyida.robot.activity;
 
-import android.app.*;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Environment;
-import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,18 +23,20 @@ import java.io.File;
 public class BigImageActivity extends Activity {
 
 	private HackyViewPager image;
-	private File file = null;
+	private String[] locations;
+	//	private File file = null;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_big_image);
-		file = new File(getExternalFilesDir(null)
-				+ "/"
-				+ getSharedPreferences("Receipt", MODE_PRIVATE).getString(
-				"username", null) + "small");
-		Log.i("user",  getSharedPreferences("Receipt", MODE_PRIVATE).getString(
-				"username", null) + "small");
+//		file = new File(getExternalFilesDir(null)
+//				+ "/"
+//				+ getSharedPreferences("Receipt", MODE_PRIVATE).getString(
+//				"username", null) + "small");
+//		Log.i("user",  getSharedPreferences("Receipt", MODE_PRIVATE).getString(
+//				"username", null) + "small");
+		locations = getIntent().getExtras().getStringArray("location");
 		image = (HackyViewPager) findViewById(R.id.bigimage);
 		image.setLocked(false);
 		setviewpager(image);
@@ -80,12 +81,11 @@ public class BigImageActivity extends Activity {
 
 		@Override
 		public int getCount () {
-			return file.list().length;
+			return locations.length;
 		}
 
 		@Override
 		public Object instantiateItem (ViewGroup container,final int position){
-			final String[] fs = file.list();
 			PhotoView imageView = new PhotoView(BigImageActivity.this);
 //				BitmapFactory.Options options = new BitmapFactory.Options();
 //				options.inSampleSize = 4;
@@ -96,7 +96,7 @@ public class BigImageActivity extends Activity {
 //						b.getHeight(), matrix, true);
 //				b.recycle();
 //				imageView.setImageBitmap(bm);
-			loader.loadImage(file.getAbsolutePath() + "/" + fs[position], imageView, false);
+			loader.loadImage(locations[position], imageView, false);
 			imageView.setOnLongClickListener(new View.OnLongClickListener() {
 				@Override
 				public boolean onLongClick(View view) {
@@ -112,8 +112,8 @@ public class BigImageActivity extends Activity {
 							if (!folder.exists()) {
 								folder.mkdir();
 							}
-							File sourceFile = new File(file.getAbsolutePath() + "/" + fs[position]);
-							File file = new File(albumPath + "/" + fs[position]);
+							File sourceFile = new File(locations[position]);
+							File file = new File(albumPath + locations[position].substring(locations[position].lastIndexOf(File.separator)));
 							if (file.exists()) {
 								ToastUtil.showtomain(BigImageActivity.this, getString(R.string.already_exist));
 							} else {

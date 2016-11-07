@@ -26,19 +26,27 @@ public class Constants {
 
 	// 下载地址
 //	public static String download_address_cn = "http://resource.yydrobot.com/app/yyd/cn/app.version";
+//   public static String download_address_test = "http://120.24.242.163/app/yyd/cn/app.version";
+
 //	public static String download_address_cn = "http://resource.yydrobot.com/app/youjiaoxiaotong/cn/app.youjiaoxiaotong.version";
+// 	public static String download_address_test = "http://120.24.242.163/app/youjiaoxiaotong/cn/app.youjiaoxiaotong.version";
+
 //	public static String download_address_cn= "http://resource.yydrobot.com/app/gaojunkeji/cn/app.gaojunkeji.version";
+// 	public static String download_address_test = "http://120.24.242.163/app/gaojunkeji/cn/app.gaojunkeji.version";
+
 //	public static String download_address_cn= "http://resource.yydrobot.com/app/liuchaokeji/cn/app.liuchaokeji.version";
-//	public static String download_address_cn= "http://resource.yydrobot.com/app/cmcc/cn/app.cmcc.version";
-//	public static String download_address_cn= "http://resource.yydrobot.com/app/caihongwoniu/cn/app.caihongwoniu.version";
-	public static String download_address_cn= "http://resource.yydrobot.com/app/xiaoyujiqiren/cn/app.xiaoyujiqiren.version";
-//	public static String download_address_test = "http://120.24.242.163/app/gaojunkeji/cn/app.gaojunkeji.version";
 //	public static String download_address_test = "http://120.24.242.163/app/liuchaokeji/cn/app.liuchaokeji.version";
-//	public static String download_address_test = "http://120.24.242.163/app/cmcc/cn/app.cmcc.version";
+
+	public static String download_address_cn= "http://resource.yydrobot.com/app/cmcc/cn/app.cmcc.version";
+	public static String download_address_test = "http://120.24.242.163/app/cmcc/cn/app.cmcc.version";
+
+//	public static String download_address_cn= "http://resource.yydrobot.com/app/caihongwoniu/cn/app.caihongwoniu.version";
 //	public static String download_address_test = "http://120.24.242.163/app/caihongwoniu/cn/app.caihongwoniu.version";
-	public static String download_address_test = "http://120.24.242.163/app/xiaoyujiqiren/cn/app.xiaoyujiqiren.version";
-//	public static String download_address_test = "http://120.24.242.163/app/yyd/cn/app.version";
-//	public static String download_address_test = "http://120.24.242.163/app/youjiaoxiaotong/cn/app.youjiaoxiaotong.version";
+
+//	public static String download_address_cn= "http://resource.yydrobot.com/app/xiaoyujiqiren/cn/app.xiaoyujiqiren.version";
+//	public static String download_address_test = "http://120.24.242.163/app/xiaoyujiqiren/cn/app.xiaoyujiqiren.version";
+
+
 	public static String download_address_hk = "http://resource.yydrobot.com/app/hk/cn/app.hk.version";
 	public static String download_address_tw = "http://resource.yydrobot.com/app/taiwan/cn/app.taiwan.version";
 
@@ -48,10 +56,7 @@ public class Constants {
 	public static String download_fota_address_hk = "http://resource.yydrobot.com/robot/robot.version";
 	public static String download_fota_address_tw = "http://resource.yydrobot.com/robot/robot.version";
 
-	public static String
-
-
-			address;
+	public static String address;
 	public static String ip;
 	public static String port;
 	public static String download_address;
@@ -246,6 +251,8 @@ public class Constants {
 
 	public static final String AGORA_VIDEO_MEETING_TIME = "agora_video_meeting_time";
 
+	public static final String SEND_VOICE = "send_voice";
+
 	public static final String MEDIA_JOIN_ROOM = "join_room";
 
 	public static final String INVITE_ID = "invite_id";
@@ -322,6 +329,11 @@ public class Constants {
 
 	public static final String AGORA_MEETING_TIME_REPONSE = "agora_meeting_time_reponse";
 
+	public static final String LOCAL_ADDRESS = "/sdcard";
+	public static final String RECORD_PCM = "/record.pcm";
+	public static final String RECORD_WAV = "/record.wav";
+	public static final String CHANGED_WAV = "/changed.wav";
+
 	public static final String AGORA_ID = "id";
 	public static final String AGORA_NUMBER = "number";
 	public static final String AGORA_ROLE = "role";
@@ -351,6 +363,10 @@ public class Constants {
 	public static final String PHOTO_PATH = "photo_path";
 
 	public static final String FROM_PUSH = "from_push";
+
+	public static final String DOWNLOAD_ADDRESS = "download_address";
+
+	public static boolean USER_BACE = false;
 
 	public interface Role{
 		String Robot = "Robot";

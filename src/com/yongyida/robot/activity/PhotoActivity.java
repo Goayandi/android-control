@@ -67,6 +67,7 @@ public class PhotoActivity extends Activity implements View.OnClickListener {
                     refersh.setEnabled(true);
                     break;
                 case SET_LOCAL_PHOTO:
+                    completePaths = getLocalPhotosAbsAddr();
                     setadapter();
                     if (progressDialog != null) {
                         progressDialog.dismiss();
@@ -77,6 +78,7 @@ public class PhotoActivity extends Activity implements View.OnClickListener {
                     if (progressDialog != null) {
                         progressDialog.dismiss();
                     }
+                    completePaths = getLocalPhotosAbsAddr();
                     delete.setEnabled(true);
                     back();
                     setadapter();
@@ -137,6 +139,15 @@ public class PhotoActivity extends Activity implements View.OnClickListener {
 
     private String[] getLocalPhotos(){
         return getfile().list();
+    }
+
+    private String[] getLocalPhotosAbsAddr(){
+        String[] tmp = getfile().list();
+        String[] addr = new String[tmp.length];
+        for (int i = 0; i < tmp.length ; i ++) {
+            addr[i] = getfile().getAbsolutePath() + File.separator + tmp[i];
+        }
+        return addr;
     }
 
     /**
@@ -227,7 +238,7 @@ public class PhotoActivity extends Activity implements View.OnClickListener {
             ThreadPool.execute(new Runnable() {
                 @Override
                 public void run() {
-                    completePaths = getLocalPhotos();
+                    completePaths = getLocalPhotosAbsAddr();
 
 //                    if (robotPhotos.size() == 0) {
 //                        if (localphotos.length != 0) {
@@ -327,6 +338,8 @@ public class PhotoActivity extends Activity implements View.OnClickListener {
             if (!choosestate) {
                 Bundle params = new Bundle();
                 params.putInt("position", position);
+                params.putStringArray("location", completePaths);
+                Log.i(TAG, "position:" + position);
                 StartUtil.startintent(PhotoActivity.this,
                         BigImageActivity.class, "no", params);
             }

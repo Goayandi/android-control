@@ -101,14 +101,12 @@ public class NewLoginActivity extends FragmentActivity implements OnCheckedChang
         if (getSharedPreferences("net_state", MODE_PRIVATE).getString("state",
                 null).equals("official")) {
             mode = getString(R.string.test_server);
-            Constants.address = Constants.address_test;
-            Constants.ip = Constants.ip_test;
+            Utils.switchServer(Utils.TEST);
             getSharedPreferences("net_state", MODE_PRIVATE).edit()
                     .putString("state", "test").commit();
         } else {
             mode = getString(R.string.official_server);
-            Constants.address = Constants.address_cn;
-            Constants.ip = Constants.ip_cn;
+            Utils.switchServer(Utils.CN);
             getSharedPreferences("net_state", MODE_PRIVATE).edit()
                     .putString("state", "official").commit();
         }
@@ -232,6 +230,8 @@ public class NewLoginActivity extends FragmentActivity implements OnCheckedChang
                 break;
         }
     }
+
+
 
     @Override
     protected void onDestroy() {

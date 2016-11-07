@@ -164,7 +164,6 @@ public class WelComeActivity extends BaseActivity {
     @Override
 	public void initlayout(OnRefreshListener onRefreshListener) {
 		setContentView(R.layout.activity_wel_come);
-        Log.e(TAG, "onCreate");
 //		String stateCode = getSharedPreferences("Receipt", MODE_PRIVATE).getString("state_code", null);
 //		if (Constants.HK_CODE.equals(stateCode))
 

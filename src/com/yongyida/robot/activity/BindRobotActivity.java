@@ -1,6 +1,5 @@
 package com.yongyida.robot.activity;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.content.res.AssetFileDescriptor;
 import android.graphics.Bitmap;
@@ -31,7 +30,6 @@ import com.yongyida.robot.utils.Constants;
 import com.yongyida.robot.utils.HandlerUtil;
 import com.yongyida.robot.utils.NetUtil;
 import com.yongyida.robot.utils.NetUtil.callback;
-import com.yongyida.robot.utils.StartUtil;
 import com.yongyida.robot.utils.ThreadPool;
 import com.yongyida.robot.utils.ToastUtil;
 
@@ -51,7 +49,7 @@ import java.util.Vector;
  * 
  * @author Ryan.Tang
  */
-public class BindRobotActivity extends Activity implements Callback {
+public class BindRobotActivity extends OriginalActivity implements Callback {
 
 	private CaptureActivityHandler handler;
 	private ViewfinderView viewfinderView;
@@ -170,10 +168,7 @@ public class BindRobotActivity extends Activity implements Callback {
 
 	private void backlogin(String content) {
 		ToastUtil.showtomain(BindRobotActivity.this, content);
-		getSharedPreferences("userinfo", MODE_PRIVATE).edit().clear().commit();
-		getSharedPreferences("huanxin", MODE_PRIVATE).edit().clear().commit();
-		StartUtil.startintent(BindRobotActivity.this, NewLoginActivity.class,
-				"finish");
+		fulllyExit();
 	}
 	
 	Handler handletoast = new Handler() {

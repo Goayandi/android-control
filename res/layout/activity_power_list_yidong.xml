@@ -1,0 +1,171 @@
+<com.layout.utils.PercentRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/background2"
+    tools:context=".PowerListActivity" >
+
+    <TextView
+        android:id="@+id/power_title"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_alignParentLeft="true"
+        app:layout_heightPercent="10%"
+        app:layout_marginLeftPercent="3%"
+        app:layout_textSizePercent="4%"
+        android:gravity="center"
+        android:text="@string/disconnect"
+        android:drawableLeft="@drawable/back"
+        android:textColor="@color/white" />
+
+    <com.layout.utils.PercentRelativeLayout
+        android:id="@+id/rl"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_below="@+id/power_title"
+        app:layout_heightPercent="35%"
+        app:layout_marginLeftPercent="2%"
+        app:layout_marginRightPercent="2%"
+        app:layout_marginBottomPercent="3%"
+        app:layout_widthPercent="96%" >
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:background="@drawable/robot8" />
+    </com.layout.utils.PercentRelativeLayout>
+    <TextView
+        android:id="@+id/tv_battery"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        app:layout_marginTopPercent="42%"
+        app:layout_heightPercent="4%"
+        android:layout_centerHorizontal="true"
+        android:textColor="@color/white"
+        android:gravity="center"
+        android:drawableLeft="@drawable/battery"
+        android:text=""/>
+
+    <com.layout.utils.PercentRelativeLayout
+        android:id="@+id/video_chat"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@id/rl"
+        app:layout_marginLeftPercent="2%"
+        style="@style/style_rl_control" >
+
+        <Button
+            android:id="@+id/video_chat_img"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/style_bt_control"
+            android:background="@drawable/videochat1"
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_below="@id/video_chat_img"
+            style="@style/style_tv_control"
+            android:text="@string/video1"
+            />
+    </com.layout.utils.PercentRelativeLayout>
+
+    <com.layout.utils.PercentRelativeLayout
+        android:id="@+id/power_photo"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_below="@id/rl"
+        android:layout_toRightOf="@id/video_chat"
+        style="@style/style_rl_control">
+
+        <Button
+            android:id="@+id/power_photo_img"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            style="@style/style_bt_control"
+            android:background="@drawable/photo1"
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_below="@id/power_photo_img"
+            android:text="@string/album"
+            style="@style/style_tv_control" />
+    </com.layout.utils.PercentRelativeLayout>
+
+    <com.layout.utils.PercentRelativeLayout
+        android:id="@+id/video_monitor"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_toRightOf="@id/power_photo"
+        android:layout_below="@id/rl"
+        style="@style/style_rl_control" >
+
+        <Button
+            android:id="@+id/video_monitor_img"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@drawable/monitor_plus1"
+            style="@style/style_bt_control" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_below="@id/video_monitor_img"
+            android:text="@string/remote_control"
+            style="@style/style_tv_control" />
+    </com.layout.utils.PercentRelativeLayout>
+
+    <com.layout.utils.PercentRelativeLayout
+        android:id="@+id/power_setting"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@id/video_monitor"
+        app:layout_marginLeftPercent="2%"
+        style="@style/style_rl_control" >
+
+        <Button
+            android:id="@+id/power_setting_img"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@drawable/setting1"
+            style="@style/style_bt_control" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_below="@id/power_setting_img"
+            android:text="@string/setting"
+            style="@style/style_tv_control" />
+    </com.layout.utils.PercentRelativeLayout>
+
+    <com.layout.utils.PercentRelativeLayout
+        android:id="@+id/more"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_below="@id/video_monitor"
+        android:layout_toRightOf="@id/power_setting"
+        style="@style/style_rl_control" >
+        <Button
+            android:id="@+id/bt_more"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@drawable/more1"
+            style="@style/style_bt_control" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_below="@id/bt_more"
+            android:text="@string/more"
+            style="@style/style_tv_control"/>
+    </com.layout.utils.PercentRelativeLayout>
+
+
+</com.layout.utils.PercentRelativeLayout>

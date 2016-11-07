@@ -18,6 +18,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.media.AudioRecord;
+import android.media.MediaPlayer;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -60,16 +62,23 @@ import com.yongyida.robot.huanxin.CallActivity;
 import com.yongyida.robot.huanxin.CameraHelper;
 import com.yongyida.robot.huanxin.HXSDKHelper;
 import com.yongyida.robot.service.HeadsetPlugReceiver;
+import com.yongyida.robot.utils.AudioRecoder;
 import com.yongyida.robot.utils.BroadcastReceiverRegister;
 import com.yongyida.robot.utils.Constants;
+import com.yongyida.robot.utils.FileWriter;
 import com.yongyida.robot.utils.HandlerUtil;
+import com.yongyida.robot.utils.Pcm2Wav;
 import com.yongyida.robot.utils.StartUtil;
 import com.yongyida.robot.utils.ToastUtil;
 import com.yongyida.robot.utils.Utils;
 
+import net.surina.soundtouch.AudioConfig;
+import net.surina.soundtouch.SoundTouch;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.Timer;
@@ -124,6 +133,10 @@ public class ControlYidongActivity extends CallActivity implements OnClickListen
     private RelativeLayout speakRL;
 	private SeekBar mSpeedSeekBar;
 
+	private AudioRecoder mAudioRecorder;
+	private FileWriter mFileStorager;
+	private boolean mRecording;
+
 	@SuppressWarnings("deprecation")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -174,7 +187,9 @@ public class ControlYidongActivity extends CallActivity implements OnClickListen
 		runningMode = getIntent().getExtras().getString("mode");
 		if (runningMode.equals("control")) {
 			localSurface.setVisibility(View.INVISIBLE);
-		}
+		} else {
+            talk.setVisibility(View.GONE);
+        }
 		audioManager.setMicrophoneMute(true);
 		//	registerHeadsetPlugReceiver();
 		if (audioManager.isWiredHeadsetOn()) {
@@ -191,7 +206,7 @@ public class ControlYidongActivity extends CallActivity implements OnClickListen
                     oppositeSurface.setVisibility(View.VISIBLE);
 					play.setBackgroundResource(R.drawable.zanting);
                     if (!runningMode.equals("control")) {
-                        speak.setVisibility(View.GONE);
+                        speakRL.setVisibility(View.GONE);
                     }
 					audioManager.setMicrophoneMute(true);
 					findViewById(R.id.mictoggole).setBackgroundResource(R.drawable.icon_mute_on);
@@ -209,7 +224,26 @@ public class ControlYidongActivity extends CallActivity implements OnClickListen
 		}
         progress = new ProgressDialog(this);
         progress.setCanceledOnTouchOutside(false);
+        initRecorder();
 	}
+
+	private void initRecorder() {
+		mAudioRecorder = new AudioRecoder();
+		mAudioRecorder.setRecordListener(mRecordCallBacker);
+        mFileStorager = new FileWriter();
+        mFileStorager.setFileName(Constants.LOCAL_ADDRESS + Constants.RECORD_PCM);
+        findViewById(R.id.btn_record).setOnClickListener(this);
+	}
+
+	private AudioRecoder.RecordListener mRecordCallBacker = new AudioRecoder.RecordListener() {
+		public void onRecord(byte[] sample, int offset, int length) {
+			Log.d(TAG, "onRecord");
+
+			if (mFileStorager != null && mFileStorager.isOpened()) {
+				mFileStorager.write(sample, offset, length);
+			}
+		}
+	};
 
 	private void registerHeadsetPlugReceiver() {
 		headsetPlugReceiver = new HeadsetPlugReceiver();
@@ -254,7 +288,7 @@ public class ControlYidongActivity extends CallActivity implements OnClickListen
 							EMChatManager.getInstance().makeVideoCall(username);
 							play.setBackgroundResource(R.drawable.zanting);
                             if (!runningMode.equals("control")) {
-                                speak.setVisibility(View.GONE);
+                                speakRL.setVisibility(View.GONE);
                             }
 							cameraHelper.setStartFlag(true);
 							if (!runningMode.equals("control")) {
@@ -434,17 +468,9 @@ public class ControlYidongActivity extends CallActivity implements OnClickListen
                     execute("turn_right");
                     HandlerUtil.sendmsg(enHandler, "right", 0);
                     break;
-                case R.id.head_up:
-                    execute("head_up");
-                    HandlerUtil.sendmsg(enHandler, "head_up", 0);
-                    break;
                 case R.id.head_left:
                     execute("head_left");
                     HandlerUtil.sendmsg(enHandler, "head_left", 0);
-                    break;
-                case R.id.head_down:
-                    execute("head_down");
-                    HandlerUtil.sendmsg(enHandler, "head_down", 0);
                     break;
                 case R.id.head_right:
                     execute("head_right");
@@ -482,6 +508,12 @@ public class ControlYidongActivity extends CallActivity implements OnClickListen
                 case R.id.body_right:
                     execute("stop");
                     break;
+				case R.id.head_left:
+					execute("stop");
+					break;
+				case R.id.head_right:
+					execute("stop");
+					break;
                 default:
                     break;
                 }
@@ -507,7 +539,7 @@ public class ControlYidongActivity extends CallActivity implements OnClickListen
                 }
 				play.setBackgroundResource(R.drawable.bofang);
                 if (!runningMode.equals("control")) {
-                    speak.setVisibility(View.VISIBLE);
+                    speakRL.setVisibility(View.VISIBLE);
                 }
 			} else if (msg.what == 5) {
 				resume();
@@ -542,7 +574,7 @@ public class ControlYidongActivity extends CallActivity implements OnClickListen
 				float speed = progress / 100f * (MAX_SPEED - MIN_SPEED) + MIN_SPEED ;
                 BigDecimal b   =   new   BigDecimal(speed);
                 Constants.speed = b.setScale(2, BigDecimal.ROUND_HALF_UP).floatValue();
-				Log.e(TAG, "speed:" + Constants.speed);
+				Log.d(TAG, "speed:" + Constants.speed);
 			}
 
 			@Override
@@ -697,18 +729,18 @@ public class ControlYidongActivity extends CallActivity implements OnClickListen
 			public void onCallStateChanged(CallState callState, CallError error) {
 				switch (callState) {
 				case IDLE:
-                    Log.e(TAG, "IDLE");
+                    Log.d(TAG, "IDLE");
 					break;
 				case CONNECTING: // 正在连接对方
-                    Log.e(TAG, "CONNECTING");
+                    Log.d(TAG, "CONNECTING");
 					enHandler.sendEmptyMessage(7);
 					break;
 				case CONNECTED: // 双方已经建立连接
-                    Log.e(TAG, "CONNECTED");
+                    Log.d(TAG, "CONNECTED");
 					isconnected = true;
 					break;
 				case ACCEPTED: // 电话接通成功
-                    Log.e(TAG, "ACCEPTED");
+                    Log.d(TAG, "ACCEPTED");
                     if (mTimeoutTimer != null) {
                         mTimeoutTimer.cancel();
                     }
@@ -755,7 +787,7 @@ public class ControlYidongActivity extends CallActivity implements OnClickListen
 					}, 5000);
 					break;
 				case DISCONNNECTED: // 电话断了
-                    Log.e(TAG, "DISCONNNECTED");
+                    Log.d(TAG, "DISCONNNECTED");
 					if (progress != null) {
 						progress.dismiss();
 					}
@@ -817,11 +849,11 @@ public class ControlYidongActivity extends CallActivity implements OnClickListen
 
 					break;
 					case PAUSING:
-                        Log.e(TAG, "PAUSING");
+                        Log.d(TAG, "PAUSING");
 						break;
 
 					case ANSWERING:
-                        Log.e(TAG, "ANSWERING");
+                        Log.d(TAG, "ANSWERING");
 						break;
 				default:
 					break;
@@ -859,193 +891,117 @@ public class ControlYidongActivity extends CallActivity implements OnClickListen
 	public void onClick(View v) {
 		key = 0;
 		switch (v.getId()) {
-		case R.id.play:
-			if (!cameraHelper.isStarted()) {
-				progress.setMessage(getString(R.string.calling));
-				progress.show();
-                mTimeoutTimer = new Timer();
-                mTimeoutTimerTask = new TimerTask() {
-                    @Override
-                    public void run() {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                if (progress != null) {
-                                    progress.dismiss();
+            case R.id.play:
+                if (!cameraHelper.isStarted()) {
+                    progress.setMessage(getString(R.string.calling));
+                    progress.show();
+                    mTimeoutTimer = new Timer();
+                    mTimeoutTimerTask = new TimerTask() {
+                        @Override
+                        public void run() {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    if (progress != null) {
+                                        progress.dismiss();
+                                    }
+                                    if (hide_timer != null) {
+                                        hide_timer.cancel();
+                                        key = 0;
+                                    }
+                                    enHandler.sendEmptyMessage(4);
+                                    isconnected = false;
+                                    if (cameraHelper != null && cameraHelper.isStarted()) {
+                                        cameraHelper.stopCapture(oppositeSurfaceHolder);
+                                    }
+                                    if (oppositeSurface != null && localSurface != null) {
+                                        oppositeSurface.setVisibility(View.GONE);
+                                        localSurface.setVisibility(View.INVISIBLE);
+                                    }
+                                    EMChatManager.getInstance().endCall();
+                                    ToastUtil.showtomain(ControlYidongActivity.this, getString(R.string.connect_fail));
                                 }
-                                if (hide_timer != null) {
-                                    hide_timer.cancel();
-                                    key = 0;
-                                }
-                                enHandler.sendEmptyMessage(4);
-                                isconnected = false;
-                                if (cameraHelper != null && cameraHelper.isStarted()) {
-                                    cameraHelper.stopCapture(oppositeSurfaceHolder);
-                                }
-                                if (oppositeSurface != null && localSurface != null) {
-                                    oppositeSurface.setVisibility(View.GONE);
-                                    localSurface.setVisibility(View.INVISIBLE);
-                                }
-                                EMChatManager.getInstance().endCall();
-                                ToastUtil.showtomain(ControlYidongActivity.this, getString(R.string.connect_fail));
-                            }
-                        });
+                            });
+                        }
+                    };
+                    mTimeoutTimer.schedule(mTimeoutTimerTask, 40000);
+                    audioManager.setMicrophoneMute(true);
+                    findViewById(R.id.mictoggole).setBackgroundResource(R.drawable.icon_mute_on);
+                    sendmsg();
+                    sendmsg(runningMode, username);
+                } else {
+                    progress.setMessage(getString(R.string.hang_uping));
+                    progress.show();
+                    play.setBackgroundResource(R.drawable.bofang);
+                    if (!runningMode.equals("control")) {
+                        speakRL.setVisibility(View.VISIBLE);
                     }
-                };
-				mTimeoutTimer.schedule(mTimeoutTimerTask, 40000);
-				audioManager.setMicrophoneMute(true);
-				findViewById(R.id.mictoggole).setBackgroundResource(R.drawable.icon_mute_on);
-				sendmsg();
-				sendmsg(runningMode, username);
-			} else {
-				progress.setMessage(getString(R.string.hang_uping));
-				progress.show();
-				play.setBackgroundResource(R.drawable.bofang);
-                if (!runningMode.equals("control")) {
-                    speakRL.setVisibility(View.VISIBLE);
+                    localSurface.setVisibility(View.INVISIBLE);
+                    oppositeSurface.setVisibility(View.GONE);
+                    EMChatManager.getInstance().endCall();
+
+                    EMMessage msg = EMMessage.createSendMessage(Type.CMD);
+                    msg.setReceipt(username);
+                    CmdMessageBody cmd = new CmdMessageBody(
+                            "yongyida.robot.video.closevideo");
+                    msg.addBody(cmd);
+                    EMChatManager.getInstance().sendMessage(msg, new EMCallBack() {
+
+                        @Override
+                        public void onSuccess() {
+                            cameraHelper.stopCapture(oppositeSurfaceHolder);
+
+                            timer = new Timer();
+                            timer.schedule(new TimerTask() {
+
+                                @Override
+                                public void run() {
+                                    if (index >= 3) {
+                                        index = 0;
+                                        timer.cancel();
+                                    } else {
+                                        index++;
+                                    }
+
+                                }
+                            }, new Date(), 1000);
+                        }
+
+                        @Override
+                        public void onProgress(int arg0, String arg1) {
+                        }
+
+                        @Override
+                        public void onError(int arg0, String arg1) {
+                        }
+                    });
+
                 }
-				localSurface.setVisibility(View.INVISIBLE);
-				oppositeSurface.setVisibility(View.GONE);
-				EMChatManager.getInstance().endCall();
-
-				EMMessage msg = EMMessage.createSendMessage(Type.CMD);
-				msg.setReceipt(username);
-				CmdMessageBody cmd = new CmdMessageBody(
-						"yongyida.robot.video.closevideo");
-				msg.addBody(cmd);
-				EMChatManager.getInstance().sendMessage(msg, new EMCallBack() {
-
-					@Override
-					public void onSuccess() {
-						cameraHelper.stopCapture(oppositeSurfaceHolder);
-						
-						timer = new Timer();
-						timer.schedule(new TimerTask() {
-
-							@Override
-							public void run() {
-								if (index >= 3) {
-									index = 0;
-									timer.cancel();
-								} else {
-									index++;
-								}
-
-							}
-						}, new Date(), 1000);
-					}
-
-					@Override
-					public void onProgress(int arg0, String arg1) {
-					}
-
-					@Override
-					public void onError(int arg0, String arg1) {
-					}
-				});
-
-			}
-			break;
-		case R.id.speak:
-			if (audioManager.isMicrophoneMute()) {
-				audioManager.setMicrophoneMute(false);
-			}
-			speak.setEnabled(false);
-			audioManager.setSpeakerphoneOn(false);
-			SpeechUtility.createUtility(this, "appid="
-                    + getString(R.string.app_id));
-			EMChatManager.getInstance().pauseVoiceTransfer();
-			if (mDialog == null) {
-				mDialog = new RecognizerDialog(ControlYidongActivity.this, init);
-
-				Utils.SystemLanguage language = Utils.getLanguage(ControlYidongActivity.this);
-				if (Utils.SystemLanguage.CHINA.equals(language)) {
-					mDialog.setParameter(SpeechConstant.LANGUAGE, "zh_cn");
-				} else if (Utils.SystemLanguage.ENGLISH.equals(language)) {
-					mDialog.setParameter(SpeechConstant.LANGUAGE, "en_us");
-				}
-			//	mDialog.setParameter(SpeechConstant.ACCENT, "vinn");
-				mDialog.setParameter("asr_sch", "1");
-				mDialog.setParameter("nlp_version", "2.0");
-				mDialog.setParameter("dot", "0");
-			}
-			new Timer().schedule(new TimerTask() {
-
-                @Override
-                public void run() {
-                    if (mDialog != null && mDialog.isShowing()) {
-                        enHandler.sendEmptyMessage(5);
-                        mDialog.dismiss();
-                    }
+                break;
+            case R.id.speak:
+                if (audioManager.isMicrophoneMute()) {
+                    audioManager.setMicrophoneMute(false);
                 }
-            }, 15000);
-			mDialog.setListener(new RecognizerDialogListener() {
-
-                @Override
-                public void onResult(RecognizerResult result, boolean arg1) {
-                    Log.i("Result", "result:" + result.getResultString());
-                    try {
-                        JSONObject jo = new JSONObject(result.getResultString());
-                        String text = jo.getString("text");
-                        Constants.text = text;
-                        Intent intent = new Intent();
-                        intent.setAction(Constants.Speech_action);
-                        sendBroadcast(intent);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                    enHandler.sendEmptyMessage(5);
-                }
-
-                @Override
-                public void onError(SpeechError error) {
-                    Log.i("errorXF", "errorXF:" + error.getErrorDescription());
-                    enHandler.sendEmptyMessage(5);
-                }
-            });
-			mDialog.show();
-			mDialog.setCancelable(false);
-			break;
-		case R.id.back:
-			this.onBackPressed();
-			break;
-		case R.id.opposite_surface:
-			if (isconnected) {
-				if (mMoveTableLayout.getVisibility() == View.GONE) {
-					toggle();
-				} else {
-					if (play.getVisibility() != View.GONE)
-						play.setVisibility(View.GONE);
-					else
-						play.setVisibility(View.VISIBLE);
-				}
-			}
-
-			break;
-			case R.id.talk:
-				if (audioManager.isMicrophoneMute()) {
-					audioManager.setMicrophoneMute(false);
-				}
-				talk.setEnabled(false);
-				audioManager.setSpeakerphoneOn(false);
-				SpeechUtility.createUtility(this, "appid="
+                speak.setEnabled(false);
+                audioManager.setSpeakerphoneOn(false);
+                SpeechUtility.createUtility(this, "appid="
                         + getString(R.string.app_id));
-				EMChatManager.getInstance().pauseVoiceTransfer();
-				if (mDialog == null) {
-					mDialog = new RecognizerDialog(ControlYidongActivity.this, init);
+                EMChatManager.getInstance().pauseVoiceTransfer();
+                if (mDialog == null) {
+                    mDialog = new RecognizerDialog(ControlYidongActivity.this, init);
 
-					Utils.SystemLanguage language = Utils.getLanguage(ControlYidongActivity.this);
-					if (Utils.SystemLanguage.CHINA.equals(language)) {
-						mDialog.setParameter(SpeechConstant.LANGUAGE, "zh_cn");
-					} else if (Utils.SystemLanguage.ENGLISH.equals(language)) {
-						mDialog.setParameter(SpeechConstant.LANGUAGE, "en_us");
-					}
-					//	mDialog.setParameter(SpeechConstant.ACCENT, "vinn");
-					mDialog.setParameter("asr_sch", "1");
-					mDialog.setParameter("nlp_version", "2.0");
-					mDialog.setParameter("dot", "0");
-				}
-				new Timer().schedule(new TimerTask() {
+                    Utils.SystemLanguage language = Utils.getLanguage(ControlYidongActivity.this);
+                    if (Utils.SystemLanguage.CHINA.equals(language)) {
+                        mDialog.setParameter(SpeechConstant.LANGUAGE, "zh_cn");
+                    } else if (Utils.SystemLanguage.ENGLISH.equals(language)) {
+                        mDialog.setParameter(SpeechConstant.LANGUAGE, "en_us");
+                    }
+                //	mDialog.setParameter(SpeechConstant.ACCENT, "vinn");
+                    mDialog.setParameter("asr_sch", "1");
+                    mDialog.setParameter("nlp_version", "2.0");
+                    mDialog.setParameter("dot", "0");
+                }
+                new Timer().schedule(new TimerTask() {
 
                     @Override
                     public void run() {
@@ -1055,7 +1011,7 @@ public class ControlYidongActivity extends CallActivity implements OnClickListen
                         }
                     }
                 }, 15000);
-				mDialog.setListener(new RecognizerDialogListener() {
+                mDialog.setListener(new RecognizerDialogListener() {
 
                     @Override
                     public void onResult(RecognizerResult result, boolean arg1) {
@@ -1065,7 +1021,7 @@ public class ControlYidongActivity extends CallActivity implements OnClickListen
                             String text = jo.getString("text");
                             Constants.text = text;
                             Intent intent = new Intent();
-                            intent.setAction(Constants.Talk);
+                            intent.setAction(Constants.Speech_action);
                             sendBroadcast(intent);
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -1079,14 +1035,184 @@ public class ControlYidongActivity extends CallActivity implements OnClickListen
                         enHandler.sendEmptyMessage(5);
                     }
                 });
-				mDialog.show();
-				mDialog.setCancelable(false);
-				break;
+                mDialog.show();
+                mDialog.setCancelable(false);
+                break;
+            case R.id.back:
+                this.onBackPressed();
+                break;
+            case R.id.opposite_surface:
+                if (isconnected) {
+                    if (mMoveTableLayout.getVisibility() == View.GONE) {
+                        toggle();
+                    } else {
+                        if (play.getVisibility() != View.GONE)
+                            play.setVisibility(View.GONE);
+                        else
+                            play.setVisibility(View.VISIBLE);
+                    }
+                }
+
+                break;
+            case R.id.talk:
+                getAndSendTalkText();
+                break;
             case R.id.head:
                 execute("head_middle");
                 break;
+            case R.id.btn_record:
+                record();
+                break;
 		}
 
+	}
+
+
+	private void record() {
+        if (audioManager.isMicrophoneMute()) {
+            audioManager.setMicrophoneMute(false);
+        }
+        audioManager.setSpeakerphoneOn(true);
+		mRecording = !mRecording;
+		if (mRecording) {
+			startRecord();
+            ((Button) findViewById(R.id.btn_record)).setText("停止录音");
+		}
+		else {
+			stopRecord();
+            ((Button) findViewById(R.id.btn_record)).setText("开始录音");
+		}
+	}
+
+	private void startRecord() {
+		Log.d(TAG, "startRecord()");
+		mFileStorager.open();
+		mAudioRecorder.open();
+	}
+
+	private void stopRecord() {
+		Log.d(TAG, "stopRecord()");
+		mAudioRecorder.close();
+		mFileStorager.close();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                changeVoicePlay(1, 10, 1);
+            }
+        }).start();
+	}
+
+	private void changeVoicePlay(float tempo, float pitch, float rate) {
+		Log.d(TAG, "changeVoicePlay()");
+
+		pcm2wav(Constants.LOCAL_ADDRESS + Constants.RECORD_PCM, Constants.LOCAL_ADDRESS + Constants.RECORD_WAV);
+		changeVoice(Constants.LOCAL_ADDRESS + Constants.RECORD_WAV, Constants.LOCAL_ADDRESS + Constants.CHANGED_WAV, tempo, pitch, rate);
+		sendFile();
+    //  playFile(Constants.LOCAL_ADDRESS + "/changed.wav");
+	}
+
+    private void playFile(String path) {
+        Log.d(TAG, "playFile(), path: " + path);
+
+        if (!new File(path).exists()) {
+            Log.e(TAG, "File not exists: " + path);
+            return;
+        }
+
+        MediaPlayer mediaPlayer = new MediaPlayer();
+        try {
+            mediaPlayer.setDataSource(path);
+            mediaPlayer.prepare();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            Log.e(TAG, "playFile exception: " + e);
+        }
+        mediaPlayer.start();
+    }
+
+	private void sendFile() {
+        sendBroadcast(new Intent(Constants.SEND_VOICE));
+	}
+
+	private void pcm2wav(String infile, String outfile) {
+		Log.d(TAG, "pcm2wav()");
+
+		int audioBufferSize = AudioRecord.getMinBufferSize(AudioConfig.SAMPLE_RATE, AudioConfig.RECORDER_CHANNEL_CONFIG,
+				AudioConfig.AUDIO_FORMAT);
+
+		Pcm2Wav.writeWaveFile(infile, outfile, AudioConfig.SAMPLE_RATE, AudioConfig.CHANNEL_COUNT, audioBufferSize);
+	}
+
+	private void changeVoice(String infile, String outfile, float tempo, float pitch, float rate) {
+		Log.d(TAG, "changeVoice(), tempo: " + tempo + ", pitch: " + pitch + ", rate: " + rate);
+
+		SoundTouch soundTouch = new SoundTouch();
+		soundTouch.setTempo(tempo);
+		soundTouch.setPitchSemiTones(pitch);
+		soundTouch.setSpeed(rate);
+		soundTouch.changeVoiceFile(infile, outfile);
+	}
+
+	private void getAndSendTalkText() {
+		if (audioManager.isMicrophoneMute()) {
+            audioManager.setMicrophoneMute(false);
+        }
+		talk.setEnabled(false);
+		audioManager.setSpeakerphoneOn(false);
+		SpeechUtility.createUtility(this, "appid="
+				+ getString(R.string.app_id));
+		EMChatManager.getInstance().pauseVoiceTransfer();
+		if (mDialog == null) {
+            mDialog = new RecognizerDialog(ControlYidongActivity.this, init);
+
+            Utils.SystemLanguage language = Utils.getLanguage(ControlYidongActivity.this);
+            if (Utils.SystemLanguage.CHINA.equals(language)) {
+                mDialog.setParameter(SpeechConstant.LANGUAGE, "zh_cn");
+            } else if (Utils.SystemLanguage.ENGLISH.equals(language)) {
+                mDialog.setParameter(SpeechConstant.LANGUAGE, "en_us");
+            }
+            //	mDialog.setParameter(SpeechConstant.ACCENT, "vinn");
+            mDialog.setParameter("asr_sch", "1");
+            mDialog.setParameter("nlp_version", "2.0");
+            mDialog.setParameter("dot", "0");
+        }
+		new Timer().schedule(new TimerTask() {
+
+            @Override
+            public void run() {
+                if (mDialog != null && mDialog.isShowing()) {
+                    enHandler.sendEmptyMessage(5);
+                    mDialog.dismiss();
+                }
+            }
+        }, 15000);
+		mDialog.setListener(new RecognizerDialogListener() {
+
+            @Override
+            public void onResult(RecognizerResult result, boolean arg1) {
+                Log.i("Result", "result:" + result.getResultString());
+                try {
+                    JSONObject jo = new JSONObject(result.getResultString());
+                    String text = jo.getString("text");
+                    Constants.text = text;
+                    Intent intent = new Intent();
+                    intent.setAction(Constants.Talk);
+                    sendBroadcast(intent);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                enHandler.sendEmptyMessage(5);
+            }
+
+            @Override
+            public void onError(SpeechError error) {
+                Log.i("errorXF", "errorXF:" + error.getErrorDescription());
+                enHandler.sendEmptyMessage(5);
+            }
+        });
+		mDialog.show();
+		mDialog.setCancelable(false);
 	}
 
 	private void huanxinLogin() {
@@ -1120,6 +1246,7 @@ public class ControlYidongActivity extends CallActivity implements OnClickListen
 			mHeadTableLayout.setVisibility(View.GONE);
             mMoveTableLayout.setVisibility(View.GONE);
             mBodyTableLayout.setVisibility(View.GONE);
+            mSpeedSeekBar.setVisibility(View.GONE);
             speakRL.setVisibility(View.GONE);
             findViewById(R.id.mictoggole).setVisibility(View.GONE);
 			play.setVisibility(View.GONE);
@@ -1130,6 +1257,7 @@ public class ControlYidongActivity extends CallActivity implements OnClickListen
             if (runningMode.equals("control")) {
                 speakRL.setVisibility(View.VISIBLE);
             }
+            mSpeedSeekBar.setVisibility(View.VISIBLE);
             findViewById(R.id.mictoggole).setVisibility(View.VISIBLE);
 			play.setVisibility(View.VISIBLE);
 		}

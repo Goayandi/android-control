@@ -8,8 +8,10 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.IBinder;
+import android.text.TextUtils;
 
 import com.yongyida.robot.R;
+import com.yongyida.robot.utils.Constants;
 import com.yongyida.robot.utils.NetUtil;
 import com.yongyida.robot.utils.NetUtil.callback;
 import com.yongyida.robot.utils.ThreadPool;
@@ -45,7 +47,7 @@ public class UpdateService extends Service {
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		handler = new Handler();
 		updatemanager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-		updatenotfication = new Notification(R.drawable.app_icon, getString(R.string.downloading),
+		updatenotfication = new Notification(R.drawable.app_icon4, getString(R.string.downloading),
 				System.currentTimeMillis());
 		updatenotfication.flags = Notification.FLAG_ONGOING_EVENT;
 
@@ -67,11 +69,15 @@ public class UpdateService extends Service {
 				final String fileName = "RobotControl.apk";
 				newapk = new File(getExternalFilesDir(null).getAbsolutePath()
 						+ "/" + fileName);
+				if (TextUtils.isEmpty(Constants.download_address)) {
+					stopSelf();
+					return;
+				}
 				try {
 					String url = XmlUtil.xml(
 							NetUtil.getinstance().downloadfile(
 									UpdateService.this,
-									getString(R.string.version_url),
+									Constants.download_address,
 									new callback() {
 
 										@Override

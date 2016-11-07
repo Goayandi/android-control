@@ -392,4 +392,5 @@
     <string name="connect_error_wait">网络连接异常,请稍微重试</string>
     <string name="unmounted">未找到存储卡</string>
     <string name="meeting">正在会议中</string>
+    <string name="remote_control">远程操作</string>
 </resources>

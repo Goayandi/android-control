@@ -117,7 +117,14 @@ public class ControlActivity extends CallActivity implements OnClickListener,
     private String mRobotName;
     private TableLayout mHeadTableLayout;
     private TableLayout mMoveTableLayout;
+	private Timer time = null;
 
+	private long starttime;
+	private boolean flag = true;
+
+	private int action = 0;
+
+	private int move = 0;
     @SuppressWarnings("deprecation")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -369,14 +376,6 @@ public class ControlActivity extends CallActivity implements OnClickListener,
 		super.onStart();
 	}
 
-	static Timer time = null;
-
-	long starttime;
-	boolean flag = true;
-
-	int action = 0;
-
-	int move = 0;
 
 	@Override
 	public boolean onTouch(final View v, MotionEvent event) {

@@ -936,6 +936,50 @@ public class NetUtil {
 		channel.write(channelBuffer);
 	}
 
+
+	/**
+	 * 发送图片
+	 * @param obj
+	 * @param handler
+	 */
+	public static void sendVoice(Object obj, ChannelHandlerContext handler){
+		if (obj == null) {
+			return;
+		}
+		try {
+			ChannelBuffer buffer = null;
+			byte[] byteData = ((byte[]) obj);
+			buffer = new DynamicChannelBuffer(ByteOrder.BIG_ENDIAN, 1024);
+			String jsonStr = "{\"cmd\":\"/robot/push\"}";
+			byte[] datas = null;
+			datas = jsonStr.getBytes("utf-8");
+			int headJsonLength = datas.length;
+			int headByteLength = byteData.length;
+
+			buffer.writeByte(2);
+			buffer.writeByte(0);
+			buffer.writeByte(0);
+			buffer.writeByte(0);
+			buffer.writeByte(0);
+			buffer.writeByte(0);
+			buffer.writeByte(0);
+			buffer.writeByte(0);
+
+			buffer.writeInt(headByteLength + headJsonLength + 8);
+			buffer.writeInt(headJsonLength);
+			buffer.writeBytes(datas);
+			buffer.writeInt(headByteLength);
+			buffer.writeBytes(byteData);
+
+			Channel channel = handler.getChannel();
+			channel.write(buffer);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+
+	}
+
+
 	// 照片socket
 	public static void photo_socket(ChannelHandlerContext handler,
 			Intent intent) {

@@ -478,7 +478,6 @@ public class Http {
 		requestProperty.put("Content-type", text);
 		// requestProperty.put("Content-type", post);
 	}
-
 	public static class MyX509TrustManager implements
 			javax.net.ssl.TrustManager, javax.net.ssl.X509TrustManager {
 		X509TrustManager sunJSSEX509TrustManager;

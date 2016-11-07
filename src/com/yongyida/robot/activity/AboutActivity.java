@@ -25,11 +25,11 @@ public class AboutActivity extends Activity {
 		set.setJavaScriptEnabled(true);
 		set.setBuiltInZoomControls(true);
 		setZoomControlGone(about);	
-	//	about.loadUrl("http://www.gaojunkeji.com");  // 020-28142331
-	//	about.loadUrl("http://www.njLiuchao.com"); // 400-025-8505
-	//	about.loadUrl(getString(R.string.about_url));  //400-9696488
-		about.loadUrl("http://www.lxyrobot.com");  //400-1003628
-	//	about.loadUrl("http://www.uiqrobot.com");  //400-9028738
+	//	about.loadUrl("http://www.gaojunkeji.com");  // 020-28142331  高君科技
+	//	about.loadUrl("http://www.njLiuchao.com"); // 400-025-8505   六朝科技
+		about.loadUrl(getString(R.string.about_url));  //400-9696488  小勇机器人
+	//	about.loadUrl("http://www.lxyrobot.com");  //400-1003628  小雨机器人
+	//	about.loadUrl("http://www.uiqrobot.com");  //400-9028738  优教小通
 	}
 
 	public void setZoomControlGone(View view) {

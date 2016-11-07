@@ -15,7 +15,6 @@ package com.yongyida.robot.huanxin;
 
 import android.app.Application;
 import android.content.Context;
-import android.util.Log;
 
 import com.easemob.EMCallBack;
 import com.google.code.microlog4android.Logger;
@@ -44,10 +43,14 @@ public class DemoApplication extends Application {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-        Log.e(TAG, "onCreate");
         MyCrashHandler myCrashHandler = MyCrashHandler.getInstance();
 		myCrashHandler.init(this);
-
+//		if (LeakCanary.isInAnalyzerProcess(this)) {
+//			// This process is dedicated to LeakCanary for heap analysis.
+//			// You should not init your app in this process.
+//			return;
+//		}
+//		LeakCanary.install(this);
 		applicationContext = this;
 		instance = this;
 		new NetUtil();

@@ -1,12 +1,11 @@
 package com.yongyida.robot.activity;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 
-public abstract class BaseActivity extends Activity {
+public abstract class BaseActivity extends OriginalActivity {
 
 	public  void setadapter(){
 

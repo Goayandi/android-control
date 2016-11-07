@@ -1,7 +1,6 @@
 package com.yongyida.robot.activity;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -13,7 +12,6 @@ import android.os.Bundle;
 import android.os.Message;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
-import android.text.TextUtils;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Menu;
@@ -34,7 +32,6 @@ import com.baoyz.swipemenulistview.SwipeMenuCreator;
 import com.baoyz.swipemenulistview.SwipeMenuItem;
 import com.baoyz.swipemenulistview.SwipeMenuListView;
 import com.baoyz.swipemenulistview.SwipeMenuListView.OnMenuItemClickListener;
-import com.easemob.EMCallBack;
 import com.easemob.chat.EMChat;
 import com.tencent.android.tpush.XGIOperateCallback;
 import com.tencent.android.tpush.XGPushConfig;
@@ -45,7 +42,6 @@ import com.yongyida.robot.adapter.RobotAdapter;
 import com.yongyida.robot.bean.Robot;
 import com.yongyida.robot.biz.Biz;
 import com.yongyida.robot.huanxin.DemoApplication;
-import com.yongyida.robot.huanxin.DemoHXSDKHelper;
 import com.yongyida.robot.service.SocketService;
 import com.yongyida.robot.utils.BroadcastReceiverRegister;
 import com.yongyida.robot.utils.Constants;
@@ -75,22 +71,22 @@ public class ConnectActivity extends BaseActivity implements
     private SwipeMenuListView robots_bind;
     private ImageView findrobot;
     private SharedPreferences sharedPreferences;
-    private static List<Robot> list_robots;
-    private static List<Robot> list_robots2;
+    private List<Robot> list_robots;
+    private List<Robot> list_robots2;
     private SwipeRefreshLayout refreshableView;
     private ImageView setting;
     private long time;
     private int mBattery;
     private MyOnImageButtonClickListener mListener;
-
+    private RobotAdapter robot;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         setContentView(R.layout.activity_connect);
         super.onCreate(savedInstanceState);
         Log.d(TAG, EMChat.getInstance().getVersion());
-        initXGPush();
-        fromPush();
+    //    initXGPush();
+    //    fromPush();
     }
 
 
@@ -207,7 +203,7 @@ public class ConnectActivity extends BaseActivity implements
                                                     handler.sendEmptyMessage(7);
                                                     return;
                                                 }
-                                                Biz.adapter_robot(json,
+                                                Biz.adapterRobot(json,
                                                         list_robots);
                                             } catch (JSONException e) {
                                                 // block
@@ -292,50 +288,7 @@ public class ConnectActivity extends BaseActivity implements
 
     }
 
-    private void fulllyExit(){
-        XGPushManager.unregisterPush(getApplicationContext());
-        ThreadPool.execute(new Runnable() {
 
-            @Override
-            public void run() {
-                DemoHXSDKHelper.getInstance().logout(false,
-                        new EMCallBack() {
-
-                            @Override
-                            public void onSuccess() {
-                                SharedPreferences sharedPreferences = getSharedPreferences(
-                                        "userinfo", Activity.MODE_PRIVATE);
-                                SharedPreferences.Editor editor = sharedPreferences
-                                        .edit();
-                                editor.clear();
-                                editor.commit();
-                                getSharedPreferences("huanxin", MODE_PRIVATE).edit().clear().commit();
-                                if (Utils.isServiceRunning(ConnectActivity.this, SocketService.class.getCanonicalName())) {
-                                    Utils.stopSocketService(ConnectActivity.this);
-                                }
-                                startActivity(new Intent(
-                                        ConnectActivity.this,
-                                        NewLoginActivity.class)
-                                        .setFlags(
-                                                Intent.FLAG_ACTIVITY_NEW_TASK)
-                                        .addFlags(
-                                                Intent.FLAG_ACTIVITY_CLEAR_TASK));
-
-                            }
-
-                            @Override
-                            public void onProgress(int arg0, String arg1) {
-
-                            }
-
-                            @Override
-                            public void onError(int arg0, String arg1) {
-
-                            }
-                        });
-            }
-        });
-    }
 
     private void backlogin(String content) {
         ToastUtil.showtomain(ConnectActivity.this, content);
@@ -380,11 +333,12 @@ public class ConnectActivity extends BaseActivity implements
                         Bundle params = new Bundle();
                         params.putString("version", intent.getStringExtra("version"));
                         params.putInt("battery", mBattery);
-                        if (!TextUtils.isEmpty(id) && Utils.isSeries(id, "20")) {
-                            StartUtil.startintent(ConnectActivity.this, MeetingFunctionListActivity.class, "no", params);
-                        } else {
-                            StartUtil.startintent(ConnectActivity.this, PowerListActivity.class, "no", params);
-                        }
+//                        if (!TextUtils.isEmpty(id) && Utils.isSeries(id, "20")) {
+//                            StartUtil.startintent(ConnectActivity.this, MeetingFunctionListActivity.class, "no", params);
+//                        } else {
+//                            StartUtil.startintent(ConnectActivity.this, PowerListActivity.class, "no", params);
+                            StartUtil.startintent(ConnectActivity.this, PowerlistYidongActivity.class, "no", params);
+//                        }
                         break;
                     case -1:
                         handler.sendEmptyMessage(4);
@@ -420,7 +374,6 @@ public class ConnectActivity extends BaseActivity implements
             }
         }
     };
-    private static RobotAdapter robot;
 
     /**
      * 按型号排序

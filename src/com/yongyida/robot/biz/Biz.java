@@ -36,6 +36,69 @@ public class Biz {
 		}
 	}
 
+	public static void adapterRobot(JSONObject json, List<Robot> list_robots) throws JSONException{
+		if(list_robots.size() != 0){
+			return;
+		}
+		String jsonstr = json.getString("Robots");
+		JSONArray jsonarray = new JSONArray(jsonstr);
+		for (int i = 0; i < jsonarray.length(); i++) {
+			Robot robot = new Robot();
+			JSONObject jsonobject = jsonarray.getJSONObject(i);
+			try {
+				robot.setId(jsonobject.getString("id"));
+			} catch (JSONException e) {
+				e. printStackTrace();
+			}
+
+			try {
+				robot.setAddress(jsonobject.getString("addr"));
+			} catch (JSONException e) {
+				e. printStackTrace();
+			}
+
+			try {
+				robot.setRid(jsonobject.getInt("rid"));
+			} catch (JSONException e) {
+				e. printStackTrace();
+			}
+
+			try {
+				robot.setRname(jsonobject.getString("rname"));
+			} catch (JSONException e) {
+				e. printStackTrace();
+			}
+
+			try {
+				robot.setOnline(jsonobject.getBoolean("online"));
+			} catch (JSONException e) {
+				e. printStackTrace();
+			}
+
+			try {
+				robot.setController(jsonobject.getInt("controller"));
+			} catch (JSONException e) {
+				e. printStackTrace();
+			}
+
+			try {
+				robot.setRobot_serial(jsonobject.getString("serial"));
+			} catch (JSONException e) {
+				e. printStackTrace();
+			}
+
+			try {
+				robot.setBattery(jsonobject.getInt("battery"));
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+
+			robot.setAir(Robot.air.bind);
+
+			list_robots.add(robot);
+		}
+	}
+
 	public static void adapter_task(String result, List<Remind> list_task,
 			List<Alarm> alarms) throws JSONException {
 		JSONArray tasks = new JSONArray(result);

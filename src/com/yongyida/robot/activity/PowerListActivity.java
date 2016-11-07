@@ -9,7 +9,6 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
@@ -18,11 +17,6 @@ import android.view.View.OnTouchListener;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.easemob.EMCallBack;
-import com.easemob.chat.CmdMessageBody;
-import com.easemob.chat.EMChatManager;
-import com.easemob.chat.EMMessage;
-import com.easemob.chat.EMMessage.Type;
 import com.yongyida.robot.R;
 import com.yongyida.robot.utils.BroadcastReceiverRegister;
 import com.yongyida.robot.utils.Constants;
@@ -50,6 +44,7 @@ public class PowerListActivity extends BaseActivity implements OnClickListener {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_power_list);
 		initBase();
+		Constants.USER_BACE = false;   //防止在powlist界面按一次返回 2次进入connect界面的一个标志位
 	}
 
 
@@ -160,65 +155,38 @@ public class PowerListActivity extends BaseActivity implements OnClickListener {
 	int width;
 	int height;
 
-	public void sendmsg(String mode, String touser) {
-		EMMessage msg = EMMessage.createSendMessage(Type.CMD);
-		msg.setReceipt(touser);
-		msg.setAttribute("mode", mode);
-		CmdMessageBody cmd = new CmdMessageBody(Constants.Video_Mode);
-		msg.addBody(cmd);
-		if (EMChatManager.getInstance().isConnected()) {
-			EMChatManager.getInstance().sendMessage(msg, mCallBack);
-		} else {
-			Log.e("PowerListActivity","连接失败");
-			ToastUtil.showtomain(PowerListActivity.this, getString(R.string.initialize_fail));
-			EMChatManager.getInstance().login(
-					getSharedPreferences("huanxin", MODE_PRIVATE)
-							.getString("username", null),
-					getSharedPreferences("huanxin", MODE_PRIVATE)
-							.getString("password", null),
-					new EMCallBack() {
-
-						@Override
-						public void onSuccess() {
-						}
-
-						@Override
-						public void onProgress(int arg0, String arg1) {
-						}
-
-						@Override
-						public void onError(int arg0, String arg1) {
-						}
-					});
-		}
-	}
-
-	private EMCallBack mCallBack = new EMCallBack() {
-		
-		@Override
-		public void onSuccess() {
-
-			Bundle params = new Bundle();
-			params.putString("mode", mMode);
-			StartUtil.startintent(PowerListActivity.this, ControlActivity.class, "no", params);
-		}
-		
-		@Override
-		public void onProgress(int arg0, String arg1) {
-		}
-		
-		@Override
-		public void onError(int arg0, String arg1) {
-			Log.e("PowerListActivity","error:" + arg1);
-			mHandler.post(new Runnable() {
-
-				@Override
-				public void run() {
-					ToastUtil.showtomain(PowerListActivity.this, getString(R.string.initialize_fail));
-				}
-			});
-		}
-	};
+//	public void sendmsg(String mode, String touser) {
+//		EMMessage msg = EMMessage.createSendMessage(Type.CMD);
+//		msg.setReceipt(touser);
+//		msg.setAttribute("mode", mode);
+//		CmdMessageBody cmd = new CmdMessageBody(Constants.Video_Mode);
+//		msg.addBody(cmd);
+//		if (EMChatManager.getInstance().isConnected()) {
+//			EMChatManager.getInstance().sendMessage(msg, mCallBack);
+//		} else {
+//			Log.e("PowerListActivity","连接失败");
+//			ToastUtil.showtomain(PowerListActivity.this, getString(R.string.initialize_fail));
+//			EMChatManager.getInstance().login(
+//					getSharedPreferences("huanxin", MODE_PRIVATE)
+//							.getString("username", null),
+//					getSharedPreferences("huanxin", MODE_PRIVATE)
+//							.getString("password", null),
+//					new EMCallBack() {
+//
+//						@Override
+//						public void onSuccess() {
+//						}
+//
+//						@Override
+//						public void onProgress(int arg0, String arg1) {
+//						}
+//
+//						@Override
+//						public void onError(int arg0, String arg1) {
+//						}
+//					});
+//		}
+//	}
 
 
 	@Override
@@ -248,13 +216,13 @@ public class PowerListActivity extends BaseActivity implements OnClickListener {
 			mMode = "chat";
 			Bundle bundle1 = new Bundle();
 			bundle1.putString("mode", mMode);
-			StartUtil.startintent(PowerListActivity.this, ControlYidongActivity.class, "no", bundle1);
+			StartUtil.startintent(PowerListActivity.this, ControlActivity.class, "no", bundle1);
 			break;
 		case R.id.video_monitor:
 			mMode = "control";
 			Bundle bundle2 = new Bundle();
 			bundle2.putString("mode", mMode);
-			StartUtil.startintent(PowerListActivity.this, ControlYidongActivity.class, "no", bundle2);
+			StartUtil.startintent(PowerListActivity.this, ControlActivity.class, "no", bundle2);
 			break;
 		case R.id.power_photo:
 		 	StartUtil.startintent(this, PhotoActivity.class, "no");
@@ -289,6 +257,7 @@ public class PowerListActivity extends BaseActivity implements OnClickListener {
 	@Override
 	public void onBackPressed() {
 		sendBroadcast(new Intent(Constants.Stop));
+		Constants.USER_BACE = true;
 		super.onBackPressed();
 	}
 

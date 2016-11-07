@@ -1,7 +1,5 @@
 package com.yongyida.robot.service;
 
-import android.app.ActivityManager;
-import android.app.ActivityManager.RunningAppProcessInfo;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -63,7 +61,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -281,9 +278,11 @@ public class SocketService extends Service {
                     }
                     return;
                 } else if (callback.equals("/robot/uncontroll")) {
-                    Intent socketErrorIntent = new Intent(Constants.Socket_Error);
-                    socketErrorIntent.putExtra("content", getString(R.string.robot_offline));
-                    sendBroadcast(socketErrorIntent);
+                    if (!Constants.USER_BACE) {
+                        Intent socketErrorIntent = new Intent(Constants.Socket_Error);
+                        socketErrorIntent.putExtra("content", getString(R.string.robot_offline));
+                        sendBroadcast(socketErrorIntent);
+                    }
                     return;
                 } else if (callback.equals("/robot/flush")) {
                     String from = Result.getString("from");
@@ -351,7 +350,6 @@ public class SocketService extends Service {
                         case 7:
                             in.putExtra("ret", 7);
                             the = true;
-                        //    sendBroadcast(new Intent(Constants.SESSION_ERROR));
                             break;
                         default:
                             the = true;
@@ -552,6 +550,22 @@ public class SocketService extends Service {
     };
 
 
+    private BroadcastReceiver mVoiceSendBR = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (ctx != null) {
+                try {
+                    byte[] b = FileUtil.getContent(Constants.LOCAL_ADDRESS + Constants.CHANGED_WAV);
+                    NetUtil.sendVoice(b, ctx);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                handleError();
+            }
+        }
+    };
+
 
     private BroadcastReceiver talk = new BroadcastReceiver() {
 
@@ -570,11 +584,12 @@ public class SocketService extends Service {
     };
 
     private void handleError() {
-        Constants.address = Constants.address_cn;
-        Constants.download_fota_address = Constants.download_fota_address_cn;
-        Constants.ip = Constants.ip_cn;
-        Constants.port = Constants.port_cn;
-        Constants.download_address = Constants.download_address_cn;
+        String serverState = getSharedPreferences("net_state", MODE_PRIVATE).getString("state",null);
+        if (serverState != null && !serverState.equals("official")){
+            Utils.switchServer(Utils.TEST);
+        } else {
+            Utils.switchServer(Utils.CN);
+        }
         connectSocketByLanguage();
     }
 
@@ -926,21 +941,6 @@ public class SocketService extends Service {
 
     }
 
-    private void inbackground() {
-        ActivityManager activityManager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
-        List<RunningAppProcessInfo> prs = activityManager
-                .getRunningAppProcesses();
-        for (int i = 0; i < prs.size(); i++) {
-            if (prs.get(i).equals(getPackageName())) {
-                pn = 0;
-            }
-        }
-        if (pn == 1) {
-            sendBroadcast(new Intent(Constants.Stop));
-            stopSelf();
-        }
-    }
-
     static int flag = 0;
     String name = null;
     int pn = 1;
@@ -1041,6 +1041,9 @@ public class SocketService extends Service {
 
         /*Agora视频会议计时*/
         BroadcastReceiverRegister.reg(this, new String[]{Constants.AGORA_VIDEO_MEETING_TIME}, mAgoraVideoMeetingTimeBR);
+
+        /*发送变声后的语音*/
+        BroadcastReceiverRegister.reg(this, new String[]{Constants.SEND_VOICE}, mVoiceSendBR);
         /**
          *  建立socket连接
          */
@@ -1268,6 +1271,7 @@ public class SocketService extends Service {
         Utils.unRegisterReceiver(mAgoraVideoMeetingInviteCancelBR, this);
         Utils.unRegisterReceiver(mAgoraVideoMeetingInviteReplyBR, this);
         Utils.unRegisterReceiver(mAgoraVideoMeetingTimeBR, this);
+        Utils.unRegisterReceiver(mVoiceSendBR, this);
 
         if (time != null) {
             time.cancel();

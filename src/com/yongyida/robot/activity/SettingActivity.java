@@ -1,6 +1,5 @@
 package com.yongyida.robot.activity;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.BroadcastReceiver;
@@ -23,16 +22,11 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.easemob.EMCallBack;
-import com.tencent.android.tpush.XGPushManager;
 import com.yongyida.robot.R;
-import com.yongyida.robot.huanxin.DemoHXSDKHelper;
 import com.yongyida.robot.utils.BroadcastReceiverRegister;
 import com.yongyida.robot.utils.Constants;
 import com.yongyida.robot.utils.StartUtil;
-import com.yongyida.robot.utils.ThreadPool;
 import com.yongyida.robot.utils.ToastUtil;
-import com.yongyida.robot.utils.Utils;
 import com.yongyida.robot.widget.ModifyRobotNameDialog;
 import com.yongyida.robot.widget.SwitchButton;
 
@@ -73,54 +67,10 @@ public class SettingActivity<AndroidLearn> extends BaseActivity implements
 		}
 	};
 
-	private void fulllyExit(){
-		ThreadPool.execute(new Runnable() {
-
-			@Override
-			public void run() {
-				DemoHXSDKHelper.getInstance().logout(false,
-						new EMCallBack() {
-
-							@Override
-							public void onSuccess() {
-								SharedPreferences sharedPreferences = getSharedPreferences(
-										"userinfo", Activity.MODE_PRIVATE);
-								SharedPreferences.Editor editor = sharedPreferences
-										.edit();
-								editor.clear();
-								editor.commit();
-								getSharedPreferences("huanxin", MODE_PRIVATE).edit().clear().commit();
-								Utils.stopSocketService(SettingActivity.this);
-								startActivity(new Intent(
-										SettingActivity.this,
-										NewLoginActivity.class)
-										.setFlags(
-												Intent.FLAG_ACTIVITY_NEW_TASK)
-										.addFlags(
-												Intent.FLAG_ACTIVITY_CLEAR_TASK));
-
-							}
-
-							@Override
-							public void onProgress(int arg0, String arg1) {
-
-							}
-
-							@Override
-							public void onError(int arg0, String arg1) {
-
-							}
-						});
-			}
-		});
-		XGPushManager.unregisterPush(getApplicationContext());
-	}
-
 	@Override
 	public void onClick(View v) {
 		switch (v.getId()) {
 		case R.id.setting_exit:
-			sendBroadcast(new Intent(Constants.Stop));
 			fulllyExit();
 			break;
 		case R.id.setting_back:
@@ -281,4 +231,11 @@ public class SettingActivity<AndroidLearn> extends BaseActivity implements
 		}
 	}
 
+	@Override
+	protected void onDestroy() {
+        super.onDestroy();
+        if (mModifyNameDialog != null) {
+            mModifyNameDialog.dismiss();
+        }
+	}
 }

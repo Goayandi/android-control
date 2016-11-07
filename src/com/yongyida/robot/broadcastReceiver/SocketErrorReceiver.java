@@ -15,7 +15,6 @@ import com.yongyida.robot.utils.ToastUtil;
 
 import java.util.List;
 import java.util.Timer;
-import java.util.TimerTask;
 
 public class SocketErrorReceiver extends BroadcastReceiver {
 
@@ -23,8 +22,13 @@ public class SocketErrorReceiver extends BroadcastReceiver {
     private Timer mTimer;
     @Override
 	public void onReceive(final Context context, Intent intent) {
-		if (intent.getAction().equals("socket_error")) {
-            Log.e(TAG, "socket_error");
+		if (intent.getAction().equals(Constants.Socket_Error)) {
+            Log.d(TAG, "socket_error");
+            ToastUtil.showtomain(context, intent.getStringExtra("content"));
+            EMChatManager.getInstance().endCall();
+            context.startActivity(new Intent(context, ConnectActivity.class)
+                    .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+            /*
 			context.sendBroadcast(new Intent(Constants.Stop));
 			EMChatManager.getInstance().endCall();
 			ToastUtil.showtomain(context, intent.getStringExtra("content"));
@@ -41,7 +45,7 @@ public class SocketErrorReceiver extends BroadcastReceiver {
                     }
                 }, 1000);
 
-			}
+			}*/
 		}
 	}
 

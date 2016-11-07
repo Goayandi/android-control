@@ -25,6 +25,7 @@ import java.io.Writer;
 import java.lang.reflect.Field;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -134,6 +135,10 @@ public class MyCrashHandler implements Thread.UncaughtExceptionHandler {
                 String versionCode = pi.versionCode + "";
                 infos.put("versionName", versionName);
                 infos.put("versionCode", versionCode);
+                Date currentTime = new Date();
+                SimpleDateFormat  formater = new SimpleDateFormat();
+                String timeStr = formater.format(currentTime);
+                infos.put("currentTime", timeStr);
             }
         } catch (PackageManager.NameNotFoundException e) {
             Log.e(TAG, "an error occured when collect package info", e);
