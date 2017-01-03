@@ -3,14 +3,13 @@ package com.yongyida.robot.activity;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
 
 import com.yongyida.robot.videohelper.VideoEngine;
 
 /**
  * Created by Administrator on 2016/8/30 0030.
  */
-abstract public class BaseEngineEventHandlerActivity extends FragmentActivity {
+abstract public class BaseEngineEventHandlerActivity extends OriginalActivity {
     protected static final int ACCOUNT_MASK = 1000000000;
     protected VideoEngine mVideoEngine;
     @Override
@@ -22,12 +21,7 @@ abstract public class BaseEngineEventHandlerActivity extends FragmentActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                mVideoEngine.leaveChannel();
-            }
-        }).run();
+        mVideoEngine.leaveChannel();
     }
 
     protected boolean checknetwork() {

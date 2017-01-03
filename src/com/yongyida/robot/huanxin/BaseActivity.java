@@ -15,11 +15,12 @@
 package com.yongyida.robot.huanxin;
 
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
 import android.view.View;
 
+import com.yongyida.robot.activity.OriginalActivity;
 
-public class BaseActivity extends FragmentActivity {
+
+public class BaseActivity extends OriginalActivity {
 
     @Override
     protected void onCreate(Bundle arg0) {

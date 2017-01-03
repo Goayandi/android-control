@@ -134,7 +134,7 @@
     <string name="request_timeout">request timeout</string>
     <string name="robot_not_exist">robot not exist</string>
     <string name="robot_already_binded">robot already binded!</string>
-    <string name="pass_mount">pass mount!</string>
+    <string name="pass_mount">over amount!</string>
     <string name="argu_fail">argu fail!</string>
     <string name="expire_relogin">expire,relogin please!</string>
     <string name="scan_true">scan true!</string>
@@ -162,7 +162,9 @@
     <string name="re_get">reget</string>
     <string name="so_fast_wait">so fast wait</string>
     <string name="test_server">test server</string>
+    <string name="test_server1">test server1</string>
     <string name="official_server">official server</string>
+    <string name="server">server</string>
     <string name="already_switch_to">already switch to</string>
     <string name="refresh">refresh</string>
     <string name="get_picture_ing">getting......</string>
@@ -393,4 +395,9 @@
     <string name="unmounted">can not find sd card</string>
     <string name="meeting">meeting</string>
     <string name="remote_control">remote control</string>
+    <string name="whether_exit">whether exit?</string>
+    <string name="barrier_notify">barrier notify</string>
+    <string name="avoid_barrier">avoid barrier</string>
+    <string name="navigating">navigating!!</string>
+    <string name="barrier_hint">barrier hint</string>
 </resources>

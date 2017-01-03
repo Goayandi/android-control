@@ -96,5 +96,6 @@
     <color name="et_hint">#D0D0D0</color>
     <color name="dialog_tv">#848484</color>
     <color name="dialog_tv_press">#59A6FE</color>
-
+    <color name="viewfinder_frame">#ff000000</color>
+    <color name="viewfinder_laser">#ffff0000</color>
 </resources>

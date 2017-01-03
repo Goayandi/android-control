@@ -1,6 +1,5 @@
 package com.yongyida.robot.activity;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -21,7 +20,7 @@ import java.util.List;
 /**
  * Created by Administrator on 2016/3/30 0030.
  */
-public class StateActivity extends Activity implements AdapterView.OnItemClickListener {
+public class StateActivity extends OriginalActivity implements AdapterView.OnItemClickListener {
 
     private static final int RESULT_CODE = 1;
     private ListView mListView;

@@ -1,6 +1,5 @@
 package com.yongyida.robot.activity;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -45,7 +44,7 @@ import java.util.Map;
 /**
  * Created by Administrator on 2016/4/19 0019.
  */
-public class RegisterActivity extends Activity implements OnClickListener{
+public class RegisterActivity extends OriginalActivity implements OnClickListener{
 
     private static final String TAG = "RegisterActivity";
     private EditText mAccountET;

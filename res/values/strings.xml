@@ -165,7 +165,9 @@
     <string name="re_get">重新获取</string>
     <string name="so_fast_wait">太频繁啦！请稍后再试试！</string>
     <string name="test_server">测试服</string>
+    <string name="test_server1">测试服1</string>
     <string name="official_server">正式服</string>
+    <string name="server">服务器</string>
     <string name="already_switch_to">已切换为</string>
     <string name="refresh">刷新</string>
     <string name="get_picture_ing">获取图片中......</string>
@@ -315,9 +317,9 @@
     <string name="pwd_wrong">密码错误</string>
     <string name="pwd_not_set">密码未设置，请设置密码</string>
     <string name="username">用户名:</string>
-    <string name="username_hint">请输入6-20位数字,字母(必须以字母开头)</string>
+    <string name="username_hint">6-20位数字,字母(必须以字母开头)</string>
     <string name="pwd">密码:</string>
-    <string name="pwd_hint2">请输入6-20位数字,字母</string>
+    <string name="pwd_hint2">6-20位数字,字母</string>
     <string name="verify_title">验证码:</string>
     <string name="verify_hint">请输入验证码</string>
     <string name="register">注册</string>
@@ -409,4 +411,9 @@
     <string name="unmounted">未找到存储卡</string>
     <string name="meeting">正在会议中</string>
     <string name="remote_control">远程操作</string>
+    <string name="whether_exit">是否退出账号?</string>
+    <string name="barrier_notify">遇到障碍</string>
+    <string name="avoid_barrier">避障</string>
+    <string name="navigating">导航中！！</string>
+    <string name="barrier_hint">有障碍</string>
 </resources>

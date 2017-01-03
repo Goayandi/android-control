@@ -1,6 +1,5 @@
 package com.yongyida.robot.activity;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -31,7 +30,7 @@ import org.json.JSONTokener;
 /**
  * Created by Administrator on 2016/7/9 0009.
  */
-public class InteractActivity extends Activity implements View.OnClickListener {
+public class InteractActivity extends OriginalActivity implements View.OnClickListener {
     private final static int RESUME = 1;
     private static final String TAG = "InteractActivity";
     protected AudioManager audioManager;

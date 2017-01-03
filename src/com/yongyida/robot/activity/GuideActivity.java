@@ -1,6 +1,5 @@
 package com.yongyida.robot.activity;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -17,7 +16,7 @@ import com.ryanharter.viewpager.ViewPager;
 import com.yongyida.robot.R;
 import com.yongyida.robot.utils.StartUtil;
 
-public class GuideActivity extends Activity {
+public class GuideActivity extends OriginalActivity {
 
 	private static final String TAG = "GuideActivity";
 	private ViewPager viewPager;

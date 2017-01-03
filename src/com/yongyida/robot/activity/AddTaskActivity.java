@@ -2,7 +2,6 @@ package com.yongyida.robot.activity;
 
 import android.app.Fragment;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
@@ -26,7 +25,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-public class AddTaskActivity extends FragmentActivity{
+public class AddTaskActivity extends OriginalActivity{
 
 	private static final String TAG = "AddTaskActivity";
 	private RobotDialog alert;

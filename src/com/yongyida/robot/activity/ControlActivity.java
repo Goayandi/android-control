@@ -125,7 +125,9 @@ public class ControlActivity extends CallActivity implements OnClickListener,
 	private int action = 0;
 
 	private int move = 0;
-    @SuppressWarnings("deprecation")
+	private Button mMuteBtn;
+
+	@SuppressWarnings("deprecation")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -134,22 +136,23 @@ public class ControlActivity extends CallActivity implements OnClickListener,
 			return;
 		}
 		setContentView(R.layout.activity_control);
-		HXSDKHelper.getInstance().isVideoCalling = true;
 		getWindow().addFlags(
 				WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
 						| WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD
 						| WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
 						| WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
-		isComingCall = getIntent().getBooleanExtra("isComingCall", false);
-		if (!isComingCall) {
-			username = getSharedPreferences("Receipt", MODE_PRIVATE).getString(
-					"username", null);
-			username = username.toLowerCase();
-		} else {
-			username = getIntent().getStringExtra("username");
-		}
-		initpower();
-		initcontrol();
+		initData();
+		initView();
+		initVideo();
+		initBR();
+
+	}
+
+	private void initBR() {
+		BroadcastReceiverRegister.reg(ControlActivity.this, new String[]{Constants.BATTERY}, mRNameBR);
+	}
+
+	private void initVideo() {
 		// 显示本地图像的surfaceview
 		localSurface = (SurfaceView) findViewById(R.id.local_surface);
 		localSurface.setZOrderMediaOverlay(true);
@@ -168,14 +171,42 @@ public class ControlActivity extends CallActivity implements OnClickListener,
 
 		localSurfaceHolder.addCallback(new LocalCallback());
 		oppositeSurfaceHolder.addCallback(new OppositeCallback());
-		
+
 		// 设置通话监听
 		addCallStateListener();
 		// 判断视频模式
-		runningMode = getIntent().getExtras().getString("mode");
 		if (runningMode.equals("control")) {
 			localSurface.setVisibility(View.INVISIBLE);
 		}
+
+		initSound();
+
+		if(isComingCall) {
+			if (EMChatManager.getInstance().isConnected()) {
+				try {
+					oppositeSurface.setVisibility(View.VISIBLE);
+					play.setBackgroundResource(R.drawable.zanting);
+					if (!runningMode.equals("control")) {
+						speak.setVisibility(View.GONE);
+					}
+					mMuteBtn.setVisibility(View.VISIBLE);
+					audioManager.setMicrophoneMute(true);
+					mMuteBtn.setBackgroundResource(R.drawable.icon_mute_on);
+					// 通知cameraHelper可以写入数据
+					EMChatManager.getInstance().answerCall();
+					cameraHelper.setStartFlag(true);
+				} catch (EMNoActiveCallException e) {
+					e.printStackTrace();
+				} catch (EMNetworkUnconnectedException e) {
+					e.printStackTrace();
+				}
+			} else {
+				finish();
+			}
+		}
+	}
+
+	private void initSound() {
 		audioManager.setMicrophoneMute(true);
 		//	registerHeadsetPlugReceiver();
 		if (audioManager.isWiredHeadsetOn()) {
@@ -194,32 +225,29 @@ public class ControlActivity extends CallActivity implements OnClickListener,
 			// 打开扬声器
 			openSpeakerOn();
 		}
-		BroadcastReceiverRegister.reg(ControlActivity.this, new String[]{Constants.BATTERY}, mRNameBR);
 
-		if(isComingCall) {
-			if (EMChatManager.getInstance().isConnected()) {
-                try {
-                    oppositeSurface.setVisibility(View.VISIBLE);
-					play.setBackgroundResource(R.drawable.zanting);
-                    if (!runningMode.equals("control")) {
-                        speak.setVisibility(View.GONE);
-                    }
-					audioManager.setMicrophoneMute(true);
-					findViewById(R.id.mictoggole).setBackgroundResource(R.drawable.icon_mute_on);
-					// 通知cameraHelper可以写入数据
-                    EMChatManager.getInstance().answerCall();
-                    cameraHelper.setStartFlag(true);
-                } catch (EMNoActiveCallException e) {
-                    e.printStackTrace();
-                } catch (EMNetworkUnconnectedException e) {
-                    e.printStackTrace();
-                }
-			} else {
-                finish();
-            }
+	}
+
+	private void initData() {
+		HXSDKHelper.getInstance().isVideoCalling = true;
+		// 判断视频模式
+		runningMode = getIntent().getExtras().getString("mode");
+
+		isComingCall = getIntent().getBooleanExtra("isComingCall", false);
+		if (!isComingCall) {
+			username = getSharedPreferences("Receipt", MODE_PRIVATE).getString(
+					"username", null);
+			username = username.toLowerCase();
+		} else {
+			username = getIntent().getStringExtra("username");
 		}
-        progress = new ProgressDialog(this);
-        progress.setCanceledOnTouchOutside(false);
+	}
+
+	private void initView(){
+		initpower();
+		initcontrol();
+		progress = new ProgressDialog(this);
+		progress.setCanceledOnTouchOutside(false);
 	}
 
 	private void registerHeadsetPlugReceiver() {
@@ -267,6 +295,7 @@ public class ControlActivity extends CallActivity implements OnClickListener,
                             if (!runningMode.equals("control")) {
                                 speak.setVisibility(View.GONE);
                             }
+							mMuteBtn.setVisibility(View.VISIBLE);
 							cameraHelper.setStartFlag(true);
 							if (!runningMode.equals("control")) {
 								// 通知cameraHelper可以写入数据
@@ -316,25 +345,29 @@ public class ControlActivity extends CallActivity implements OnClickListener,
                 progress.dismiss();
             }
 			ToastUtil.showtomain(ControlActivity.this, getString(R.string.initialize_fail));
-			EMChatManager.getInstance().login(
-					getSharedPreferences("huanxin", MODE_PRIVATE)
-							.getString("username", null),
-					getSharedPreferences("huanxin", MODE_PRIVATE)
-							.getString("password", null),
-					new EMCallBack() {
+			if (!TextUtils.isEmpty(getSharedPreferences("huanxin", MODE_PRIVATE)
+					.getString("username", null)) && !TextUtils.isEmpty(getSharedPreferences("huanxin", MODE_PRIVATE)
+					.getString("password", null))) {
+				EMChatManager.getInstance().login(
+						getSharedPreferences("huanxin", MODE_PRIVATE)
+								.getString("username", null),
+						getSharedPreferences("huanxin", MODE_PRIVATE)
+								.getString("password", null),
+						new EMCallBack() {
 
-						@Override
-						public void onSuccess() {
-						}
+							@Override
+							public void onSuccess() {
+							}
 
-						@Override
-						public void onProgress(int arg0, String arg1) {
-						}
+							@Override
+							public void onProgress(int arg0, String arg1) {
+							}
 
-						@Override
-						public void onError(int arg0, String arg1) {
-						}
-					});
+							@Override
+							public void onError(int arg0, String arg1) {
+							}
+						});
+			}
 		}
 	}
 
@@ -498,6 +531,7 @@ public class ControlActivity extends CallActivity implements OnClickListener,
                 if (!runningMode.equals("control")) {
                     speak.setVisibility(View.VISIBLE);
                 }
+				mMuteBtn.setVisibility(View.GONE);
 			} else if (msg.what == 5) {
 				resume();
 			} else if (msg.what == 6) {
@@ -518,6 +552,13 @@ public class ControlActivity extends CallActivity implements OnClickListener,
 		speak.setOnClickListener(this);
 		back = (Button) findViewById(R.id.back);
 		back.setOnClickListener(this);
+		mMuteBtn = (Button) findViewById(R.id.mictoggole);
+		mMuteBtn.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				toggle_speak(v);
+			}
+		});
 	}
 
 	private void initcontrol() {
@@ -713,6 +754,7 @@ public class ControlActivity extends CallActivity implements OnClickListener,
                                         if (!runningMode.equals("control")) {
                                             speak.setVisibility(View.VISIBLE);
                                         }
+										mMuteBtn.setVisibility(View.GONE);
 									}
 								}
 							});
@@ -721,6 +763,9 @@ public class ControlActivity extends CallActivity implements OnClickListener,
 					break;
 				case DISCONNNECTED: // 电话断了
                     Log.e(TAG, "DISCONNNECTED");
+					if (mTimeoutTimer != null) {
+						mTimeoutTimer.cancel();
+					}
 					if (progress != null) {
 						progress.dismiss();
 					}
@@ -859,7 +904,7 @@ public class ControlActivity extends CallActivity implements OnClickListener,
                 };
 				mTimeoutTimer.schedule(mTimeoutTimerTask, 40000);
 				audioManager.setMicrophoneMute(true);
-				findViewById(R.id.mictoggole).setBackgroundResource(R.drawable.icon_mute_on);
+				mMuteBtn.setBackgroundResource(R.drawable.icon_mute_on);
 				sendmsg();
 				sendmsg(runningMode, username);
 			} else {
@@ -869,6 +914,7 @@ public class ControlActivity extends CallActivity implements OnClickListener,
                 if (!runningMode.equals("control")) {
                     speak.setVisibility(View.VISIBLE);
                 }
+				mMuteBtn.setVisibility(View.GONE);
 				localSurface.setVisibility(View.INVISIBLE);
 				oppositeSurface.setVisibility(View.GONE);
 				EMChatManager.getInstance().endCall();
@@ -949,7 +995,7 @@ public class ControlActivity extends CallActivity implements OnClickListener,
 
 				@Override
 				public void onResult(RecognizerResult result, boolean arg1) {
-					Log.i("Result", "result:" + result.getResultString());
+					Log.d("Result", "result:" + result.getResultString());
 					try {
 						JSONObject jo = new JSONObject(result.getResultString());
 						String text = jo.getString("text");
@@ -965,7 +1011,7 @@ public class ControlActivity extends CallActivity implements OnClickListener,
 
 				@Override
 				public void onError(SpeechError error) {
-					Log.i("errorXF", "errorXF:" + error.getErrorDescription());
+					Log.d("errorXF", "errorXF:" + error.getErrorDescription());
 					enHandler.sendEmptyMessage(5);
 				}
 			});
@@ -1027,7 +1073,7 @@ public class ControlActivity extends CallActivity implements OnClickListener,
                 speak.setVisibility(View.GONE);
         //    }
 		//	if (!getIntent().getExtras().getString("mode").equals("control")) {
-				findViewById(R.id.mictoggole).setVisibility(View.GONE);
+			mMuteBtn.setVisibility(View.GONE);
 		//	}
 			play.setVisibility(View.GONE);
 		} else {
@@ -1041,7 +1087,7 @@ public class ControlActivity extends CallActivity implements OnClickListener,
                 speak.setVisibility(View.VISIBLE);
             }
 	//		if (!getIntent().getExtras().getString("mode").equals("control")) {
-				findViewById(R.id.mictoggole).setVisibility(View.VISIBLE);
+			mMuteBtn.setVisibility(View.VISIBLE);
 	//		}
 			play.setVisibility(View.VISIBLE);
 		}

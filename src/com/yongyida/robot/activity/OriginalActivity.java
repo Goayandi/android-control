@@ -2,10 +2,12 @@ package com.yongyida.robot.activity;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.os.Bundle;
 import android.util.Log;
 
 import com.easemob.EMCallBack;
 import com.tencent.android.tpush.XGPushManager;
+import com.yongyida.robot.huanxin.DemoApplication;
 import com.yongyida.robot.huanxin.DemoHXSDKHelper;
 import com.yongyida.robot.service.SocketService;
 import com.yongyida.robot.utils.ThreadPool;
@@ -15,6 +17,18 @@ import com.yongyida.robot.utils.Utils;
  * Created by Administrator on 2016/10/27 0027.
  */
 public class OriginalActivity extends Activity {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        ((DemoApplication) getApplication()).addActivity(this);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        ((DemoApplication) getApplication()).removeActivity(this);
+    }
 
     public void fulllyExit(){
         XGPushManager.unregisterPush(getApplicationContext());
@@ -57,4 +71,5 @@ public class OriginalActivity extends Activity {
             }
         });
     }
+
 }

@@ -10,6 +10,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.yongyida.robot.huanxin.DemoApplication;
 import com.yongyida.robot.service.SocketService;
 
 import java.io.BufferedReader;
@@ -74,18 +75,16 @@ public class MyCrashHandler implements Thread.UncaughtExceptionHandler {
             // 如果用户没有处理则让系统默认的异常处理器来处理
             mDefaultHandler.uncaughtException(thread, ex);
         } else {
-            Log.e(TAG, "E:" + ex.getMessage());
             if (Utils.isServiceRunning(mContext, SocketService.class.getCanonicalName())) {
                 Utils.stopSocketService(mContext);
             }
             try {
-                Thread.sleep(30000);
+                Thread.sleep(5000);
             } catch (InterruptedException e) {
                 Log.e(TAG, "error1 : ", e);
             }
             // 退出程序
-            android.os.Process.killProcess(android.os.Process.myPid());
-            System.exit(0);
+            ((DemoApplication)mContext).exitApp();
         }
     }
 
@@ -110,7 +109,7 @@ public class MyCrashHandler implements Thread.UncaughtExceptionHandler {
             @Override
             public void run() {
                 Looper.prepare();
-                Toast.makeText(mContext, "很抱歉,程序出现异常,即将退出.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(mContext, "很抱歉,程序出现异常,即将退出.", Toast.LENGTH_LONG).show();
                 Looper.loop();
             }
         }.start();
@@ -177,23 +176,23 @@ public class MyCrashHandler implements Thread.UncaughtExceptionHandler {
         String result = writer.toString();
         sb.append(result);
         try {
-        //    long timestamp = System.currentTimeMillis();
-        //    String time = formatter.format(new Date());
-        //    String fileName = "crash-" + time + "-" + timestamp + ".log";
             String fileName = "info.log";
+            String path;
             if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
-                String path = Environment.getExternalStorageDirectory()
+                path = Environment.getExternalStorageDirectory()
                         .getAbsolutePath() + File.separator + "miniGPS";
-                File dir = new File(path);
-                if (!dir.exists()) {
-                    dir.mkdirs();
-                }
-                FileOutputStream fos = new FileOutputStream(new File(path, fileName), true);
-                fos.write(sb.toString().getBytes());
-                // 发送给开发人员
-            //    sendCrashLog2PM(path + fileName);
-                fos.close();
+            } else {
+                path = mContext.getFilesDir().getAbsolutePath()
+                        + File.separator + "miniGPS";
             }
+            File dir = new File(path);
+            if (!dir.exists()) {
+                dir.mkdirs();
+            }
+            File file = new File(path, fileName);
+            FileOutputStream fos = new FileOutputStream(file, true);
+            fos.write(sb.toString().getBytes());
+            fos.close();
             return fileName;
         } catch (Exception e) {
             Log.e(TAG, "an error occured while writing file...", e);

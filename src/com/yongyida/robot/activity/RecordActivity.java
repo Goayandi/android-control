@@ -1,6 +1,5 @@
 package com.yongyida.robot.activity;
 
-import android.app.Activity;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioRecord;
@@ -28,7 +27,7 @@ import java.io.OutputStream;
 /**
  * Created by Administrator on 2016/9/22 0022.
  */
-public class RecordActivity extends Activity {
+public class RecordActivity extends OriginalActivity {
     private boolean isRecording = false ;
     private Object tmp = new Object() ;
 

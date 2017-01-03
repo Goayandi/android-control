@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <EditText
+        android:id="@+id/et_ip"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    <Button
+        android:id="@+id/bt_conn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="connect"/>
+    <Button
+        android:id="@+id/bt_is_conn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="is_conn"/>
+    <Button
+        android:id="@+id/bt_takephoto"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="takephoto"/>
+    <Button
+        android:id="@+id/bt_opencamera"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="opencamera"/>
+
+    <Button
+        android:id="@+id/bt_closecamera"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="closecamera"/>
+
+    <Button
+        android:id="@+id/bt_stop"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="stop"/>
+    <Button
+        android:id="@+id/bt_stepforward"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="stepforward"/>
+    <Button
+        android:id="@+id/bt_rotate90"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="rotate90"/>
+    <Button
+        android:id="@+id/bt_rotate360"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="rotate360"/>
+</LinearLayout>

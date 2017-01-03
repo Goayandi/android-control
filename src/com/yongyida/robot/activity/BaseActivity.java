@@ -39,6 +39,5 @@ public abstract class BaseActivity extends OriginalActivity {
 	};
 
 	public abstract void initlayout(OnRefreshListener onRefreshListener);
-	
 
 }

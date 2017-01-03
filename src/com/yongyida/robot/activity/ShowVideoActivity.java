@@ -1,12 +1,11 @@
 package com.yongyida.robot.activity;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.view.Menu;
 
 import com.yongyida.robot.R;
 
-public class ShowVideoActivity extends Activity {
+public class ShowVideoActivity extends OriginalActivity {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {

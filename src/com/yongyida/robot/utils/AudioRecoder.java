@@ -12,6 +12,7 @@ import android.media.AudioRecord;
 import android.media.audiofx.AcousticEchoCanceler;
 import android.media.audiofx.AutomaticGainControl;
 import android.media.audiofx.NoiseSuppressor;
+import android.util.Log;
 
 import net.surina.soundtouch.AudioConfig;
 import net.surina.soundtouch.log;
@@ -177,6 +178,16 @@ public class AudioRecoder {
 		}
 	}
 
+	public static double getVolume(byte[] buffer, int length) {
+		short sample = 0;
+		double sum = 0;
+		for (int i = 0; i < length; i+=2) {
+			sample = (short) ((buffer[i]) | buffer[i + 1] << 8);
+			sum += Math.abs(sample) / (length / 2);
+		}
+		return sum / length * 100;
+	}
+
 	/**
 	 * 录音线程
 	 */
@@ -192,12 +203,14 @@ public class AudioRecoder {
 			while (mIsOpened) {
 				length = mAudioRecord.read(sample, 0, sample.length);
 				log.d(TAG, "AudioRecord read len: " + length);
-
+				double volume = getVolume(sample, length);
+				Log.d(TAG, "volume:" + volume);
 				if (length > 0) {
 					if (mRecordListener != null) {
 						mRecordListener.onRecord(sample, 0, length);
 					}
 				}
+
 			}
 
 			// 停止录音

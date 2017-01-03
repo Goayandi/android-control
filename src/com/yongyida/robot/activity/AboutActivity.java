@@ -1,6 +1,5 @@
 package com.yongyida.robot.activity;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.View;
@@ -12,7 +11,7 @@ import com.yongyida.robot.R;
 
 import java.lang.reflect.Field;
 
-public class AboutActivity extends Activity {
+public class AboutActivity extends OriginalActivity {
 
 	private WebView about;
 

@@ -1,6 +1,5 @@
 package com.yongyida.robot.activity;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.View;
@@ -18,7 +17,7 @@ import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class AddressBook extends Activity {
+public class AddressBook extends OriginalActivity {
 
 	private EditText editfather;
 	private EditText editmother;

@@ -13,8 +13,10 @@
  */
 package com.yongyida.robot.huanxin;
 
+import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
+import android.util.Log;
 
 import com.easemob.EMCallBack;
 import com.google.code.microlog4android.Logger;
@@ -22,6 +24,9 @@ import com.google.code.microlog4android.LoggerFactory;
 import com.yongyida.robot.utils.MyCrashHandler;
 import com.yongyida.robot.utils.NetUtil;
 import com.yongyida.robot.utils.Utils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class DemoApplication extends Application {
 
@@ -32,6 +37,34 @@ public class DemoApplication extends Application {
 	public final String PREF_USERNAME = "username";
 	public static final Logger logger = LoggerFactory
 			.getLogger(DemoApplication.class);
+	private List<Activity> mActivityList = new ArrayList<>();
+
+	public void addActivity(Activity activity){
+		if (mActivityList != null) {
+			mActivityList.add(activity);
+		}
+	}
+	public void removeActivity(Activity activity){
+		if (mActivityList != null) {
+			mActivityList.remove(activity);
+		}
+	}
+	public void finishActivity(){
+		if (mActivityList != null) {
+			for (Activity activity : mActivityList) {
+				if (null != activity) {
+					activity.finish();
+				}
+			}
+		}
+	}
+
+	public void exitApp(){
+		finishActivity();
+		//杀死该应用进程
+		android.os.Process.killProcess(android.os.Process.myPid());
+		System.exit(0);
+	}
 
 	/**
 	 * 当前用户nickname,为了苹果推送不是userid而是昵称
@@ -43,7 +76,8 @@ public class DemoApplication extends Application {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-        MyCrashHandler myCrashHandler = MyCrashHandler.getInstance();
+		Log.d(TAG, "app create");
+		MyCrashHandler myCrashHandler = MyCrashHandler.getInstance();
 		myCrashHandler.init(this);
 //		if (LeakCanary.isInAnalyzerProcess(this)) {
 //			// This process is dedicated to LeakCanary for heap analysis.
@@ -62,12 +96,23 @@ public class DemoApplication extends Application {
 			getSharedPreferences("net_state", MODE_PRIVATE).edit()
 					.putString("state", "official").commit();
 		}
-		String serverState = getSharedPreferences("net_state", MODE_PRIVATE).getString("state",null);
-		if (serverState != null && !serverState.equals("official")){
-			Utils.switchServer(Utils.TEST);
-		} else {
-			Utils.switchServer(Utils.CN);
-		}
+
+        Utils.SystemLanguage language = Utils.getLanguage(this);
+//        if (Utils.SystemLanguage.ENGLISH.equals(language)) {
+//            Utils.switchServer(Utils.US);
+//        } else {
+            String serverState = getSharedPreferences("net_state", MODE_PRIVATE).getString("state",null);
+            if (serverState != null && !serverState.equals("official")){
+                if (serverState.equals("test")) {
+                    Utils.switchServer(Utils.TEST);
+                } else if (serverState.equals("test1")){
+                    Utils.switchServer(Utils.TEST1);
+                }
+            } else {
+                Utils.switchServer(Utils.CN);
+            }
+ //       }
+
 		/**
 		 * this function will initialize the HuanXin SDK
 		 *

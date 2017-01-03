@@ -16,19 +16,17 @@
 
 package com.mining.app.zxing.decoding;
 
-import java.util.Hashtable;
-import java.util.Vector;
-import java.util.concurrent.CountDownLatch;
-
 import android.os.Handler;
 import android.os.Looper;
-
-
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.DecodeHintType;
 import com.google.zxing.ResultPointCallback;
 import com.yongyida.robot.activity.BindRobotActivity;
+
+import java.util.Hashtable;
+import java.util.Vector;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * This thread does all the heavy lifting of decoding the images.
@@ -42,7 +40,7 @@ final class DecodeThread extends Thread {
   private Handler handler;
   private final CountDownLatch handlerInitLatch;
 
-  DecodeThread(BindRobotActivity activity,
+  DecodeThread(BindRobotActivity  activity,
                Vector<BarcodeFormat> decodeFormats,
                String characterSet,
                ResultPointCallback resultPointCallback) {

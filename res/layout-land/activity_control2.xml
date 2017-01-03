@@ -24,7 +24,6 @@
         android:layout_marginTop="70dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:visibility="gone"
         android:text="开始录音" />
 
     <Button
@@ -46,6 +45,15 @@
         android:progress="50"
         style="@style/Widget.SeekBar.Normal"
         android:layout_gravity="center_horizontal"/>
+
+    <TextView
+        android:id="@+id/tv_hint"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/red"
+        android:layout_marginBottom="90dp"
+        android:visibility="gone"
+        android:layout_gravity="center_horizontal|bottom"/>
 
     <RelativeLayout
         android:id="@+id/rl_speak"
@@ -135,13 +143,11 @@
                 android:layout_height="60dp"
                 android:src="@drawable/left2" />
 
-            <TextView
+            <ImageView
                 android:id="@+id/head"
                 android:layout_width="60dp"
                 android:layout_height="60dp"
-                android:background="@drawable/tou2"
-                android:gravity="center"
-                android:textColor="@color/btn_white_normal" />
+                android:src="@drawable/tou2"/>
 
             <ImageView
                 android:id="@+id/head_right"
@@ -151,6 +157,24 @@
         </TableRow>
 
     </TableLayout>
+
+    <Button
+        android:id="@+id/play"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_gravity="center"
+        android:background="@drawable/bofang"
+        android:textColor="@color/white" />
+
+    <Button
+        android:id="@+id/mictoggole"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:visibility="gone"
+        android:layout_gravity="right"
+        android:background="@drawable/icon_mute_on"
+        android:layout_marginTop="110dp"
+        />
 
     <TableLayout
         android:id="@+id/tl_body"
@@ -185,23 +209,5 @@
         </TableRow>
 
     </TableLayout>
-
-    <Button
-        android:id="@+id/play"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
-        android:layout_gravity="center"
-        android:background="@drawable/bofang"
-        android:textColor="@color/white" />
-
-    <Button
-        android:id="@+id/mictoggole"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_gravity="right"
-        android:background="@drawable/icon_mute_on"
-        android:onClick="toggle_speak"
-        android:layout_marginTop="110dp"
-        />
 
 </FrameLayout>

@@ -1,6 +1,5 @@
 package com.yongyida.robot.activity;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
@@ -20,7 +19,7 @@ import java.util.TimerTask;
 /**
  * Created by Administrator on 2016/7/12 0012.
  */
-public class InviteHuanxinActivity extends Activity implements View.OnClickListener{
+public class InviteHuanxinActivity extends OriginalActivity implements View.OnClickListener{
     private Button mAcceptBT;
     private Button mRefuseBT;
     protected Timer mTimer;

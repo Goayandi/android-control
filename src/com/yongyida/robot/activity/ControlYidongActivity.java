@@ -24,6 +24,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
@@ -37,6 +38,7 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TableLayout;
+import android.widget.TextView;
 
 import com.easemob.EMCallBack;
 import com.easemob.chat.CmdMessageBody;
@@ -87,7 +89,11 @@ import java.util.UUID;
 
 public class ControlYidongActivity extends CallActivity implements OnClickListener,
 		OnTouchListener {
-
+    private static final int ALL_BUTTON = 0;
+	private static final int BARRIER_UP = 1;
+	private static final int BARRIER_DOWN = 2;
+	private static final int BARRIER_LEFT = 3;
+	private static final int BARRIER_RIGHT = 4;
 	private static final String TAG = "ControlYidongActivity";
 	private SurfaceView localSurface;
 	private SurfaceHolder localSurfaceHolder;
@@ -122,6 +128,72 @@ public class ControlYidongActivity extends CallActivity implements OnClickListen
 					.putString("name", rname).commit();
 		}
 	};
+    private BroadcastReceiver mBarrierNotifyBR = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+			String jsonStr = intent.getStringExtra(Constants.BARRIER_NOTIFY_RESULT);
+			try {
+				JSONObject obj = new JSONObject(jsonStr);
+				//{"forwardRight":"true","forward":"true","cmd":"barrier_location","right":"true","backLeft":"true","left":"false","forwardLeft":"true","back":"true","backRight":"true"}
+				boolean forward = obj.getBoolean("forward");
+				boolean forwardRight = obj.getBoolean("forwardRight");
+				boolean right = obj.getBoolean("right");
+				boolean backLeft = obj.getBoolean("backLeft");
+				boolean left = obj.getBoolean("left");
+				boolean forwardLeft = obj.getBoolean("forwardLeft");
+				boolean back = obj.getBoolean("back");
+				boolean backRight = obj.getBoolean("backRight");
+
+				if (forward && forwardRight && forwardLeft) {
+					setBarrierIcon(BARRIER_UP, true);
+                } else {
+                    setBarrierIcon(BARRIER_UP, false);
+                }
+                if (back && backRight && backLeft) {
+                    setBarrierIcon(BARRIER_DOWN, true);
+                } else {
+                    setBarrierIcon(BARRIER_DOWN, false);
+                }
+                if (left && backLeft && forwardLeft) {
+                    setBarrierIcon(BARRIER_LEFT, true);
+                } else {
+                    setBarrierIcon(BARRIER_LEFT, false);
+                }
+                if (right && backRight && forwardRight) {
+                    setBarrierIcon(BARRIER_RIGHT, true);
+                } else {
+                    setBarrierIcon(BARRIER_RIGHT, false);
+                }
+
+				if (forward && right && left && back && forwardRight && backLeft && forwardLeft && backRight) {
+					mHintTV.setVisibility(View.GONE);
+				} else {
+					mHintTV.setText(R.string.barrier_hint);
+					mHintTV.setVisibility(View.VISIBLE);
+				}
+
+//                ToastUtil.showtomain(ControlYidongActivity.this, getString(R.string.barrier_notify));
+            } catch (JSONException e) {
+				e.printStackTrace();
+			}
+		}
+    };
+
+	private BroadcastReceiver mNavigationNotifyBR = new BroadcastReceiver() {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			String result = intent.getStringExtra(Constants.NAVIGATION_NOTIFY_RESULT);
+			if ("true".equals(result)) {
+				mHintTV.setText(R.string.navigating);
+				mHintTV.setVisibility(View.VISIBLE);
+                setBarrierIcon(ALL_BUTTON, false);
+			}  else {
+				mHintTV.setVisibility(View.GONE);
+                setBarrierIcon(ALL_BUTTON, true);
+			}
+		}
+	};
+
 	private boolean isComingCall;
     private String mRobotName;
     private TableLayout mHeadTableLayout;
@@ -130,12 +202,17 @@ public class ControlYidongActivity extends CallActivity implements OnClickListen
 	private ImageView talk;
     private ImageView body_left;
     private ImageView body_right;
+    private ImageView head_middle;
     private RelativeLayout speakRL;
 	private SeekBar mSpeedSeekBar;
 
 	private AudioRecoder mAudioRecorder;
 	private FileWriter mFileStorager;
 	private boolean mRecording;
+	private Button mMuteBtn;
+	private Button mTalk2;
+	private TextView mHintTV;
+
 
 	@SuppressWarnings("deprecation")
 	@Override
@@ -146,12 +223,37 @@ public class ControlYidongActivity extends CallActivity implements OnClickListen
 			return;
 		}
 		setContentView(R.layout.activity_control2);
-		HXSDKHelper.getInstance().isVideoCalling = true;
 		getWindow().addFlags(
 				WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
 						| WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD
 						| WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
 						| WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
+		initData();
+		initView();
+		initVideo();
+        initRecorder();
+		initBR();
+	}
+
+	private void initBR() {
+		BroadcastReceiverRegister.reg(ControlYidongActivity.this, new String[]{Constants.BATTERY}, mRNameBR);
+        BroadcastReceiverRegister.reg(ControlYidongActivity.this, new String[]{Constants.BARRIER_NOTIFY}, mBarrierNotifyBR);
+        BroadcastReceiverRegister.reg(this,
+                new String[] { ConnectivityManager.CONNECTIVITY_ACTION },
+                neterror);
+		BroadcastReceiverRegister.reg(ControlYidongActivity.this, new String[]{Constants.NAVIGATION_NOTIFY}, mNavigationNotifyBR);
+	}
+
+	private void initView() {
+		initpower();
+		initcontrol();
+		progress = new ProgressDialog(this);
+		progress.setCanceledOnTouchOutside(false);
+		mHintTV = (TextView) findViewById(R.id.tv_hint);
+	}
+
+	private void initData() {
+		HXSDKHelper.getInstance().isVideoCalling = true;
 		isComingCall = getIntent().getBooleanExtra("isComingCall", false);
 		if (!isComingCall) {
 			username = getSharedPreferences("Receipt", MODE_PRIVATE).getString(
@@ -160,8 +262,9 @@ public class ControlYidongActivity extends CallActivity implements OnClickListen
 		} else {
 			username = getIntent().getStringExtra("username");
 		}
-		initpower();
-		initcontrol();
+	}
+
+	private void initVideo() {
 		// 显示本地图像的surfaceview
 		localSurface = (SurfaceView) findViewById(R.id.local_surface);
 		localSurface.setZOrderMediaOverlay(true);
@@ -180,7 +283,7 @@ public class ControlYidongActivity extends CallActivity implements OnClickListen
 
 		localSurfaceHolder.addCallback(new LocalCallback());
 		oppositeSurfaceHolder.addCallback(new OppositeCallback());
-		
+
 		// 设置通话监听
 		addCallStateListener();
 		// 判断视频模式
@@ -188,8 +291,9 @@ public class ControlYidongActivity extends CallActivity implements OnClickListen
 		if (runningMode.equals("control")) {
 			localSurface.setVisibility(View.INVISIBLE);
 		} else {
-            talk.setVisibility(View.GONE);
-        }
+			talk.setVisibility(View.GONE);
+			mTalk2.setVisibility(View.GONE);
+		}
 		audioManager.setMicrophoneMute(true);
 		//	registerHeadsetPlugReceiver();
 		if (audioManager.isWiredHeadsetOn()) {
@@ -198,33 +302,30 @@ public class ControlYidongActivity extends CallActivity implements OnClickListen
 			// 打开扬声器
 			openSpeakerOn();
 		}
-		BroadcastReceiverRegister.reg(ControlYidongActivity.this, new String[]{Constants.BATTERY}, mRNameBR);
 
 		if(isComingCall) {
 			if (EMChatManager.getInstance().isConnected()) {
-                try {
-                    oppositeSurface.setVisibility(View.VISIBLE);
+				try {
+					oppositeSurface.setVisibility(View.VISIBLE);
 					play.setBackgroundResource(R.drawable.zanting);
-                    if (!runningMode.equals("control")) {
-                        speakRL.setVisibility(View.GONE);
-                    }
+					if (!runningMode.equals("control")) {
+						speakRL.setVisibility(View.GONE);
+					}
+					mMuteBtn.setVisibility(View.VISIBLE);
 					audioManager.setMicrophoneMute(true);
-					findViewById(R.id.mictoggole).setBackgroundResource(R.drawable.icon_mute_on);
+					mMuteBtn.setBackgroundResource(R.drawable.icon_mute_on);
 					// 通知cameraHelper可以写入数据
-                    EMChatManager.getInstance().answerCall();
-                    cameraHelper.setStartFlag(true);
-                } catch (EMNoActiveCallException e) {
-                    e.printStackTrace();
-                } catch (EMNetworkUnconnectedException e) {
-                    e.printStackTrace();
-                }
+					EMChatManager.getInstance().answerCall();
+					cameraHelper.setStartFlag(true);
+				} catch (EMNoActiveCallException e) {
+					e.printStackTrace();
+				} catch (EMNetworkUnconnectedException e) {
+					e.printStackTrace();
+				}
 			} else {
-                finish();
-            }
+				finish();
+			}
 		}
-        progress = new ProgressDialog(this);
-        progress.setCanceledOnTouchOutside(false);
-        initRecorder();
 	}
 
 	private void initRecorder() {
@@ -232,7 +333,6 @@ public class ControlYidongActivity extends CallActivity implements OnClickListen
 		mAudioRecorder.setRecordListener(mRecordCallBacker);
         mFileStorager = new FileWriter();
         mFileStorager.setFileName(Constants.LOCAL_ADDRESS + Constants.RECORD_PCM);
-        findViewById(R.id.btn_record).setOnClickListener(this);
 	}
 
 	private AudioRecoder.RecordListener mRecordCallBacker = new AudioRecoder.RecordListener() {
@@ -290,6 +390,7 @@ public class ControlYidongActivity extends CallActivity implements OnClickListen
                             if (!runningMode.equals("control")) {
                                 speakRL.setVisibility(View.GONE);
                             }
+							mMuteBtn.setVisibility(View.VISIBLE);
 							cameraHelper.setStartFlag(true);
 							if (!runningMode.equals("control")) {
 								// 通知cameraHelper可以写入数据
@@ -339,25 +440,29 @@ public class ControlYidongActivity extends CallActivity implements OnClickListen
                 progress.dismiss();
             }
 			ToastUtil.showtomain(ControlYidongActivity.this, getString(R.string.initialize_fail));
-			EMChatManager.getInstance().login(
-					getSharedPreferences("huanxin", MODE_PRIVATE)
-							.getString("username", null),
-					getSharedPreferences("huanxin", MODE_PRIVATE)
-							.getString("password", null),
-					new EMCallBack() {
+			if (!TextUtils.isEmpty(getSharedPreferences("huanxin", MODE_PRIVATE)
+					.getString("username", null)) && !TextUtils.isEmpty(getSharedPreferences("huanxin", MODE_PRIVATE)
+					.getString("password", null))) {
+				EMChatManager.getInstance().login(
+						getSharedPreferences("huanxin", MODE_PRIVATE)
+								.getString("username", null),
+						getSharedPreferences("huanxin", MODE_PRIVATE)
+								.getString("password", null),
+						new EMCallBack() {
 
-						@Override
-						public void onSuccess() {
-						}
+							@Override
+							public void onSuccess() {
+							}
 
-						@Override
-						public void onProgress(int arg0, String arg1) {
-						}
+							@Override
+							public void onProgress(int arg0, String arg1) {
+							}
 
-						@Override
-						public void onError(int arg0, String arg1) {
-						}
-					});
+							@Override
+							public void onError(int arg0, String arg1) {
+							}
+						});
+			}
 		}
 	}
 
@@ -391,13 +496,80 @@ public class ControlYidongActivity extends CallActivity implements OnClickListen
 		}
 	}
 
-	@Override
-	protected void onStart() {
-		BroadcastReceiverRegister.reg(this,
-				new String[] { ConnectivityManager.CONNECTIVITY_ACTION },
-				neterror);
-		super.onStart();
+
+	private void setBarrierIcon(int direction, boolean enable){
+		ImageView imageView = null;
+		switch (direction) {
+			case BARRIER_UP:
+				imageView = up;
+				break;
+			case BARRIER_DOWN:
+				imageView = down;
+				break;
+			case BARRIER_LEFT:
+				imageView = left;
+				break;
+			case BARRIER_RIGHT:
+				imageView = right;
+				break;
+            case ALL_BUTTON:
+                if (enable) {
+                    up.setAlpha(1f);
+                    up.setEnabled(true);
+                    down.setAlpha(1f);
+                    down.setEnabled(true);
+                    left.setAlpha(1f);
+                    left.setEnabled(true);
+                    right.setAlpha(1f);
+                    right.setEnabled(true);
+                    body_left.setAlpha(1f);
+                    body_left.setEnabled(true);
+                    body_right.setAlpha(1f);
+                    body_right.setEnabled(true);
+                    head_left.setAlpha(1f);
+                    head_left.setEnabled(true);
+                    head_right.setAlpha(1f);
+                    head_right.setEnabled(true);
+                    head_middle.setAlpha(1f);
+                    head_middle.setEnabled(true);
+                } else {
+                    up.setAlpha(0.3f);
+                    up.setEnabled(false);
+                    down.setAlpha(0.3f);
+                    down.setEnabled(false);
+                    left.setAlpha(0.3f);
+                    left.setEnabled(false);
+                    right.setAlpha(0.3f);
+                    right.setEnabled(false);
+                    body_left.setAlpha(0.3f);
+                    body_left.setEnabled(false);
+                    body_right.setAlpha(0.3f);
+                    body_right.setEnabled(false);
+                    head_left.setAlpha(0.3f);
+                    head_left.setEnabled(false);
+                    head_right.setAlpha(0.3f);
+                    head_right.setEnabled(false);
+                    head_middle.setAlpha(0.3f);
+                    head_middle.setEnabled(false);
+                }
+
+                return;
+			default:
+				break;
+		}
+        if (enable) {
+            if (imageView != null) {
+                imageView.setAlpha(1f);
+                imageView.setEnabled(true);
+            }
+        } else {
+            if (imageView != null) {
+                imageView.setAlpha(0.3f);
+                imageView.setEnabled(false);
+            }
+        }
 	}
+
 
 	static Timer time = null;
 
@@ -425,7 +597,7 @@ public class ControlYidongActivity extends CallActivity implements OnClickListen
 				public void run() {
 					sendcmd("start", v);
 				}
-			}, 1000, 1000);
+			}, 500, 500);
 		} else if (event.getAction() == MotionEvent.ACTION_MOVE) {
 		} else if (event.getAction() == MotionEvent.ACTION_UP) {
 			speak.setEnabled(true);
@@ -509,10 +681,10 @@ public class ControlYidongActivity extends CallActivity implements OnClickListen
                     execute("stop");
                     break;
 				case R.id.head_left:
-					execute("stop");
+					execute("head_stop");
 					break;
 				case R.id.head_right:
-					execute("stop");
+					execute("head_stop");
 					break;
                 default:
                     break;
@@ -541,6 +713,7 @@ public class ControlYidongActivity extends CallActivity implements OnClickListen
                 if (!runningMode.equals("control")) {
                     speakRL.setVisibility(View.VISIBLE);
                 }
+				mMuteBtn.setVisibility(View.GONE);
 			} else if (msg.what == 5) {
 				resume();
 			} else if (msg.what == 6) {
@@ -562,12 +735,22 @@ public class ControlYidongActivity extends CallActivity implements OnClickListen
 		play.setOnClickListener(this);
 		speak = (ImageView) findViewById(R.id.speak);
 		speak.setOnClickListener(this);
+		mTalk2 = (Button) findViewById(R.id.btn_record);
+		mTalk2.setOnClickListener(this);
 		talk = (ImageView) findViewById(R.id.talk);
 		talk.setOnClickListener(this);
 		back = (Button) findViewById(R.id.back);
 		back.setOnClickListener(this);
         speakRL = (RelativeLayout) findViewById(R.id.rl_speak);
+		mMuteBtn = (Button) findViewById(R.id.mictoggole);
+		mMuteBtn.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				toggle_speak(v);
+			}
+		});
 		mSpeedSeekBar = (SeekBar) findViewById(R.id.seekbar);
+		Constants.speed = 0.25f;
 		mSpeedSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
 			@Override
 			public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -611,8 +794,9 @@ public class ControlYidongActivity extends CallActivity implements OnClickListen
 		mBodyTableLayout = (TableLayout) findViewById(R.id.tl_body);
         mRobotName = getSharedPreferences("Receipt", MODE_PRIVATE).getString("username", null);
         mHeadTableLayout.setVisibility(View.VISIBLE);
-        findViewById(R.id.head).setOnClickListener(this);
-	}
+        head_middle = (ImageView) findViewById(R.id.head);
+        head_middle.setOnClickListener(this);
+    }
 
 	InitListener init = new InitListener() {
 
@@ -780,6 +964,7 @@ public class ControlYidongActivity extends CallActivity implements OnClickListen
                                         if (!runningMode.equals("control")) {
                                             speakRL.setVisibility(View.VISIBLE);
                                         }
+										mMuteBtn.setVisibility(View.GONE);
 									}
 								}
 							});
@@ -788,6 +973,9 @@ public class ControlYidongActivity extends CallActivity implements OnClickListen
 					break;
 				case DISCONNNECTED: // 电话断了
                     Log.d(TAG, "DISCONNNECTED");
+					if (mTimeoutTimer != null) {
+						mTimeoutTimer.cancel();
+					}
 					if (progress != null) {
 						progress.dismiss();
 					}
@@ -926,7 +1114,7 @@ public class ControlYidongActivity extends CallActivity implements OnClickListen
                     };
                     mTimeoutTimer.schedule(mTimeoutTimerTask, 40000);
                     audioManager.setMicrophoneMute(true);
-                    findViewById(R.id.mictoggole).setBackgroundResource(R.drawable.icon_mute_on);
+					mMuteBtn.setBackgroundResource(R.drawable.icon_mute_on);
                     sendmsg();
                     sendmsg(runningMode, username);
                 } else {
@@ -936,6 +1124,7 @@ public class ControlYidongActivity extends CallActivity implements OnClickListen
                     if (!runningMode.equals("control")) {
                         speakRL.setVisibility(View.VISIBLE);
                     }
+					mMuteBtn.setVisibility(View.GONE);
                     localSurface.setVisibility(View.INVISIBLE);
                     oppositeSurface.setVisibility(View.GONE);
                     EMChatManager.getInstance().endCall();
@@ -1072,15 +1261,15 @@ public class ControlYidongActivity extends CallActivity implements OnClickListen
         if (audioManager.isMicrophoneMute()) {
             audioManager.setMicrophoneMute(false);
         }
-        audioManager.setSpeakerphoneOn(true);
+		audioManager.setSpeakerphoneOn(true);
 		mRecording = !mRecording;
 		if (mRecording) {
+			EMChatManager.getInstance().pauseVoiceTransfer();
 			startRecord();
-            ((Button) findViewById(R.id.btn_record)).setText("停止录音");
-		}
-		else {
+            mTalk2.setText("停止录音");
+		} else {
 			stopRecord();
-            ((Button) findViewById(R.id.btn_record)).setText("开始录音");
+			mTalk2.setText("开始录音");
 		}
 	}
 
@@ -1248,7 +1437,7 @@ public class ControlYidongActivity extends CallActivity implements OnClickListen
             mBodyTableLayout.setVisibility(View.GONE);
             mSpeedSeekBar.setVisibility(View.GONE);
             speakRL.setVisibility(View.GONE);
-            findViewById(R.id.mictoggole).setVisibility(View.GONE);
+            mMuteBtn.setVisibility(View.GONE);
 			play.setVisibility(View.GONE);
 		} else {
             mHeadTableLayout.setVisibility(View.VISIBLE);
@@ -1258,7 +1447,7 @@ public class ControlYidongActivity extends CallActivity implements OnClickListen
                 speakRL.setVisibility(View.VISIBLE);
             }
             mSpeedSeekBar.setVisibility(View.VISIBLE);
-            findViewById(R.id.mictoggole).setVisibility(View.VISIBLE);
+			mMuteBtn.setVisibility(View.VISIBLE);
 			play.setVisibility(View.VISIBLE);
 		}
 	}
@@ -1325,18 +1514,11 @@ public class ControlYidongActivity extends CallActivity implements OnClickListen
 			saveCallRecord(1);
 		} catch (Exception e) {
 		}
-		try {
-			if (neterror != null) {
-				unregisterReceiver(neterror);
-			}
-			if (mRNameBR != null) {
-				unregisterReceiver(mRNameBR);
-			}
-		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
-		}
-
-	//	unregisterReceiver(headsetPlugReceiver);  
+        Utils.unRegisterReceiver(mBarrierNotifyBR, this);
+        Utils.unRegisterReceiver(mRNameBR, this);
+        Utils.unRegisterReceiver(neterror, this);
+        Utils.unRegisterReceiver(mNavigationNotifyBR, this);
+        //	unregisterReceiver(headsetPlugReceiver);
 		super.onDestroy();
 
 	}
@@ -1357,7 +1539,6 @@ public class ControlYidongActivity extends CallActivity implements OnClickListen
 		}
 		cameraHelper.stopCapture(oppositeSurfaceHolder);
 		audioManager.setMicrophoneMute(true);
-		finish();
 		super.onBackPressed();
 	}
 

@@ -304,7 +304,7 @@ public class ConnectActivity extends BaseActivity implements
         switch (v.getId()) {
             case R.id.findrobot:
                 StartUtil.startintentforresult(this, BindRobotActivity.class, Constants.bindrobot_RequestCode);
-
+            //    StartUtil.startintent(this, TestActivity.class, "");
                 break;
             case R.id.setting_into:
                 Bundle params = new Bundle();
@@ -335,9 +335,12 @@ public class ConnectActivity extends BaseActivity implements
                         params.putInt("battery", mBattery);
 //                        if (!TextUtils.isEmpty(id) && Utils.isSeries(id, "20")) {
 //                            StartUtil.startintent(ConnectActivity.this, MeetingFunctionListActivity.class, "no", params);
+//                        } else if (!TextUtils.isEmpty(id) && Utils.isSeries(id, "128")) {
+//                            StartUtil.startintent(ConnectActivity.this, Powerlist128Activity.class, "no", params);
+//                        } else if (!TextUtils.isEmpty(id) && Utils.isSeries(id, "150")) {
+                            StartUtil.startintent(ConnectActivity.this, PowerlistYidongActivity.class, "no", params);
 //                        } else {
 //                            StartUtil.startintent(ConnectActivity.this, PowerListActivity.class, "no", params);
-                            StartUtil.startintent(ConnectActivity.this, PowerlistYidongActivity.class, "no", params);
 //                        }
                         break;
                     case -1:
@@ -404,7 +407,7 @@ public class ConnectActivity extends BaseActivity implements
                 returnList.add(list.get(i));
             }
         }
-        return returnList;
+        return sortByOnline(returnList);
     }
 
     public List<Robot> sort(List<Robot> list) {
@@ -424,6 +427,22 @@ public class ConnectActivity extends BaseActivity implements
         for (int i = 0; i < list.size(); i++) {
             if (list.get(i).getAir().equals(Robot.air.bind)
                     && !list.get(i).isOnline()) {
+                rs.add(list.get(i));
+            }
+        }
+        return rs;
+
+    }
+
+    public List<Robot> sortByOnline(List<Robot> list) {
+        List<Robot> rs = new ArrayList<Robot>();
+        for (int i = 0; i < list.size(); i++) {
+            if (list.get(i).isOnline()) {
+                rs.add(list.get(i));
+            }
+        }
+        for (int i = 0; i < list.size(); i++) {
+            if (!list.get(i).isOnline()) {
                 rs.add(list.get(i));
             }
         }

@@ -14,14 +14,13 @@
 package com.yongyida.robot.activity;
 
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.view.MotionEvent;
 
 import com.easemob.chat.EMMessage;
 import com.yongyida.robot.R;
 
-public class ContextMenu extends Activity {
+public class ContextMenu extends OriginalActivity {
 
 	private int position;
 	

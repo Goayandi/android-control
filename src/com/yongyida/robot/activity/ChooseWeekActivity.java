@@ -1,6 +1,5 @@
 package com.yongyida.robot.activity;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -22,7 +21,7 @@ import java.util.List;
 /**
  * Created by Administrator on 2016/6/30 0030.
  */
-public class ChooseWeekActivity extends Activity implements View.OnClickListener {
+public class ChooseWeekActivity extends OriginalActivity implements View.OnClickListener {
 
     private ListView mListView;
     private List<Boolean> mChooseItems;

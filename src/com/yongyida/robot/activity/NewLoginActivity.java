@@ -1,14 +1,16 @@
 package com.yongyida.robot.activity;
 
+import android.app.FragmentTransaction;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.RadioGroup.OnCheckedChangeListener;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.yongyida.robot.R;
@@ -26,8 +28,9 @@ import java.util.List;
 /**
  * Created by Administrator on 2016/4/18 0018.
  */
-public class NewLoginActivity extends FragmentActivity implements OnCheckedChangeListener{
+public class NewLoginActivity extends OriginalActivity implements OnCheckedChangeListener{
     private static final String TAG = "NewLoginActivity";
+    private static final int MY_PERMISSIONS_REQUEST_READ_CONTACTS = 1;
     private List<BaseFragment> mFragments;
     private int index_mode = 0; //用于点击切换测试版本
     private long starttime = 0; //用于点击切换测试版本
@@ -37,6 +40,8 @@ public class NewLoginActivity extends FragmentActivity implements OnCheckedChang
     List<RadioButton> mRBList; //用于存放RadioButton 方便控制RadioButton的颜色
     private RadioGroup mRadioGroup;
     private TextView mLoginTitleTV;
+    private Spinner mSpinner;
+    private boolean mSpinnerFirst = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,13 +55,12 @@ public class NewLoginActivity extends FragmentActivity implements OnCheckedChang
         hideOtherLoginMethod(1);
     }
 
-
     /**
      *
      * @param i  显示第几种登录方式  -1是都显示 1是短信  2是注册
      */
     private void hideOtherLoginMethod(int i) {
-        if(i != 0) {
+        if(i != -1) {
             mRadioGroup.setVisibility(View.GONE);
             mLoginTitleTV.setVisibility(View.VISIBLE);
             initFragment(i);
@@ -71,13 +75,69 @@ public class NewLoginActivity extends FragmentActivity implements OnCheckedChang
         mRadioGroup.setOnCheckedChangeListener(this);
         mSmsRB = (RadioButton) findViewById(R.id.rb_sms);
         mRegisterRB = (RadioButton) findViewById(R.id.rb_register);
+        mSpinner = (Spinner) findViewById(R.id.spinner);
+        String[] mItems = {
+                getString(R.string.server),
+                getString(R.string.official_server),
+                getString(R.string.test_server),
+                getString(R.string.test_server1)
+        };
+        ArrayAdapter<String> adapter=new ArrayAdapter<String>(this,android.R.layout.simple_spinner_item, mItems);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mSpinner .setAdapter(adapter);
+        mSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (mSpinnerFirst) {
+                    mSpinnerFirst = false;
+                    return;
+                }
+                if (position == 0) {
+                    return;
+                }
+                if (position == 1) {
+                    mode = getString(R.string.official_server);
+                    Utils.switchServer(Utils.CN);
+                    getSharedPreferences("net_state", MODE_PRIVATE).edit()
+                            .putString("state", "official").commit();
+                } else if (position == 2) {
+                    mode = getString(R.string.test_server);
+                    Utils.switchServer(Utils.TEST);
+                    getSharedPreferences("net_state", MODE_PRIVATE).edit()
+                            .putString("state", "test").commit();
+                } else if (position == 3) {
+                    mode = getString(R.string.test_server1);
+                    Utils.switchServer(Utils.TEST1);
+                    getSharedPreferences("net_state", MODE_PRIVATE).edit()
+                            .putString("state", "test1").commit();
+                }
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        ToastUtil.showtomain(NewLoginActivity.this, getString(R.string.already_switch_to) + mode);
+                        mSpinner.setVisibility(View.GONE);
+                    }
+                });
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                mSpinner.setVisibility(View.GONE);
+            }
+        });
+        findViewById(R.id.bt_switch).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                togglemode();
+            }
+        });
         mRBList = new ArrayList<RadioButton>();
         mRBList.add(mSmsRB);
         mRBList.add(mRegisterRB);
         mFragments = new ArrayList<BaseFragment>();
     }
 
-    public void togglemode(View view) {
+    public void togglemode() {
         if (starttime == 0) {
             starttime = System.currentTimeMillis();
         }
@@ -97,25 +157,7 @@ public class NewLoginActivity extends FragmentActivity implements OnCheckedChang
     }
 
     public void toggle_mode() {
-
-        if (getSharedPreferences("net_state", MODE_PRIVATE).getString("state",
-                null).equals("official")) {
-            mode = getString(R.string.test_server);
-            Utils.switchServer(Utils.TEST);
-            getSharedPreferences("net_state", MODE_PRIVATE).edit()
-                    .putString("state", "test").commit();
-        } else {
-            mode = getString(R.string.official_server);
-            Utils.switchServer(Utils.CN);
-            getSharedPreferences("net_state", MODE_PRIVATE).edit()
-                    .putString("state", "official").commit();
-        }
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                ToastUtil.showtomain(NewLoginActivity.this, getString(R.string.already_switch_to) + mode);
-            }
-        });
+        mSpinner.setVisibility(View.VISIBLE);
     }
 
     /**
@@ -149,7 +191,7 @@ public class NewLoginActivity extends FragmentActivity implements OnCheckedChang
 
         switch (position) {
             case 1:
-                BaseFragment fragment1 = (BaseFragment) getSupportFragmentManager().findFragmentByTag(SMSLoginFragment.class.getSimpleName());
+                BaseFragment fragment1 = (BaseFragment) getFragmentManager().findFragmentByTag(SMSLoginFragment.class.getSimpleName());
                 if(fragment1 != null){
                     showFragment(fragment1);
                 }else{
@@ -159,7 +201,7 @@ public class NewLoginActivity extends FragmentActivity implements OnCheckedChang
                 }
                 break;
             case 2:
-                BaseFragment fragment2 = (BaseFragment) getSupportFragmentManager().findFragmentByTag(RegisterLoginFragment.class.getSimpleName());
+                BaseFragment fragment2 = (BaseFragment) getFragmentManager().findFragmentByTag(RegisterLoginFragment.class.getSimpleName());
                 if(fragment2 != null){
                     showFragment(fragment2);
                 }else{
@@ -198,7 +240,7 @@ public class NewLoginActivity extends FragmentActivity implements OnCheckedChang
         if(mFragments == null){
             return;
         }
-        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        FragmentTransaction ft = getFragmentManager().beginTransaction();
         for (BaseFragment f : mFragments) {
             if(f == fragment){
                 ft.show(f);
@@ -214,7 +256,7 @@ public class NewLoginActivity extends FragmentActivity implements OnCheckedChang
      * @param fragment
      */
     public void addFragment(BaseFragment fragment){
-        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        FragmentTransaction ft = getFragmentManager().beginTransaction();
         ft.add(R.id.fl, fragment, fragment.getClass().getSimpleName()).commit();
         mFragments.add(fragment);
     }

@@ -1,10 +1,8 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:btn="http://schemas.android.com/apk/com.yongyida.robot"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bjsz"
-    tools:context=".SettingActivity" >
+    android:background="@drawable/bjsz" >
 
     <RelativeLayout
         android:id="@+id/setting_top"
@@ -96,6 +94,29 @@
 
             <com.yongyida.robot.widget.SwitchButton
                 android:id="@+id/wifisetting"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="10dp"
+                btn:kswBackColor="@color/red"
+                android:checked="true" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="50dip"
+            android:orientation="horizontal"
+            android:visibility="gone"
+            android:paddingLeft="15dip" >
+
+            <TextView
+                android:id="@+id/textView2"
+                style="@style/mag"
+                android:text="@string/avoid_barrier" />
+
+            <com.yongyida.robot.widget.SwitchButton
+                android:id="@+id/sb_barrier"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
@@ -221,8 +242,8 @@
         <RelativeLayout
             android:id="@+id/contact"
             android:layout_width="wrap_content"
-            android:visibility="gone"
             android:layout_height="50dip"
+            android:visibility="gone"
             android:paddingLeft="15dip" >
 
             <TextView

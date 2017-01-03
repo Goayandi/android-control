@@ -29,6 +29,8 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.Map;
 
+import static android.content.Context.MODE_PRIVATE;
+
 public class NetUtil {
 
 	private static final String TAG = "NetUtil";
@@ -52,14 +54,24 @@ public class NetUtil {
 	public boolean http(String url, Map<String, String> params, callback call,
 			Context context) throws SocketTimeoutException {
 		if (Constants.address == null) {
-			String serverState = context.getSharedPreferences("net_state", context.MODE_PRIVATE).getString("state",null);
-			if (serverState != null && !serverState.equals("official")){
-				Utils.switchServer(Utils.TEST);
-			} else {
-				Utils.switchServer(Utils.CN);
-			}
+			Utils.SystemLanguage language = Utils.getLanguage(context);
+//			if (Utils.SystemLanguage.ENGLISH.equals(language)) {
+//				Utils.switchServer(Utils.US);
+//			} else {
+				String serverState = context.getSharedPreferences("net_state", MODE_PRIVATE).getString("state",null);
+				if (serverState != null && !serverState.equals("official")){
+					if (serverState.equals("test")) {
+						Utils.switchServer(Utils.TEST);
+					} else if (serverState.equals("test1")){
+						Utils.switchServer(Utils.TEST1);
+					}
+				} else {
+					Utils.switchServer(Utils.CN);
+				}
+//			}
 		}
 		String address = Constants.address;
+		Log.d(TAG, "address:" + address);
 		try {
 			Http http = new Http(address + url);
 			http.setRequestProperty("Content-Type", "text/plain;charset=utf-8;");
@@ -620,18 +632,20 @@ public class NetUtil {
     /**
      * 视频会议时间流量上报
      * @param id  数字id
-     * @param role
+	 * @param meeting_id
+	 * @param role
      * 角色
         Robot  机器人
         User   手机用户
-     * @param begintime  会议开始时间  long型currentTimeMillis
-     * @param endtime    会议结束时间  long型currentTimeMillis
-     * @param totaltime   会议时长（单位：秒）   (非必须参数)
+     * @param begintime  会议开始时间  2016-11-22 18:09:50
+     * @param endtime    会议结束时间  2016-11-22 18:09:50
+     * @param totaltime   会议时长（单位：秒）
      * @param totalsize   占用流量（单位：MB）   (非必须参数)
      */
-    public static void agoraVideoMeetingScoketTime(long id, String role, String begintime, String endtime,
+    public static void agoraVideoMeetingScoketTime(long id, String meeting_id, String role, String begintime, String endtime,
                                                    int totaltime, float totalsize, ChannelHandlerContext handler){
         String str = "{\"id\":\"" + id
+                + "\",\"meeting_id\":\"" + meeting_id
                 + "\",\"role\":\"" + role
                 + "\",\"begintime\":\"" + begintime
                 + "\",\"endtime\":\"" + endtime
@@ -650,6 +664,25 @@ public class NetUtil {
         channel.write(channelBuffer);
     }
 
+	/**
+	 * 建图
+	 * @param cmd
+	 * @param handler
+     */
+	public static void mapping(String cmd, ChannelHandlerContext handler){
+		String str = "{\"cmd\":\"/robot/push\",\"command\":{\"cmd\":\"construction\",\"type\":\""
+				+ cmd + "\"}}";
+		ChannelBuffer channelBuffer = new DynamicChannelBuffer(ByteOrder.BIG_ENDIAN,
+				12 + str.getBytes().length);
+		channelBuffer.writeByte((byte) 1);
+		for (int i = 0; i < 7; i++) {
+			channelBuffer.writeByte((byte) 0);
+		}
+		channelBuffer.writeBytes(int2Byte(str.length()));
+		channelBuffer.writeBytes(str.getBytes());
+		Channel channel = handler.getChannel();
+		channel.write(channelBuffer);
+	}
 
 	// socket方法
 	public static void Scoket(JSONObject params, int flag, ChannelHandlerContext handler) {

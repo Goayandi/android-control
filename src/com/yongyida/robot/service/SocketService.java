@@ -247,6 +247,7 @@ public class SocketService extends Service {
                 if (callback.equals("/robot/callback")) {
                     JSONObject queryresult = new JSONObject(
                             Result.getString("command"));
+                    Log.e(TAG, "result:" + queryresult.toString());
                     if (queryresult.getString("cmd").equals(
                             "photo_names")) {
                         ArrayList<String> names = new ArrayList<String>();
@@ -271,6 +272,16 @@ public class SocketService extends Service {
                         sendBroadcast(new Intent(
                                 Constants.Photo_Query).putExtra(
                                 "result", ""));
+                    } else if (queryresult.getString("cmd").equals(
+                            "barrier_location")) {
+                        Intent intent = new Intent(Constants.BARRIER_NOTIFY);
+                        intent.putExtra(Constants.BARRIER_NOTIFY_RESULT, queryresult.toString());
+                        sendBroadcast(intent);
+                    } else if (queryresult.getString("cmd").equals("notify")) {
+                        String value = queryresult.getString("value");
+                        Intent intent = new Intent(Constants.NAVIGATION_NOTIFY);
+                        intent.putExtra(Constants.NAVIGATION_NOTIFY_RESULT, value);
+                        sendBroadcast(intent);
                     } else {
                         sendBroadcast(new Intent("result")
                                 .putExtra("result", queryresult
@@ -537,6 +548,7 @@ public class SocketService extends Service {
         public void onReceive(Context context, Intent intent) {
             if (ctx != null) {
                 NetUtil.agoraVideoMeetingScoketTime(intent.getLongExtra(Constants.AGORA_ID, -1),
+                        intent.getStringExtra(Constants.MEETING_ID),
                         intent.getStringExtra(Constants.AGORA_ROLE),
                         intent.getStringExtra(Constants.AGORA_BEGINTIME),
                         intent.getStringExtra(Constants.AGORA_ENDTIME),
@@ -549,6 +561,16 @@ public class SocketService extends Service {
         }
     };
 
+    private BroadcastReceiver mMappingBR = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (ctx != null) {
+                NetUtil.mapping(intent.getStringExtra(Constants.MAPPING_CMD), ctx);
+            } else {
+                handleError();
+            }
+        }
+    };
 
     private BroadcastReceiver mVoiceSendBR = new BroadcastReceiver() {
         @Override
@@ -584,12 +606,22 @@ public class SocketService extends Service {
     };
 
     private void handleError() {
-        String serverState = getSharedPreferences("net_state", MODE_PRIVATE).getString("state",null);
-        if (serverState != null && !serverState.equals("official")){
-            Utils.switchServer(Utils.TEST);
-        } else {
-            Utils.switchServer(Utils.CN);
-        }
+        Utils.SystemLanguage language = Utils.getLanguage(this);
+//        if (Utils.SystemLanguage.ENGLISH.equals(language)) {
+//            Utils.switchServer(Utils.US);
+//        } else {
+            String serverState = getSharedPreferences("net_state", MODE_PRIVATE).getString("state",null);
+            if (serverState != null && !serverState.equals("official")){
+                if (serverState.equals("test")) {
+                    Utils.switchServer(Utils.TEST);
+                } else if (serverState.equals("test1")){
+                    Utils.switchServer(Utils.TEST1);
+                }
+            } else {
+                Utils.switchServer(Utils.CN);
+            }
+ //       }
+
         connectSocketByLanguage();
     }
 
@@ -1044,6 +1076,9 @@ public class SocketService extends Service {
 
         /*发送变声后的语音*/
         BroadcastReceiverRegister.reg(this, new String[]{Constants.SEND_VOICE}, mVoiceSendBR);
+
+        /*发送建图指令*/
+        BroadcastReceiverRegister.reg(this, new String[]{Constants.MAPPING_ACTION}, mMappingBR);
         /**
          *  建立socket连接
          */
@@ -1272,6 +1307,7 @@ public class SocketService extends Service {
         Utils.unRegisterReceiver(mAgoraVideoMeetingInviteReplyBR, this);
         Utils.unRegisterReceiver(mAgoraVideoMeetingTimeBR, this);
         Utils.unRegisterReceiver(mVoiceSendBR, this);
+        Utils.unRegisterReceiver(mMappingBR, this);
 
         if (time != null) {
             time.cancel();

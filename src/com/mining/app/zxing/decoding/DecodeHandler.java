@@ -15,7 +15,6 @@
  */
 
 package com.mining.app.zxing.decoding;
-import java.util.Hashtable;
 
 import android.os.Bundle;
 import android.os.Handler;
@@ -34,11 +33,14 @@ import com.mining.app.zxing.camera.PlanarYUVLuminanceSource;
 import com.yongyida.robot.R;
 import com.yongyida.robot.activity.BindRobotActivity;
 
+import java.util.Hashtable;
+
+
 final class DecodeHandler extends Handler {
 
   private static final String TAG = DecodeHandler.class.getSimpleName();
 
-  private final BindRobotActivity activity;
+  private final BindRobotActivity  activity;
   private final MultiFormatReader multiFormatReader;
 
   DecodeHandler(BindRobotActivity activity, Hashtable<DecodeHintType, Object> hints) {

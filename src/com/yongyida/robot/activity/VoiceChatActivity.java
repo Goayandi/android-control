@@ -1,6 +1,5 @@
 package com.yongyida.robot.activity;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -47,7 +46,7 @@ import java.util.List;
 /**
  * Created by Administrator on 2016/7/11 0011.
  */
-public class VoiceChatActivity extends Activity implements View.OnClickListener, EMEventListener {
+public class VoiceChatActivity extends OriginalActivity implements View.OnClickListener, EMEventListener {
     private static final int REQUEST_CODE_EMPTY_HISTORY = 2;
     public static final int REQUEST_CODE_CONTEXT_MENU = 3;
     private static final int REQUEST_CODE_MAP = 4;

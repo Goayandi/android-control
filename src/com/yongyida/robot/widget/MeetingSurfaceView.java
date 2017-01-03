@@ -71,6 +71,8 @@ public class MeetingSurfaceView {
         FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,
                 FrameLayout.LayoutParams.MATCH_PARENT);
         surfaceView.setLayoutParams(params);
+        surfaceView.setZOrderOnTop(false);
+        surfaceView.setZOrderMediaOverlay(false);
         isFullScreen = true;
     }
 

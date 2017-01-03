@@ -220,8 +220,8 @@ public class SMSLoginFragment extends BaseFragment implements View.OnClickListen
                 EMChatManager.getInstance().createAccountOnServer(
                         currentUsername, currentUsername);
             } catch (EaseMobException e1) {
+                Log.e(TAG, "EaseMobException:" + e1.getMessage());
                 e1.printStackTrace();
-
             }
             getActivity().getSharedPreferences("huanxin", getActivity().MODE_PRIVATE).edit()
                     .putString("username", currentUsername)
@@ -341,10 +341,13 @@ public class SMSLoginFragment extends BaseFragment implements View.OnClickListen
                                                 if (json.getInt("ret") == 0) {
 
                                                     into(json);
-                                                    huanxinlogin(edit_phonenum
-                                                                    .getText().toString(),
-                                                            edit_phonenum.getText()
-                                                                    .toString());
+                                                    if (!Utils.SystemLanguage.ENGLISH.equals(Utils.getLanguage(getActivity()))) {
+                                                        huanxinlogin(edit_phonenum
+                                                                        .getText().toString(),
+                                                                edit_phonenum.getText()
+                                                                        .toString());
+                                                    }
+
                                                     Utils.startSocketService(getActivity());
                                                     if (timer != null) {
                                                         timer.cancel();

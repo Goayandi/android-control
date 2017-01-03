@@ -1,6 +1,5 @@
 package com.yongyida.robot.activity;
 
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -28,7 +27,7 @@ import java.util.TimerTask;
 /**
  * Created by Administrator on 2016/9/2 0002.
  */
-public class AgoraInviteActivity extends Activity {
+public class AgoraInviteActivity extends OriginalActivity {
     private static final String TAG = "AgoraInviteActivity";
     protected AudioManager mAudioManager;
     protected SoundPool mSoundPool;

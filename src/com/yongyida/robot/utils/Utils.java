@@ -386,6 +386,9 @@ public class Utils {
     public final static int TEST = 1;
     public final static int HK = 2;
     public final static int TW = 3;
+    public final static int TEST1 = 4;
+    public final static int US = 5;
+
 
     public static void switchServer(int area){
         switch (area) {
@@ -403,6 +406,13 @@ public class Utils {
                 Constants.port = Constants.port_test;
                 Constants.download_address = Constants.download_address_test;
                 break;
+            case TEST1:
+                Constants.address = Constants.address_test1;
+                Constants.download_fota_address = Constants.download_fota_address_test1;
+                Constants.ip = Constants.ip_test1;
+                Constants.port = Constants.port_test1;
+                Constants.download_address = Constants.download_address_test1;
+                break;
             case HK:
                 Constants.address = Constants.address_hk;
                 Constants.download_fota_address = Constants.download_fota_address_hk;
@@ -416,6 +426,13 @@ public class Utils {
                 Constants.ip = Constants.ip_tw;
                 Constants.port = Constants.port_tw;
                 Constants.download_address = Constants.download_address_tw;
+                break;
+            case US:
+                Constants.address = Constants.address_us;
+                Constants.download_fota_address = Constants.download_fota_address_us;
+                Constants.ip = Constants.ip_us;
+                Constants.port = Constants.port_us;
+                Constants.download_address = Constants.download_address_us;
                 break;
         }
     }
@@ -560,8 +577,14 @@ public class Utils {
      * @return
      */
     public static boolean isSeries(String id, String series) {
-        if (series.equals(id.substring(1,3))) {
-            return true;
+        if (series.length() == 3) {
+            if (series.equals(id.substring(1,4))) {
+                return true;
+            }
+        } else if (series.length() == 2) {
+            if (series.equals(id.substring(1,3))) {
+                return true;
+            }
         }
         return false;
     }

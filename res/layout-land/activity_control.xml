@@ -152,8 +152,8 @@
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_gravity="right"
+        android:visibility="gone"
         android:background="@drawable/icon_mute_on"
-        android:onClick="toggle_speak"
         android:layout_marginTop="110dp"
          />
 

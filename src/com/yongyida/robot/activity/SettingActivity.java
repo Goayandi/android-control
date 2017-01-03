@@ -37,6 +37,7 @@ public class SettingActivity<AndroidLearn> extends BaseActivity implements
 	private TextView userid;
 	private TextView about;
 	private SwitchButton wifi;
+	private SwitchButton barrier;
 	private Button back;
 	private TextView edit;
 	private TextView versionname;
@@ -67,11 +68,33 @@ public class SettingActivity<AndroidLearn> extends BaseActivity implements
 		}
 	};
 
+	private AlertDialog alert;
+
 	@Override
 	public void onClick(View v) {
 		switch (v.getId()) {
 		case R.id.setting_exit:
-			fulllyExit();
+			AlertDialog.Builder builder = new AlertDialog.Builder(SettingActivity.this);
+			builder.setMessage(R.string.whether_exit);
+			builder.setPositiveButton(getString(R.string.yes),
+					new DialogInterface.OnClickListener() {
+
+						@Override
+						public void onClick(DialogInterface arg0, int arg1) {
+							fulllyExit();
+						}
+					});
+			builder.setNegativeButton(getString(R.string.no),
+					new DialogInterface.OnClickListener() {
+
+						@Override
+						public void onClick(DialogInterface arg0, int arg1) {
+							alert.dismiss();
+						}
+					});
+			alert = builder.create();
+			alert.show();
+
 			break;
 		case R.id.setting_back:
 			this.onBackPressed();
@@ -176,6 +199,13 @@ public class SettingActivity<AndroidLearn> extends BaseActivity implements
 		about.setOnClickListener(this);
 		wifi = (SwitchButton) findViewById(R.id.wifisetting);
 		wifi.setOnCheckedChangeListener(changeListener);
+		barrier = (SwitchButton) findViewById(R.id.sb_barrier);
+		barrier.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+			@Override
+			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+				//TODO
+			}
+		});
 		userid = (TextView) findViewById(R.id.userid);
 		back = (Button) findViewById(R.id.setting_back);
 		back.setOnClickListener(this);

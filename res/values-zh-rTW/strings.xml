@@ -154,7 +154,9 @@
     <string name="re_get">重新取得</string>
     <string name="so_fast_wait">太頻繁啦！請稍後再試試！</string>
     <string name="test_server">測試服</string>
+    <string name="test_server1">測試服1</string>
     <string name="official_server">正式服</string>
+    <string name="server">服务器</string>
     <string name="already_switch_to">已切換為</string>
     <string name="refresh">更新</string>
     <string name="get_picture_ing">取得圖片中......</string>
@@ -393,4 +395,9 @@
     <string name="unmounted">未找到存储卡</string>
     <string name="meeting">正在会议中</string>
     <string name="remote_control">远程操作</string>
+    <string name="whether_exit">是否退出账号?</string>
+    <string name="barrier_notify">遇到障碍</string>
+    <string name="avoid_barrier">避障</string>
+    <string name="navigating">导航中！！</string>
+    <string name="barrier_hint">有障碍</string>
 </resources>

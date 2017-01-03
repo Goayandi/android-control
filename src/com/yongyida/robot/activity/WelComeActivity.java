@@ -26,7 +26,6 @@ import com.yongyida.robot.utils.StartUtil;
 import com.yongyida.robot.utils.ThreadPool;
 import com.yongyida.robot.utils.Utils;
 import com.yongyida.robot.utils.XmlUtil;
-import com.yongyida.robot.video.comm.log;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -170,9 +169,9 @@ public class WelComeActivity extends BaseActivity {
 		if (Utils.isServiceRunning(this, SocketService.class.getCanonicalName())) {
 			Log.i(TAG, "service start");
 		}
-        Runtime rt=Runtime.getRuntime();
-        long maxMemory=rt.maxMemory();
-        log.i("maxMemory:", Long.toString(maxMemory / (1024 * 1024)));
+//        Runtime rt=Runtime.getRuntime();
+//        long maxMemory=rt.maxMemory();
+//        log.i("maxMemory:", Long.toString(maxMemory / (1024 * 1024)));
 
 	}
 

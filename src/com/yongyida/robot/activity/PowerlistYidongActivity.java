@@ -18,7 +18,6 @@ import com.yongyida.robot.R;
 import com.yongyida.robot.utils.BroadcastReceiverRegister;
 import com.yongyida.robot.utils.Constants;
 import com.yongyida.robot.utils.StartUtil;
-import com.yongyida.robot.utils.ToastUtil;
 import com.yongyida.robot.utils.Utils;
 
 /**
@@ -147,8 +146,9 @@ public class PowerlistYidongActivity extends BaseActivity implements View.OnClic
 
         switch (v.getId()) {
             case R.id.more:
-                v.setBackgroundColor(getResources().getColor(R.color.transparent));
-                ToastUtil.showtomain(this, getString(R.string.waitting));
+                startActivity(new Intent(PowerlistYidongActivity.this, ControlMappingActivity.class));
+//                v.setBackgroundColor(getResources().getColor(R.color.transparent));
+//                ToastUtil.showtomain(this, getString(R.string.waitting));
                 break;
             case R.id.power_title:
                 onBackPressed();

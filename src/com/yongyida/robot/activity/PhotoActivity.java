@@ -1,6 +1,5 @@
 package com.yongyida.robot.activity;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -29,7 +28,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class PhotoActivity extends Activity implements View.OnClickListener {
+public class PhotoActivity extends OriginalActivity implements View.OnClickListener {
     private static final int SET_LOCAL_PHOTO = 1;
     private static final int NO_MORE_PHOTO = 2;
     private static final int DELETE_PHOTO = 3;

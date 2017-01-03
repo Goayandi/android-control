@@ -1,6 +1,5 @@
 package com.yongyida.robot.activity;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -20,7 +19,7 @@ import com.yongyida.robot.utils.ToastUtil;
 
 import java.io.File;
 
-public class BigImageActivity extends Activity {
+public class BigImageActivity extends OriginalActivity {
 
 	private HackyViewPager image;
 	private String[] locations;

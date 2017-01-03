@@ -1,6 +1,5 @@
 package com.yongyida.robot.activity;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -21,7 +20,7 @@ import com.yongyida.robot.utils.Utils;
 /**
  * Created by Administrator on 2016/6/16 0016.
  */
-public class MeetingFunctionListActivity extends Activity implements View.OnClickListener {
+public class MeetingFunctionListActivity extends OriginalActivity implements View.OnClickListener {
     private static final String TAG = "MeetingFunctionListA";
     private RelativeLayout mFunction1RL;
     private RelativeLayout mFunction2RL;
@@ -43,6 +42,23 @@ public class MeetingFunctionListActivity extends Activity implements View.OnClic
     }
 
     private void init() {
+        initView();
+        initData();
+        initBR();
+
+    }
+
+    private void initBR() {
+        BroadcastReceiverRegister.reg(this, new String[]{Constants.BATTERY}, mBatteryBR);
+    }
+
+    private void initData() {
+        int battery = getIntent().getExtras().getInt("battery");
+        mVersion = getIntent().getExtras().getString("version");
+        setBattery(battery);
+    }
+
+    private void initView() {
         power_title = (TextView) findViewById(R.id.power_title);
         power_title.setOnClickListener(this);
 
@@ -65,10 +81,6 @@ public class MeetingFunctionListActivity extends Activity implements View.OnClic
         mFunction6RL.setOnClickListener(this);
         mFunction6RL.setOnTouchListener(ontouch);
         mBattery = ((TextView) findViewById(R.id.tv_battery));
-        int battery = getIntent().getExtras().getInt("battery");
-        mVersion = getIntent().getExtras().getString("version");
-        setBattery(battery);
-        BroadcastReceiverRegister.reg(this, new String[]{Constants.BATTERY}, mBatteryBR);
         mProgressDialog = new ProgressDialog(this);
     }
 
@@ -137,8 +149,7 @@ public class MeetingFunctionListActivity extends Activity implements View.OnClic
                 StartUtil.startintent(MeetingFunctionListActivity.this, SettingActivity.class, "no", params);
                 break;
             case R.id.power_title:
-                startActivity(new Intent(MeetingFunctionListActivity.this, InteractActivity.class));
-            //    onBackPressed();
+                onBackPressed();
                 break;
             default:
                 break;

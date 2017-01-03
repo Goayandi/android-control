@@ -18,12 +18,15 @@ import android.widget.TextView;
 import com.yongyida.robot.R;
 import com.yongyida.robot.utils.BroadcastReceiverRegister;
 import com.yongyida.robot.utils.Constants;
+import com.yongyida.robot.utils.RandomGUID;
 import com.yongyida.robot.utils.ToastUtil;
 import com.yongyida.robot.utils.Utils;
 import com.yongyida.robot.videohelper.MeetingListener;
 import com.yongyida.robot.videohelper.VideoEngine;
 import com.yongyida.robot.widget.VideoMeetingUI;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -39,6 +42,7 @@ public class VideoMeetingActivity extends BaseEngineEventHandlerActivity impleme
 
 
     private static final String TAG = "VideoMeetingActivity";
+    private static final int DISMISS_DIALOG = 1;
     private long mStartTime;
     private long mStopTime;
     private static final int TIME_COUNT = 100;
@@ -59,12 +63,19 @@ public class VideoMeetingActivity extends BaseEngineEventHandlerActivity impleme
     private TimerTask mTimerTask;
     private Timer mTimer;
     private int mTimeCount;
+    private String mHostChannelID;
+    private long mLastClickTime = 0;
     private Handler mHandler = new Handler(){
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case TIME_COUNT:
                     mTimeTV.setText(Utils.showTimeCount(mTimeCount * 1000));
+                    break;
+                case DISMISS_DIALOG:
+                    if (mProgressDialog != null && mProgressDialog.isShowing()) {
+                        mProgressDialog.dismiss();
+                    }
                     break;
             }
         }
@@ -77,14 +88,10 @@ public class VideoMeetingActivity extends BaseEngineEventHandlerActivity impleme
                 ToastUtil.showtomain(VideoMeetingActivity.this, "邀请发送成功");
             } else if (ret == -1) {
                 ToastUtil.showtomain(VideoMeetingActivity.this, "对方不在线");
-                if (mProgressDialog != null) {
-                    mProgressDialog.dismiss();
-                }
+                mHandler.sendEmptyMessage(DISMISS_DIALOG);
             } else {
                 ToastUtil.showtomain(VideoMeetingActivity.this, "邀请发送失败");
-                if (mProgressDialog != null) {
-                    mProgressDialog.dismiss();
-                }
+                mHandler.sendEmptyMessage(DISMISS_DIALOG);
             }
         }
     };
@@ -96,9 +103,8 @@ public class VideoMeetingActivity extends BaseEngineEventHandlerActivity impleme
             long id = intent.getLongExtra(Constants.AGORA_ID, -1);
             if (reply == 0) {
                 ToastUtil.showtomain(VideoMeetingActivity.this, id + "拒绝邀请");
-                if (mProgressDialog != null) {
-                    mProgressDialog.dismiss();
-                }
+                mHandler.sendEmptyMessage(DISMISS_DIALOG);
+                onBackPressed();
             } else if (reply == 1) {
                 ToastUtil.showtomain(VideoMeetingActivity.this, id + "接受邀请");
             }
@@ -137,52 +143,45 @@ public class VideoMeetingActivity extends BaseEngineEventHandlerActivity impleme
         mBindRobotID = getSharedPreferences("Receipt", MODE_PRIVATE).getString(
                 "robotid", null);
         mPhoneNumber = Utils.getPhoneNumber(this);
-        Log.e(TAG, "num:" + mPhoneNumber);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                mHostChannelID = mPhoneNumber + "_" + new RandomGUID().toString();
+                Log.e(TAG, "mHostChannelID:" + mHostChannelID);
+            }
+        }).start();
     }
 
     private void initLayout(){
         mVideoMeetingUI = (VideoMeetingUI) findViewById(R.id.video_meeting_ui);
         mTimeTV = (TextView) findViewById(R.id.tv_time);
         mInviteTV = (TextView) findViewById(R.id.tv_invite);
+        mInviteTV.setVisibility(View.INVISIBLE);
         mInviteTV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mCallId != -1) {
-                    ToastUtil.showtomain(VideoMeetingActivity.this, "只有房主能邀请");
-                    return;
-                } else {
-                    if (!mInviteState) {
-                        ToastUtil.showtomain(VideoMeetingActivity.this, "用户已进入房间");
-                        return;
-                    }
-                }
+                //TODO 邀请逻辑
 
-                if (!TextUtils.isEmpty(mBindRobotID)) {
-                    if (mProgressDialog != null) {
-                        mProgressDialog.setMessage(getString(R.string.inviting_wait));
-                        mProgressDialog.setCanceledOnTouchOutside(false);
-                        mProgressDialog.show();
-                    }
-                    invite(Long.parseLong(mBindRobotID));
-                } else {
-                    ToastUtil.showtomain(VideoMeetingActivity.this, "error");
-                    finish();
-                }
             }
         });
         mMuteTV = (TextView) findViewById(R.id.tv_mute);
         mMuteTV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mute = !mute;
-                mVideoEngine.muteLocalAudioStream(mute);
-                setMuteIcon(mute);
+                switchMuteState();
             }
         });
         mSwitchCameraTV = (TextView) findViewById(R.id.tv_switch_camera);
         mSwitchCameraTV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                long currentTimeMillis = System.currentTimeMillis();
+                if (currentTimeMillis - mLastClickTime < 2000) {
+                    mLastClickTime = currentTimeMillis;
+                    ToastUtil.showtomain(VideoMeetingActivity.this, getString(R.string.dont_so_fast2));
+                    return;
+                }
+                mLastClickTime = currentTimeMillis;
                 mVideoEngine.switchCamera();
             }
         });
@@ -196,8 +195,20 @@ public class VideoMeetingActivity extends BaseEngineEventHandlerActivity impleme
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD,
                 WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
+        mProgressDialog = new ProgressDialog(this);
+        if (mProgressDialog != null) {
+            mProgressDialog.setMessage(getString(R.string.inviting_wait));
+            mProgressDialog.setCanceledOnTouchOutside(false);
+            mProgressDialog.show();
+        }
     }
 
+    private void switchMuteState(){
+        mute = !mute;
+        mVideoEngine.muteLocalAudioStream(mute);
+        setMuteIcon(mute);
+    }
 
     private void invite(long account){
         Log.e(TAG, "invite account:" + Long.parseLong(mAccount));
@@ -207,7 +218,11 @@ public class VideoMeetingActivity extends BaseEngineEventHandlerActivity impleme
         intent.putExtra(Constants.AGORA_NUMBER, account); //LONG
         intent.putExtra(Constants.AGORA_ROLE, "User"); //String
         intent.putExtra(Constants.AGORA_NICKNAME, Utils.getAccount(this)); //String
-        intent.putExtra(Constants.AGORA_CHANNEL_ID, mPhoneNumber); //String
+        if (mCallId == -1) {
+            intent.putExtra(Constants.AGORA_CHANNEL_ID, mHostChannelID); //String
+        } else {
+            intent.putExtra(Constants.AGORA_CHANNEL_ID, mChannelID); //String
+        }
         intent.putExtra(Constants.AGORA_TYPE, "Robot"); //String
         intent.putExtra(Constants.AGORA_MODE, "meeting"); //String
         sendBroadcast(intent);
@@ -233,7 +248,7 @@ public class VideoMeetingActivity extends BaseEngineEventHandlerActivity impleme
     }
 
     private void initMeetingInfo(){
-        mProgressDialog = new ProgressDialog(this);
+        setInviteIcon(false);
         boolean wificheck = getSharedPreferences("setting",
                 MODE_PRIVATE).getBoolean("wificheck", true);
         if (wificheck && !checknetwork()) {
@@ -262,7 +277,7 @@ public class VideoMeetingActivity extends BaseEngineEventHandlerActivity impleme
         if (mCallId == -1) {
             mVideoEngine.joinChannel(
                     mVideoEngine.VendorKey,
-                    mPhoneNumber,
+                    mHostChannelID,
                     "" /*optionalInfo*/,
                     ACCOUNT_MASK + Integer.parseInt(mAccount)/*optionalUid*/);
         } else {
@@ -299,19 +314,30 @@ public class VideoMeetingActivity extends BaseEngineEventHandlerActivity impleme
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                mStopTime = System.currentTimeMillis();
                 mTimeTV.setText(Utils.showTimeCount(0));
                 mTimeCount = 0;
-                Intent intent = new Intent(Constants.AGORA_VIDEO_MEETING_TIME);
-                intent.putExtra(Constants.AGORA_ID, Long.parseLong(mAccount));
-                intent.putExtra(Constants.AGORA_ROLE, "User");
-                intent.putExtra(Constants.AGORA_BEGINTIME, mStartTime + "");
-                intent.putExtra(Constants.AGORA_ENDTIME, mStopTime + "");
-                sendBroadcast(intent);
             }
         });
     }
 
+    private void sendTimeToServer(){
+        mStopTime = System.currentTimeMillis();
+        SimpleDateFormat myFmt=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String startTimeStr = myFmt.format(new Date(mStartTime));
+        String stopTimeStr = myFmt.format(new Date(mStopTime));
+        Intent intent = new Intent(Constants.AGORA_VIDEO_MEETING_TIME);
+        if (mCallId == -1) {
+            intent.putExtra(Constants.MEETING_ID, mHostChannelID.substring(mHostChannelID.indexOf("_") + 1));
+        } else {
+            intent.putExtra(Constants.MEETING_ID, mChannelID.substring(mChannelID.indexOf("_") + 1));
+        }
+        intent.putExtra(Constants.AGORA_ID, Long.parseLong(mAccount));
+        intent.putExtra(Constants.AGORA_ROLE, "User");
+        intent.putExtra(Constants.AGORA_BEGINTIME, startTimeStr);
+        intent.putExtra(Constants.AGORA_ENDTIME, stopTimeStr);
+        intent.putExtra(Constants.AGORA_TOTALTIME, mTimeCount);
+        sendBroadcast(intent);
+    }
 
     private void setMuteIcon(boolean isMute) {
         if (isMute) {
@@ -341,13 +367,9 @@ public class VideoMeetingActivity extends BaseEngineEventHandlerActivity impleme
 
     @Override
     public void onBackPressed() {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                mVideoEngine.leaveChannel();
-            }
-        }).run();
-
+        sendTimeToServer();
+        resetTimeCount();
+        mVideoEngine.leaveChannel();
         finish();
     }
 
@@ -355,6 +377,10 @@ public class VideoMeetingActivity extends BaseEngineEventHandlerActivity impleme
     protected void onDestroy() {
         if (mCallId == -1) {
             inviteCancel();
+        }
+        if (mProgressDialog != null) {
+            mProgressDialog.dismiss();
+            mProgressDialog = null;
         }
         mVideoEngine.setEngineEventHandlerMeetingListener(null);
         super.onDestroy();
@@ -375,12 +401,11 @@ public class VideoMeetingActivity extends BaseEngineEventHandlerActivity impleme
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if (mProgressDialog != null) {
-                    mProgressDialog.dismiss();
-                }
+                mHandler.sendEmptyMessage(DISMISS_DIALOG);
+                //TODO 是否不分房主
                 if (mCallId == -1) {
                     if (uid == Integer.parseInt(mBindRobotID)) {
-                        setInviteIcon(false);
+                        setInviteIcon(true);
                     }
                 }
                 // ensure remote video view setup
@@ -410,17 +435,20 @@ public class VideoMeetingActivity extends BaseEngineEventHandlerActivity impleme
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
+
+                //TODO  是否机器人退出就全部退出
                 if (mCallId != -1) {
-                    if (uid == Integer.parseInt(mBindRobotID)) {
-                        finish();
+                    if (uid == mCallId) {
+                        onBackPressed();
                     } else {
                         mVideoMeetingUI.removeRoomUser(uid + "");
                     }
                 } else {
                     if (uid == Integer.parseInt(mBindRobotID)) {
-                        setInviteIcon(true);
+                        onBackPressed();
+                    } else {
+                        mVideoMeetingUI.removeRoomUser(uid + "");
                     }
-                    mVideoMeetingUI.removeRoomUser(uid + "");
                 }
 
             }
@@ -439,7 +467,6 @@ public class VideoMeetingActivity extends BaseEngineEventHandlerActivity impleme
 
     @Override
     public void onLeaveChannel(IRtcEngineEventHandler.RtcStats stats) {
-        resetTimeCount();
         finish();
     }
 
@@ -450,6 +477,26 @@ public class VideoMeetingActivity extends BaseEngineEventHandlerActivity impleme
 
     @Override
     public void onJoinChannelSuccess(String channel, int uid, int elapsed) {
+        if (mCallId == -1) {
+            if (!TextUtils.isEmpty(mBindRobotID)) {
+                invite(Long.parseLong(mBindRobotID));
+            } else {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        ToastUtil.showtomain(VideoMeetingActivity.this, "error");
+                        finish();
+                    }
+                });
+                return;
+            }
+        }
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                switchMuteState();
+            }
+        });
         startTime();
     }
 }

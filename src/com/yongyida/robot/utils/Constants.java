@@ -9,52 +9,68 @@ public class Constants {
 	// 请求地址
 	public static String address_cn = "http://server.yydrobot.com";
 	public static String address_test = "http://120.24.242.163:81";
+	public static String address_test1 = "http://120.24.213.239:81";
 	public static String address_hk = "http://hk.server.yydrobot.com:180";
 	public static String address_tw = "http://hk.server.yydrobot.com:180";
+	public static String address_us = "http://us.server.yydrobot.com:81";
 
 	// socket ip地址
 	public static String ip_cn = "server.yydrobot.com";
 	public static String ip_test = "120.24.242.163";
+	public static String ip_test1 = "120.24.213.239";
 	public static String ip_hk = "hk.server.yydrobot.com";
 	public static String ip_tw = "hk.server.yydrobot.com";
+	public static String ip_us = "us.server.yydrobot.com";
 
 	// socket 端口号
 	public static String port_cn = "8002";
 	public static String port_test = "8002";
+	public static String port_test1 = "8002";
 	public static String port_hk = "18002";
 	public static String port_tw = "18002";
+	public static String port_us = "8002";
 
 	// 下载地址
 //	public static String download_address_cn = "http://resource.yydrobot.com/app/yyd/cn/app.version";
-//   public static String download_address_test = "http://120.24.242.163/app/yyd/cn/app.version";
+//    public static String download_address_test = "http://120.24.242.163/app/yyd/cn/app.version";
+//    public static String download_address_test1 = "http://120.24.213.239/app/yyd/cn/app.version";
 
 //	public static String download_address_cn = "http://resource.yydrobot.com/app/youjiaoxiaotong/cn/app.youjiaoxiaotong.version";
 // 	public static String download_address_test = "http://120.24.242.163/app/youjiaoxiaotong/cn/app.youjiaoxiaotong.version";
+// 	public static String download_address_test1 = "http://120.24.213.239/app/youjiaoxiaotong/cn/app.youjiaoxiaotong.version";
 
 //	public static String download_address_cn= "http://resource.yydrobot.com/app/gaojunkeji/cn/app.gaojunkeji.version";
 // 	public static String download_address_test = "http://120.24.242.163/app/gaojunkeji/cn/app.gaojunkeji.version";
+// 	public static String download_address_test1 = "http://120.24.213.239/app/gaojunkeji/cn/app.gaojunkeji.version";
 
 //	public static String download_address_cn= "http://resource.yydrobot.com/app/liuchaokeji/cn/app.liuchaokeji.version";
 //	public static String download_address_test = "http://120.24.242.163/app/liuchaokeji/cn/app.liuchaokeji.version";
+//	public static String download_address_test1 = "http://120.24.213.239/app/liuchaokeji/cn/app.liuchaokeji.version";
 
 	public static String download_address_cn= "http://resource.yydrobot.com/app/cmcc/cn/app.cmcc.version";
 	public static String download_address_test = "http://120.24.242.163/app/cmcc/cn/app.cmcc.version";
+	public static String download_address_test1 = "http://120.24.213.239/app/cmcc/cn/app.cmcc.version";
 
 //	public static String download_address_cn= "http://resource.yydrobot.com/app/caihongwoniu/cn/app.caihongwoniu.version";
 //	public static String download_address_test = "http://120.24.242.163/app/caihongwoniu/cn/app.caihongwoniu.version";
+//	public static String download_address_test1 = "http://120.24.213.239/app/caihongwoniu/cn/app.caihongwoniu.version";
 
 //	public static String download_address_cn= "http://resource.yydrobot.com/app/xiaoyujiqiren/cn/app.xiaoyujiqiren.version";
 //	public static String download_address_test = "http://120.24.242.163/app/xiaoyujiqiren/cn/app.xiaoyujiqiren.version";
+//	public static String download_address_test1 = "http://120.24.213.239/app/xiaoyujiqiren/cn/app.xiaoyujiqiren.version";
 
 
 	public static String download_address_hk = "http://resource.yydrobot.com/app/hk/cn/app.hk.version";
 	public static String download_address_tw = "http://resource.yydrobot.com/app/taiwan/cn/app.taiwan.version";
+	public static String download_address_us = "http://resource.yydrobot.com/app/yyd/cn/app.version";
 
 	//fota下载地址
 	public static String download_fota_address_cn = "http://resource.yydrobot.com/robot/robot.version";
 	public static String download_fota_address_test = "http://resource.yydrobot.com/robot/robot.version";
+	public static String download_fota_address_test1 = "http://resource.yydrobot.com/robot/robot.version";
 	public static String download_fota_address_hk = "http://resource.yydrobot.com/robot/robot.version";
 	public static String download_fota_address_tw = "http://resource.yydrobot.com/robot/robot.version";
+	public static String download_fota_address_us = "http://resource.yydrobot.com/robot/robot.version";
 
 	public static String address;
 	public static String ip;
@@ -127,6 +143,11 @@ public class Constants {
 
 	// 照片查询
 	public static String Photo_Query = "photo_query";
+
+	//障碍提示
+	public static String BARRIER_NOTIFY = "barrier_notify";
+
+	public static String BARRIER_NOTIFY_RESULT = "barrier_notify_result";
 
 	public static String Photo_Query_Name = "photo_query_name";
 	// 照片删除
@@ -259,6 +280,10 @@ public class Constants {
 
 	public static final String BATTERY = "battery";
 
+	public static final String NAVIGATION_NOTIFY = "navigation_notify";
+
+	public static final String NAVIGATION_NOTIFY_RESULT = "navigation_notify_result";
+
 	public static final int SMS_LOGIN = 1;
 
 	public static final int ACCOUNT_LOGIN = 2;
@@ -349,6 +374,19 @@ public class Constants {
 	public static final String AGORA_TOTALTIME = "totaltime";
 	public static final String AGORA_TOTALSIZE = "totalsize";
 	public static final String AGORA_RET = "agora_ret";
+	public static final String MEETING_ID = "meeting_id";
+
+
+	public static final String MAPPING_ACTION = "mapping_action";
+	public static final String MAPPING_CMD = "mapping_cmd";
+	public static final String MAPPING_TAKE_PICTURES = "take_pictures";
+	public static final String MAPPING_OPEN_CAMERA = "camera_open";
+	public static final String MAPPING_CLOSE_CAMERA = "camera_close";
+	public static final String MAPPING_STOP = "move_stop";
+	public static final String MAPPING_STEP_FORWARD = "going";
+	public static final String MAPPING_ROTATE_90 = "mode_1";
+	public static final String MAPPING_ROTATE_360 = "mode_2";
+
 
 	public static final String AGORA_CMD_INVITE_REPONSE = "/avm/invite/response";
 
@@ -368,6 +406,9 @@ public class Constants {
 
 	public static boolean USER_BACE = false;
 
+	public final static int MSG_SPEECH_RESTART=2;
+	public final static int MSG_SEND_A_REQUEST=3;
+	public final static int TOTALBYTE = 6*1024;
 	public interface Role{
 		String Robot = "Robot";
 		String User = "User";
