@@ -400,4 +400,12 @@
     <string name="avoid_barrier">避障</string>
     <string name="navigating">导航中！！</string>
     <string name="barrier_hint">有障碍</string>
+    <string name="build_pictures">建图</string>
+    <string name="take_photo">拍照</string>
+    <string name="open_camera">打开相机</string>
+    <string name="close_camera">关闭相机</string>
+    <string name="stop">停止</string>
+    <string name="step_forward">向前</string>
+    <string name="rotate_90">旋转90度</string>
+    <string name="rotate_360">旋转360度</string>
 </resources>

@@ -404,6 +404,14 @@ public class Constants {
 
 	public static final String DOWNLOAD_ADDRESS = "download_address";
 
+	public static final String BARRIER = "barrier";
+
+	public static final String BARRIER_SWITCH = "barrier_switch";
+
+	public static final String BARRIER_FLAG = "barrier_flag";
+
+	public static final String WHETHER_NAVIGATION = "whether_navigation";
+
 	public static boolean USER_BACE = false;
 
 	public final static int MSG_SPEECH_RESTART=2;

@@ -333,6 +333,8 @@ public class ConnectActivity extends BaseActivity implements
                         Bundle params = new Bundle();
                         params.putString("version", intent.getStringExtra("version"));
                         params.putInt("battery", mBattery);
+                        params.putString("id", id);
+//                        StartUtil.startintent(ConnectActivity.this, PowerlistAllActivity.class, "no", params);
 //                        if (!TextUtils.isEmpty(id) && Utils.isSeries(id, "20")) {
 //                            StartUtil.startintent(ConnectActivity.this, MeetingFunctionListActivity.class, "no", params);
 //                        } else if (!TextUtils.isEmpty(id) && Utils.isSeries(id, "128")) {

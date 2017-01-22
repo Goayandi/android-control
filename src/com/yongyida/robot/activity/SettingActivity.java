@@ -203,7 +203,11 @@ public class SettingActivity<AndroidLearn> extends BaseActivity implements
 		barrier.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 			@Override
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-				//TODO
+				getSharedPreferences("setting", MODE_PRIVATE).edit()
+						.putBoolean(Constants.BARRIER, isChecked).commit();
+				Intent intent = new Intent(Constants.BARRIER_SWITCH);
+				intent.putExtra(Constants.BARRIER_FLAG, isChecked);
+				sendBroadcast(intent);
 			}
 		});
 		userid = (TextView) findViewById(R.id.userid);
@@ -256,8 +260,14 @@ public class SettingActivity<AndroidLearn> extends BaseActivity implements
 					upgrade.setOnClickListener(this);
 				}
 			}
+			if ("yidong".equals(getIntent().getExtras().getString("from"))) {
+				findViewById(R.id.rl_barrier).setVisibility(View.VISIBLE);
+			}
+			boolean barrierState = getSharedPreferences("setting", MODE_PRIVATE).getBoolean(Constants.BARRIER, true);
+			barrier.setChecked(barrierState);
 		} else {
 			(findViewById(R.id.robot_name)).setVisibility(View.GONE);
+			findViewById(R.id.rl_barrier).setVisibility(View.GONE);
 		}
 	}
 

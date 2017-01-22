@@ -98,9 +98,9 @@ public class DemoApplication extends Application {
 		}
 
         Utils.SystemLanguage language = Utils.getLanguage(this);
-//        if (Utils.SystemLanguage.ENGLISH.equals(language)) {
-//            Utils.switchServer(Utils.US);
-//        } else {
+        if (Utils.SystemLanguage.ENGLISH.equals(language)) {
+            Utils.switchServer(Utils.US);
+        } else {
             String serverState = getSharedPreferences("net_state", MODE_PRIVATE).getString("state",null);
             if (serverState != null && !serverState.equals("official")){
                 if (serverState.equals("test")) {
@@ -111,7 +111,7 @@ public class DemoApplication extends Application {
             } else {
                 Utils.switchServer(Utils.CN);
             }
- //       }
+        }
 
 		/**
 		 * this function will initialize the HuanXin SDK

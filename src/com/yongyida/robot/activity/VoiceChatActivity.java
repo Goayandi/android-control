@@ -244,9 +244,9 @@ public class VoiceChatActivity extends OriginalActivity implements View.OnClickL
         if (msgCount < conversation.getAllMsgCount() && msgCount < pagesize) {
             String msgId = null;
             if (msgs != null && msgs.size() > 0) {
-                msgId = msgs.get(0).getMsgId();
-            }
-            conversation.loadMoreMsgFromDB(msgId, pagesize);
+                    msgId = msgs.get(0).getMsgId();
+                }
+                conversation.loadMoreMsgFromDB(msgId, pagesize);
         }
 
         EMChatManager.getInstance().addChatRoomChangeListener(new EMChatRoomChangeListener() {

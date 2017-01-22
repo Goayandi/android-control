@@ -152,13 +152,38 @@
             style="@style/style_tv_control" />
     </com.layout.utils.PercentRelativeLayout>
 
+
     <com.layout.utils.PercentRelativeLayout
-        android:id="@+id/power_setting"
+        android:id="@+id/build_pictures"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_alignParentLeft="true"
         android:layout_below="@id/video_monitor"
         app:layout_marginLeftPercent="2%"
+        style="@style/style_rl_control" >
+
+        <Button
+            android:id="@+id/bt_build_pictures"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@drawable/build_pictures"
+            style="@style/style_bt_control" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_below="@id/bt_build_pictures"
+            android:text="@string/build_pictures"
+            style="@style/style_tv_control" />
+    </com.layout.utils.PercentRelativeLayout>
+
+
+    <com.layout.utils.PercentRelativeLayout
+        android:id="@+id/power_setting"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_toRightOf="@id/build_pictures"
+        android:layout_below="@id/video_monitor"
         style="@style/style_rl_control" >
 
         <Button

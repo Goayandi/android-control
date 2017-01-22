@@ -2,28 +2,27 @@ package com.yongyida.robot.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
-import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.yongyida.robot.R;
 import com.yongyida.robot.utils.Constants;
-import com.yongyida.robot.utils.ThreadPool;
-import com.yongyida.robot.utils.ToastUtil;
-
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.net.Socket;
-import java.net.UnknownHostException;
 
 /**
  * Created by Administrator on 2016/11/28 0028.
  */
 
 public class ControlMappingActivity extends OriginalActivity {
-    private static final int PORT = 9999;
-    private Socket mSocket;
-    private EditText mIPEditText;
-    private String mIP;
+
+    private static final String TAG = "ControlMappingActivity";
+    private TextView mCameraTV;
+    private ImageView mCameraIV;
+    private ImageView mTakePhotoIV;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -33,110 +32,152 @@ public class ControlMappingActivity extends OriginalActivity {
 
     private void init(){
         initView();
-        initSocket();
-    }
-
-    private void initSocket() {
     }
 
 
-    /**
-     * 建立服务端连接
-     */
-    public void conn() {
-        mIP = mIPEditText.getText().toString();
-        ThreadPool.execute(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    mSocket = new Socket(mIP, PORT);
-                } catch (UnknownHostException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
+
+    private void handlCamera() {
+        if (getString(R.string.open_camera).equals(mCameraTV.getText().toString())) {
+            mCameraTV.setText(getString(R.string.close_camera));
+            mCameraIV.setImageResource(R.drawable.mapping_gbpz);
+            mTakePhotoIV.setImageResource(R.drawable.mapping_pz);
+            mTakePhotoIV.setEnabled(true);
+            openCamera();
+        } else {
+            mCameraTV.setText(getString(R.string.open_camera));
+            mCameraIV.setImageResource(R.drawable.mapping_dkxj);
+            mTakePhotoIV.setImageResource(R.drawable.mapping_pz_nor);
+            mTakePhotoIV.setEnabled(false);
+            closeCamera();
+        }
+
     }
 
-    /**
-     * 发送消息
-     */
-    public void send(final String cmd) {
-        ThreadPool.execute(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    DataOutputStream writer = new DataOutputStream(mSocket.getOutputStream());
-                    writer.write(cmd.getBytes());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
+    private void exit(){
+        if (getString(R.string.close_camera).equals(mCameraTV.getText().toString())) {
+            Toast.makeText(this, "请先关闭相机", Toast.LENGTH_LONG).show();
+        } else {
+            finish();
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        exit();
     }
 
     private void initView() {
-        mIPEditText = (EditText) findViewById(R.id.et_ip);
-        findViewById(R.id.bt_conn).setOnClickListener(new View.OnClickListener() {
+        mCameraTV = (TextView) findViewById(R.id.tv_opencamera);
+        mCameraIV = (ImageView) findViewById(R.id.iv_opencamera);
+        mTakePhotoIV = (ImageView) findViewById(R.id.iv_takephoto);
+
+        findViewById(R.id.bt_back).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                conn();
+                exit();
             }
         });
-        findViewById(R.id.bt_is_conn).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.iv_opencamera).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mSocket != null && mSocket.isConnected()) {
-                    ToastUtil.showtomain(ControlMappingActivity.this, "yes");
-                } else {
-                    ToastUtil.showtomain(ControlMappingActivity.this, "no");
-                }
+                handlCamera();
             }
+
         });
-        findViewById(R.id.bt_takephoto).setOnClickListener(new View.OnClickListener() {
+
+        mTakePhotoIV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 takePhoto();
             }
         });
-        findViewById(R.id.bt_opencamera).setOnClickListener(new View.OnClickListener() {
+        mTakePhotoIV.setOnTouchListener(new View.OnTouchListener() {
             @Override
-            public void onClick(View v) {
-                openCamera();
+            public boolean onTouch(View v, MotionEvent event) {
+                if (getString(R.string.close_camera).equals(mCameraTV.getText().toString())) {
+                    if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                        v.setAlpha(0.3f);
+                    } else if (event.getAction() == MotionEvent.ACTION_UP){
+                        v.setAlpha(1f);
+                    }
+                }
+                return false;
             }
         });
-        findViewById(R.id.bt_closecamera).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                closeCamera();
-            }
-        });
-        findViewById(R.id.bt_stop).setOnClickListener(new View.OnClickListener() {
+
+        findViewById(R.id.iv_stop).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 stop();
             }
         });
-        findViewById(R.id.bt_stepforward).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.iv_stop).setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    v.setAlpha(0.3f);
+                } else if (event.getAction() == MotionEvent.ACTION_UP){
+                    v.setAlpha(1f);
+                }
+                return false;
+            }
+        });
+
+        findViewById(R.id.iv_stepforward).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 stepForward();
             }
         });
-        findViewById(R.id.bt_rotate90).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.iv_stepforward).setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    v.setAlpha(0.3f);
+                } else if (event.getAction() == MotionEvent.ACTION_UP){
+                    v.setAlpha(1f);
+                }
+                return false;
+            }
+        });
+
+        findViewById(R.id.iv_rotate90).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 rotate90();
             }
         });
-        findViewById(R.id.bt_rotate360).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.iv_rotate90).setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    v.setAlpha(0.3f);
+                } else if (event.getAction() == MotionEvent.ACTION_UP){
+                    v.setAlpha(1f);
+                }
+                return false;
+            }
+        });
+
+        findViewById(R.id.iv_rotate360).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 rotate360();
             }
         });
+        findViewById(R.id.iv_rotate360).setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    v.setAlpha(0.3f);
+                } else if (event.getAction() == MotionEvent.ACTION_UP){
+                    v.setAlpha(1f);
+                }
+                return false;
+            }
+        });
     }
+
 
 //    /**
 //     *
@@ -186,6 +227,7 @@ public class ControlMappingActivity extends OriginalActivity {
 //    }
 
     private void stop(){
+        Log.d(TAG, "stop");
         Intent intent = new Intent(Constants.MAPPING_ACTION);
         intent.putExtra(Constants.MAPPING_CMD, Constants.MAPPING_STOP);
         sendBroadcast(intent);
@@ -240,15 +282,10 @@ public class ControlMappingActivity extends OriginalActivity {
         sendBroadcast(intent);
     }
 
+
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        try {
-            if (mSocket != null) {
-                mSocket.close();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 }

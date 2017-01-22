@@ -1,23 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/root_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/black_deep"
+    android:background="@android:color/transparent"
     android:animateLayoutChanges="true"
     >
 
-    <SurfaceView
-        android:id="@+id/opposite_surface"
+    <FrameLayout
+        android:id="@+id/fl"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:visibility="gone"/>
-
-    <SurfaceView
-        android:id="@+id/local_surface"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
-        android:layout_gravity="right|top" />
+        android:layout_height="fill_parent"/>
 
     <Button
         android:id="@+id/back"
@@ -25,7 +18,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
         android:background="@android:color/transparent"
-        android:drawableLeft="@drawable/back"
+        android:drawableStart="@drawable/back"
         android:text="@string/return1"
         android:textColor="@color/white" />
 
@@ -33,58 +26,62 @@
         android:id="@+id/speak"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal|bottom"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
         android:layout_marginBottom="10dp"
+        android:visibility="gone"
         android:src="@drawable/speech" />
+
 
     <TableLayout
         android:id="@+id/tl_move"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="left|bottom"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
         android:layout_margin="10dp" >
 
         <TableRow>
 
             <ImageView
                 android:id="@+id/up"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
                 android:layout_column="1"
-                android:src="@drawable/up" />
+                android:src="@drawable/up2" />
         </TableRow>
 
         <TableRow>
 
             <ImageView
                 android:id="@+id/left"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/left" />
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:src="@drawable/left2" />
 
             <TextView
                 android:id="@+id/move"
-                android:layout_width="wrap_content"
-                android:layout_height="fill_parent"
-                android:background="@drawable/cz"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:background="@drawable/cz2"
                 android:gravity="center"
                 android:textColor="@color/btn_white_normal" />
 
             <ImageView
                 android:id="@+id/right"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/right" />
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:src="@drawable/right2" />
         </TableRow>
 
         <TableRow>
 
             <ImageView
                 android:id="@+id/down"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
                 android:layout_column="1"
-                android:src="@drawable/down" />
+                android:src="@drawable/down2" />
         </TableRow>
     </TableLayout>
 
@@ -92,50 +89,52 @@
         android:id="@+id/tl_head"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="right|bottom"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
         android:layout_margin="10dp" >
 
         <TableRow>
 
             <ImageView
                 android:id="@+id/head_up"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
                 android:layout_column="1"
-                android:src="@drawable/up" />
+                android:src="@drawable/up2" />
         </TableRow>
+
 
         <TableRow>
 
             <ImageView
                 android:id="@+id/head_left"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/left" />
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:src="@drawable/left2" />
 
             <TextView
                 android:id="@+id/head"
-                android:layout_width="wrap_content"
-                android:layout_height="fill_parent"
-                android:background="@drawable/tou"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:background="@drawable/tou2"
                 android:gravity="center"
                 android:textColor="@color/btn_white_normal" />
 
             <ImageView
                 android:id="@+id/head_right"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/right" />
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:src="@drawable/right2" />
         </TableRow>
 
         <TableRow>
 
             <ImageView
                 android:id="@+id/head_down"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
                 android:layout_column="1"
-                android:src="@drawable/down" />
+                android:src="@drawable/down2" />
         </TableRow>
     </TableLayout>
 
@@ -143,7 +142,7 @@
         android:id="@+id/play"
         android:layout_width="80dp"
         android:layout_height="80dp"
-        android:layout_gravity="center"
+        android:layout_centerInParent="true"
         android:background="@drawable/bofang"
         android:textColor="@color/white" />
 
@@ -151,10 +150,10 @@
         android:id="@+id/mictoggole"
         android:layout_width="40dp"
         android:layout_height="40dp"
-        android:layout_gravity="right"
+        android:layout_alignParentRight="true"
         android:visibility="gone"
         android:background="@drawable/icon_mute_on"
         android:layout_marginTop="110dp"
-         />
+        />
 
-</FrameLayout>
+</RelativeLayout>

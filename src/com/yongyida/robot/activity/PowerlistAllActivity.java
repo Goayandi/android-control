@@ -7,7 +7,9 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
@@ -22,38 +24,37 @@ import com.yongyida.robot.utils.ToastUtil;
 import com.yongyida.robot.utils.Utils;
 
 /**
- * Created by Administrator on 2016/10/28 0028.
+ * Created by Administrator on 2017/1/6 0006.
  */
-public class PowerlistYidongActivity extends BaseActivity implements View.OnClickListener {
 
-    private static final String TAG = "PowerlistYidongActivity";
+public class PowerlistAllActivity extends BaseActivity implements View.OnClickListener {
+    private static final String TAG = "PowerlistAllActivity";
     private RelativeLayout video_chat;
     private RelativeLayout video_monitor;
+    private RelativeLayout power_task;
     private RelativeLayout power_photo;
     private RelativeLayout power_setting;
     private RelativeLayout more;
-    private RelativeLayout build_pictures;
     private TextView power_title;
     private String mMode;
+    private Handler mHandler = new Handler();
     private TextView mBattery;
     private String mVersion;
+    private String mId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_power_list_yidong);
+        setContentView(R.layout.activity_power_list);
         initBase();
         Constants.USER_BACE = false;   //防止在powlist界面按一次返回 2次进入connect界面的一个标志位
-        getSharedPreferences("setting", MODE_PRIVATE).edit()
-                .putBoolean(Constants.BARRIER, true).commit();
     }
 
 
     private void initBase() {
         more = (RelativeLayout) findViewById(R.id.more);
         more.setOnClickListener(this);
-        build_pictures = (RelativeLayout) findViewById(R.id.build_pictures);
-        build_pictures.setOnClickListener(this);
+        //	more.setOnTouchListener(ontouch);
         power_title = (TextView) findViewById(R.id.power_title);
         power_title.setOnClickListener(this);
         power_setting = (RelativeLayout) findViewById(R.id.power_setting);
@@ -68,13 +69,17 @@ public class PowerlistYidongActivity extends BaseActivity implements View.OnClic
         video_chat = (RelativeLayout) findViewById(R.id.video_chat);
         video_chat.setOnClickListener(this);
         video_chat.setOnTouchListener(ontouch);
+        power_task = (RelativeLayout) findViewById(R.id.power_task);
+        power_task.setOnClickListener(this);
+        power_task.setOnTouchListener(ontouch);
         mBattery = ((TextView) findViewById(R.id.tv_battery));
 
 
         int battery = getIntent().getExtras().getInt("battery");
         mVersion = getIntent().getExtras().getString("version");
+        mId = getIntent().getExtras().getString("id");
         setBattery(battery);
-        BroadcastReceiverRegister.reg(PowerlistYidongActivity.this, new String[]{Constants.BATTERY}, mBatteryBR);
+        BroadcastReceiverRegister.reg(PowerlistAllActivity.this, new String[]{Constants.BATTERY}, mBatteryBR);
 
     }
 
@@ -145,7 +150,6 @@ public class PowerlistYidongActivity extends BaseActivity implements View.OnClic
     };
 
 
-
     @Override
     public void onClick(View v) {
         Bundle params = new Bundle();
@@ -155,32 +159,33 @@ public class PowerlistYidongActivity extends BaseActivity implements View.OnClic
                 v.setBackgroundColor(getResources().getColor(R.color.transparent));
                 ToastUtil.showtomain(this, getString(R.string.waitting));
                 break;
-            case R.id.build_pictures:
-                startActivity(new Intent(PowerlistYidongActivity.this, ControlMappingActivity.class));
-                break;
             case R.id.power_title:
                 onBackPressed();
                 break;
             case R.id.video_chat:
-                mMode = "chat";
-                Bundle bundle1 = new Bundle();
-                bundle1.putString("mode", mMode);
-                StartUtil.startintent(PowerlistYidongActivity.this, ControlYidongActivity.class, "no", bundle1);
+                StartUtil.startintent(PowerlistAllActivity.this, VideoMeetingActivity.class, "no");
                 break;
             case R.id.video_monitor:
-                mMode = "control";
-                Bundle bundle2 = new Bundle();
-                bundle2.putString("mode", mMode);
-                StartUtil.startintent(PowerlistYidongActivity.this, ControlYidongActivity.class, "no", bundle2);
+                if (!TextUtils.isEmpty(mId) && Utils.isSeries(mId, "20")) {
+                    StartUtil.startintent(PowerlistAllActivity.this, AgoraMonitoringActivity.class, "no");
+                } else if (!TextUtils.isEmpty(mId) && Utils.isSeries(mId, "128")) {
+                    StartUtil.startintent(PowerlistAllActivity.this, AgoraMonitoring128Activity.class, "no");
+                } else if (!TextUtils.isEmpty(mId) && Utils.isSeries(mId, "150")) {
+                    StartUtil.startintent(PowerlistAllActivity.this, AgoraMonitoring150Activity.class, "no");
+                } else {
+                    StartUtil.startintent(PowerlistAllActivity.this, AgoraMonitoring50Activity.class, "no");
+                }
                 break;
             case R.id.power_photo:
                 StartUtil.startintent(this, PhotoActivity.class, "no");
                 break;
             case R.id.power_setting:
                 params.putString("flag", "main");
-                params.putString("from", "yidong");
                 params.putString("version", mVersion);
                 StartUtil.startintent(this, SettingActivity.class, "no", params);
+                break;
+            case R.id.power_task:
+                StartUtil.startintent(this, TaskRemindActivity.class, "no");
                 break;
             default:
                 break;

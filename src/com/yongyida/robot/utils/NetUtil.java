@@ -55,9 +55,9 @@ public class NetUtil {
 			Context context) throws SocketTimeoutException {
 		if (Constants.address == null) {
 			Utils.SystemLanguage language = Utils.getLanguage(context);
-//			if (Utils.SystemLanguage.ENGLISH.equals(language)) {
-//				Utils.switchServer(Utils.US);
-//			} else {
+			if (Utils.SystemLanguage.ENGLISH.equals(language)) {
+				Utils.switchServer(Utils.US);
+			} else {
 				String serverState = context.getSharedPreferences("net_state", MODE_PRIVATE).getString("state",null);
 				if (serverState != null && !serverState.equals("official")){
 					if (serverState.equals("test")) {
@@ -68,7 +68,7 @@ public class NetUtil {
 				} else {
 					Utils.switchServer(Utils.CN);
 				}
-//			}
+			}
 		}
 		String address = Constants.address;
 		Log.d(TAG, "address:" + address);
@@ -514,6 +514,34 @@ public class NetUtil {
 	}
 
 	/**
+	 * 避障开关
+	 * @param barrierFlag
+	 * @param handler
+     */
+	public static void barrierSwitch(boolean barrierFlag, ChannelHandlerContext handler){
+		String operation;
+		if (barrierFlag) {
+			operation = "open";
+		} else {
+			operation = "close";
+		}
+		String str = "{\"cmd\":\"/robot/push\",\"command\":{\"cmd\":\"switch_barrier\",\"switch\":\""
+				+ operation
+				+ "\"}}";
+		ChannelBuffer channelBuffer = new DynamicChannelBuffer(ByteOrder.BIG_ENDIAN,
+				12 + str.getBytes().length);
+		channelBuffer.writeByte((byte) 1);
+		for (int i = 0; i < 7; i++) {
+			channelBuffer.writeByte((byte) 0);
+		}
+		channelBuffer.writeBytes(int2Byte(str.length()));
+		channelBuffer.writeBytes(str.getBytes());
+		Channel channel = handler.getChannel();
+		channel.write(channelBuffer);
+
+	}
+
+	/**
 	 * 视频会议邀请
 	 * @param id  数字id
 	 * @param number  请求拨号
@@ -663,6 +691,24 @@ public class NetUtil {
         Channel channel = handler.getChannel();
         channel.write(channelBuffer);
     }
+
+	/**
+	 * 是否开始导航
+	 * @param handler
+     */
+	public static void whetherNavigation(ChannelHandlerContext handler){
+		String str = "{\"cmd\":\"/robot/push\",\"command\":{\"cmd\":\"whether_navigation\"}}";
+		ChannelBuffer channelBuffer = new DynamicChannelBuffer(ByteOrder.BIG_ENDIAN,
+				12 + str.getBytes().length);
+		channelBuffer.writeByte((byte) 1);
+		for (int i = 0; i < 7; i++) {
+			channelBuffer.writeByte((byte) 0);
+		}
+		channelBuffer.writeBytes(int2Byte(str.length()));
+		channelBuffer.writeBytes(str.getBytes());
+		Channel channel = handler.getChannel();
+		channel.write(channelBuffer);
+	}
 
 	/**
 	 * 建图

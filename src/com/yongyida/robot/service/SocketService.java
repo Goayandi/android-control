@@ -572,6 +572,29 @@ public class SocketService extends Service {
         }
     };
 
+    private BroadcastReceiver mWhetherNavigationBR = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (ctx != null) {
+                NetUtil.whetherNavigation(ctx);
+            } else {
+                handleError();
+            }
+        }
+    };
+
+    private BroadcastReceiver mBarrierSwitchBR = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (ctx != null) {
+                boolean barrierFlag = intent.getBooleanExtra(Constants.BARRIER_FLAG, true);
+                NetUtil.barrierSwitch(barrierFlag, ctx);
+            } else {
+                handleError();
+            }
+        }
+    };
+
     private BroadcastReceiver mVoiceSendBR = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -607,9 +630,9 @@ public class SocketService extends Service {
 
     private void handleError() {
         Utils.SystemLanguage language = Utils.getLanguage(this);
-//        if (Utils.SystemLanguage.ENGLISH.equals(language)) {
-//            Utils.switchServer(Utils.US);
-//        } else {
+        if (Utils.SystemLanguage.ENGLISH.equals(language)) {
+            Utils.switchServer(Utils.US);
+        } else {
             String serverState = getSharedPreferences("net_state", MODE_PRIVATE).getString("state",null);
             if (serverState != null && !serverState.equals("official")){
                 if (serverState.equals("test")) {
@@ -620,7 +643,7 @@ public class SocketService extends Service {
             } else {
                 Utils.switchServer(Utils.CN);
             }
- //       }
+        }
 
         connectSocketByLanguage();
     }
@@ -1079,6 +1102,12 @@ public class SocketService extends Service {
 
         /*发送建图指令*/
         BroadcastReceiverRegister.reg(this, new String[]{Constants.MAPPING_ACTION}, mMappingBR);
+
+        /*避障开关*/
+        BroadcastReceiverRegister.reg(this, new String[]{Constants.BARRIER_SWITCH}, mBarrierSwitchBR);
+
+        /*是否开始导航*/
+        BroadcastReceiverRegister.reg(this, new String[]{Constants.WHETHER_NAVIGATION}, mWhetherNavigationBR);
         /**
          *  建立socket连接
          */
@@ -1308,6 +1337,8 @@ public class SocketService extends Service {
         Utils.unRegisterReceiver(mAgoraVideoMeetingTimeBR, this);
         Utils.unRegisterReceiver(mVoiceSendBR, this);
         Utils.unRegisterReceiver(mMappingBR, this);
+        Utils.unRegisterReceiver(mBarrierSwitchBR, this);
+        Utils.unRegisterReceiver(mWhetherNavigationBR, this);
 
         if (time != null) {
             time.cancel();

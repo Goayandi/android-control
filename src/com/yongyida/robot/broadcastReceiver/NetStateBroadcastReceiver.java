@@ -19,6 +19,17 @@ import com.yongyida.robot.utils.Utils;
 public class NetStateBroadcastReceiver extends BroadcastReceiver {
 	@Override
 	public void onReceive(Context context, Intent intent) {
+//		try {
+//			File file = new File("/sdcard/netlog.txt");
+//			FileOutputStream outputStream = new FileOutputStream(file);
+//            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//            String dateString = formatter.format(new Date(System.currentTimeMillis()));
+//            String s = "time:" + dateString;
+//			outputStream.write(s.getBytes());
+//			outputStream.close();
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
 		if (!Utils.isBackground(context)) {
 			ConnectivityManager connect = (ConnectivityManager) context
 					.getSystemService(context.CONNECTIVITY_SERVICE);

@@ -1,56 +1,190 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
-    <EditText
-        android:id="@+id/et_ip"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-    <Button
-        android:id="@+id/bt_conn"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="connect"/>
-    <Button
-        android:id="@+id/bt_is_conn"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="is_conn"/>
-    <Button
-        android:id="@+id/bt_takephoto"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="takephoto"/>
-    <Button
-        android:id="@+id/bt_opencamera"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="opencamera"/>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:background="@drawable/bj">
 
     <Button
-        android:id="@+id/bt_closecamera"
-        android:layout_width="match_parent"
+        android:id="@+id/bt_back"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="closecamera"/>
+        android:layout_margin="10dp"
+        android:background="@android:color/transparent"
+        android:drawableLeft="@drawable/back"
+        android:text="@string/return1"
+        android:textColor="@color/white" />
 
-    <Button
-        android:id="@+id/bt_stop"
-        android:layout_width="match_parent"
+    <TableLayout
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="stop"/>
-    <Button
-        android:id="@+id/bt_stepforward"
-        android:layout_width="match_parent"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="10dp" >
+
+        <TableRow>
+
+            <RelativeLayout
+                android:id="@+id/rl_stepforward"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_column="1"
+                android:layout_margin="5dp">
+                <ImageView
+                    android:id="@+id/iv_stepforward"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/mapping_forward"/>
+                <TextView
+                    android:id="@+id/tv_stepforward"
+                    android:layout_below="@id/iv_stepforward"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/step_forward"
+                    android:layout_centerHorizontal="true"
+                    android:textColor="@color/white"
+                    />
+            </RelativeLayout>
+
+        </TableRow>
+
+        <TableRow>
+
+            <RelativeLayout
+                android:id="@+id/rl_takephoto"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp">
+                <ImageView
+                    android:id="@+id/iv_takephoto"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/mapping_pz_nor"/>
+                <TextView
+                    android:id="@+id/tv_takephoto"
+                    android:layout_below="@id/iv_takephoto"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/take_photo"
+                    android:layout_centerHorizontal="true"
+                    android:textColor="@color/white"
+                    />
+            </RelativeLayout>
+
+            <ImageView
+                android:id="@+id/iv_head"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/tou2"
+                android:layout_margin="5dp"/>
+
+            <RelativeLayout
+                android:id="@+id/rl_opencamera"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp">
+                <ImageView
+                    android:id="@+id/iv_opencamera"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/mapping_dkxj"/>
+                <TextView
+                    android:id="@+id/tv_opencamera"
+                    android:layout_below="@id/iv_opencamera"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/open_camera"
+                    android:layout_centerHorizontal="true"
+                    android:textColor="@color/white"
+                    />
+            </RelativeLayout>
+
+        </TableRow>
+
+        <TableRow>
+
+            <RelativeLayout
+                android:id="@+id/rl_stop"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_column="1"
+                android:layout_margin="5dp">
+                <ImageView
+                    android:id="@+id/iv_stop"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/mapping_tz"/>
+                <TextView
+                    android:id="@+id/tv_stop"
+                    android:layout_below="@id/iv_stop"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/stop"
+                    android:layout_centerHorizontal="true"
+                    android:textColor="@color/white"
+                    />
+            </RelativeLayout>
+
+        </TableRow>
+    </TableLayout>
+
+    <TableLayout
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="stepforward"/>
-    <Button
-        android:id="@+id/bt_rotate90"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="rotate90"/>
-    <Button
-        android:id="@+id/bt_rotate360"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="rotate360"/>
-</LinearLayout>
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginBottom="100dp"
+        android:layout_marginRight="10dp">
+
+        <TableRow>
+
+            <RelativeLayout
+                android:id="@+id/rl_rotate90"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp">
+                <ImageView
+                    android:id="@+id/iv_rotate90"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/mapping_90"/>
+                <TextView
+                    android:id="@+id/tv_rotate90"
+                    android:layout_below="@id/iv_rotate90"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/rotate_90"
+                    android:layout_centerHorizontal="true"
+                    android:textColor="@color/white"
+                    />
+            </RelativeLayout>
+
+            <ImageView
+                android:id="@+id/iv_body"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/body2"
+                android:layout_margin="5dp"/>
+
+            <RelativeLayout
+                android:id="@+id/rl_rotate360"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp">
+                <ImageView
+                    android:id="@+id/iv_rotate360"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/mapping_360"/>
+                <TextView
+                    android:id="@+id/tv_rotate360"
+                    android:layout_below="@id/iv_rotate360"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/rotate_360"
+                    android:layout_centerHorizontal="true"
+                    android:textColor="@color/white"
+                    />
+            </RelativeLayout>
+
+        </TableRow>
+    </TableLayout>
+
+</RelativeLayout>

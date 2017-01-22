@@ -400,4 +400,12 @@
     <string name="avoid_barrier">avoid barrier</string>
     <string name="navigating">navigating!!</string>
     <string name="barrier_hint">barrier hint</string>
+    <string name="build_pictures">build pictures</string>
+    <string name="take_photo">take photo</string>
+    <string name="open_camera">open camera</string>
+    <string name="close_camera">close camera</string>
+    <string name="stop">stop</string>
+    <string name="step_forward">step forward</string>
+    <string name="rotate_90">rotate 90</string>
+    <string name="rotate_360">rotate 360</string>
 </resources>

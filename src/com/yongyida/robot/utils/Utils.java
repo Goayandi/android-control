@@ -32,7 +32,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.util.List;
-import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -61,13 +60,13 @@ public class Utils {
         ENGLISH
     }
     public static SystemLanguage getLanguage(Context context){
-        Locale locale = context.getResources().getConfiguration().locale;
-        String language = locale.getLanguage();
-        if (language.endsWith("zh")){
-            return SystemLanguage.CHINA;
-        } else if (language.endsWith("en")) {
-            return SystemLanguage.ENGLISH;
-        }
+//        Locale locale = context.getResources().getConfiguration().locale;
+//        String language = locale.getLanguage();
+//        if (language.endsWith("zh")){
+//            return SystemLanguage.CHINA;
+//        } else if (language.endsWith("en")) {
+//            return SystemLanguage.ENGLISH;
+//        }
         return SystemLanguage.CHINA;
     }
 

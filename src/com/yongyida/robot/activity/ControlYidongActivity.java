@@ -118,7 +118,7 @@ public class ControlYidongActivity extends CallActivity implements OnClickListen
 	private RecognizerDialog mDialog;
 	private int key;
 	private Timer hide_timer;
-	private HeadsetPlugReceiver headsetPlugReceiver; 
+	private HeadsetPlugReceiver headsetPlugReceiver;
 	private String runningMode;
 	private BroadcastReceiver mRNameBR = new BroadcastReceiver() {
 		@Override
@@ -128,9 +128,13 @@ public class ControlYidongActivity extends CallActivity implements OnClickListen
 					.putString("name", rname).commit();
 		}
 	};
+	private boolean mIsNavagation = false;
     private BroadcastReceiver mBarrierNotifyBR = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
+			if (mIsNavagation) {
+				return;
+			}
 			String jsonStr = intent.getStringExtra(Constants.BARRIER_NOTIFY_RESULT);
 			try {
 				JSONObject obj = new JSONObject(jsonStr);
@@ -184,10 +188,12 @@ public class ControlYidongActivity extends CallActivity implements OnClickListen
 		public void onReceive(Context context, Intent intent) {
 			String result = intent.getStringExtra(Constants.NAVIGATION_NOTIFY_RESULT);
 			if ("true".equals(result)) {
+				mIsNavagation = true;
 				mHintTV.setText(R.string.navigating);
 				mHintTV.setVisibility(View.VISIBLE);
                 setBarrierIcon(ALL_BUTTON, false);
 			}  else {
+				mIsNavagation = false;
 				mHintTV.setVisibility(View.GONE);
                 setBarrierIcon(ALL_BUTTON, true);
 			}
@@ -236,12 +242,17 @@ public class ControlYidongActivity extends CallActivity implements OnClickListen
 	}
 
 	private void initBR() {
+		boolean barrierFlag = getSharedPreferences("setting", MODE_PRIVATE).getBoolean(Constants.BARRIER, true);
+		if (barrierFlag) {
+			BroadcastReceiverRegister.reg(ControlYidongActivity.this, new String[]{Constants.BARRIER_NOTIFY}, mBarrierNotifyBR);
+		}
 		BroadcastReceiverRegister.reg(ControlYidongActivity.this, new String[]{Constants.BATTERY}, mRNameBR);
-        BroadcastReceiverRegister.reg(ControlYidongActivity.this, new String[]{Constants.BARRIER_NOTIFY}, mBarrierNotifyBR);
         BroadcastReceiverRegister.reg(this,
                 new String[] { ConnectivityManager.CONNECTIVITY_ACTION },
                 neterror);
 		BroadcastReceiverRegister.reg(ControlYidongActivity.this, new String[]{Constants.NAVIGATION_NOTIFY}, mNavigationNotifyBR);
+
+		sendBroadcast(new Intent(Constants.WHETHER_NAVIGATION));
 	}
 
 	private void initView() {
@@ -347,10 +358,10 @@ public class ControlYidongActivity extends CallActivity implements OnClickListen
 
 	private void registerHeadsetPlugReceiver() {
 		headsetPlugReceiver = new HeadsetPlugReceiver();
-        IntentFilter intentFilter = new IntentFilter();  
-        intentFilter.addAction("android.intent.action.HEADSET_PLUG");  
-        registerReceiver(headsetPlugReceiver, intentFilter);  
-		
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction("android.intent.action.HEADSET_PLUG");
+        registerReceiver(headsetPlugReceiver, intentFilter);
+
 	}
 
 	private EMCallBack mCallBack = new EMCallBack() {
@@ -481,7 +492,7 @@ public class ControlYidongActivity extends CallActivity implements OnClickListen
 
 	/**
 	 * 发送静音透传
-	 * @param mute
+	 * @param mute 是否静音
 	 */
 	private void sendMuteMsg(boolean mute){
 		EMMessage msg = EMMessage.createSendMessage(Type.CMD);
@@ -576,8 +587,6 @@ public class ControlYidongActivity extends CallActivity implements OnClickListen
 	long starttime;
 	boolean flag = true;
 
-	int action = 0;
-
 	int move = 0;
 
 	@Override
@@ -607,7 +616,7 @@ public class ControlYidongActivity extends CallActivity implements OnClickListen
 			speak.setEnabled(true);
 			sendcmd("stop", v);
 			flag = true;
-		} 
+		}
 		return true;
 
 	}
@@ -723,7 +732,7 @@ public class ControlYidongActivity extends CallActivity implements OnClickListen
 				toggle();
 			}
 
-		};
+		}
 	};
 
 	private final static float MIN_SPEED = 0.10f;
@@ -818,7 +827,7 @@ public class ControlYidongActivity extends CallActivity implements OnClickListen
 
 	/**
 	 * 本地SurfaceHolder callback
-	 * 
+	 *
 	 */
 	class LocalCallback implements SurfaceHolder.Callback {
 
@@ -1012,11 +1021,11 @@ public class ControlYidongActivity extends CallActivity implements OnClickListen
 							} else {
 								if (isAnswered) {
 									callingState = CallingState.NORMAL;
-									if (endCallTriggerByMe) {
-										// callStateTextView.setText(s6);
-									} else {
-
-									}
+//									if (endCallTriggerByMe) {
+//										// callStateTextView.setText(s6);
+//									} else {
+//
+//									}
 								} else {
 									if (isInComingCall) {
 										callingState = CallingState.UNANSWERED;
@@ -1062,11 +1071,7 @@ public class ControlYidongActivity extends CallActivity implements OnClickListen
 		ConnectivityManager manager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
 		NetworkInfo info = manager
 				.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-		if (info.isAvailable() && info.isConnected()) {
-			return true;
-		} else {
-			return false;
-		}
+		return info.isAvailable() && info.isConnected();
 	}
 
 	private ProgressDialog progress = null;
@@ -1207,8 +1212,7 @@ public class ControlYidongActivity extends CallActivity implements OnClickListen
                         Log.i("Result", "result:" + result.getResultString());
                         try {
                             JSONObject jo = new JSONObject(result.getResultString());
-                            String text = jo.getString("text");
-                            Constants.text = text;
+                            Constants.text = jo.getString("text");
                             Intent intent = new Intent();
                             intent.setAction(Constants.Speech_action);
                             sendBroadcast(intent);
@@ -1383,8 +1387,7 @@ public class ControlYidongActivity extends CallActivity implements OnClickListen
                 Log.i("Result", "result:" + result.getResultString());
                 try {
                     JSONObject jo = new JSONObject(result.getResultString());
-                    String text = jo.getString("text");
-                    Constants.text = text;
+                    Constants.text = jo.getString("text");
                     Intent intent = new Intent();
                     intent.setAction(Constants.Talk);
                     sendBroadcast(intent);
@@ -1456,7 +1459,7 @@ public class ControlYidongActivity extends CallActivity implements OnClickListen
 		speak.setEnabled(true);
         talk.setEnabled(true);
 		audioManager.setSpeakerphoneOn(true);
-		if (getIntent().getExtras().getString("mode").equals("control")) {
+		if ("control".equals(getIntent().getExtras().getString("mode"))) {
 			audioManager.setMicrophoneMute(true);
 		} else {
 			audioManager.setMicrophoneMute(controlMute);
@@ -1471,7 +1474,7 @@ public class ControlYidongActivity extends CallActivity implements OnClickListen
 	/**
 	 * 视频状态下 静音按钮控制机器人和手机端麦克风同时静音或者不静音
 	 * 监控状态下 手机端除了讲话的时候以外都是静音的  按钮只控制机器人端静音与否
-	 * @param view
+	 * @param view view
 	 */
 	public void toggle_speak(View view) {
 		if (runningMode.equals("control")) {
@@ -1496,8 +1499,8 @@ public class ControlYidongActivity extends CallActivity implements OnClickListen
 		controlMute= !controlMute;
 	}
 
-	
-	
+
+
 	@Override
 	protected void onDestroy() {
 		HXSDKHelper.getInstance().isVideoCalling = false;
@@ -1513,6 +1516,7 @@ public class ControlYidongActivity extends CallActivity implements OnClickListen
 			EMChatManager.getInstance().endCall();
 			saveCallRecord(1);
 		} catch (Exception e) {
+			e.printStackTrace();
 		}
         Utils.unRegisterReceiver(mBarrierNotifyBR, this);
         Utils.unRegisterReceiver(mRNameBR, this);
