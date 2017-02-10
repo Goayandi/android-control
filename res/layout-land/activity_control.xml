@@ -29,14 +29,6 @@
         android:text="@string/return1"
         android:textColor="@color/white" />
 
-    <ImageView
-        android:id="@+id/speak"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal|bottom"
-        android:layout_marginBottom="10dp"
-        android:src="@drawable/speech" />
-
     <TableLayout
         android:id="@+id/tl_move"
         android:layout_width="wrap_content"
@@ -44,7 +36,9 @@
         android:layout_gravity="left|bottom"
         android:layout_margin="10dp" >
 
-        <TableRow>
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
             <ImageView
                 android:id="@+id/up"
@@ -140,14 +134,6 @@
     </TableLayout>
 
     <Button
-        android:id="@+id/play"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
-        android:layout_gravity="center"
-        android:background="@drawable/bofang"
-        android:textColor="@color/white" />
-
-    <Button
         android:id="@+id/mictoggole"
         android:layout_width="40dp"
         android:layout_height="40dp"
@@ -156,5 +142,21 @@
         android:background="@drawable/icon_mute_on"
         android:layout_marginTop="110dp"
          />
+
+    <Button
+        android:id="@+id/play"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_gravity="center"
+        android:background="@drawable/bofang"
+        android:textColor="@color/white" />
+
+    <ImageView
+        android:id="@+id/speak"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal|bottom"
+        android:layout_marginBottom="10dp"
+        android:src="@drawable/speech" />
 
 </FrameLayout>

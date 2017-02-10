@@ -319,7 +319,7 @@ public class Control128Activity extends CallActivity implements View.OnClickList
 
         @Override
         public void onError(int arg0, String arg1) {
-            Log.e("ControlActivity","error:" + arg1);
+            Log.e(TAG,"error:" + arg1);
             enHandler.post(new Runnable() {
 
                 @Override
@@ -855,7 +855,7 @@ public class Control128Activity extends CallActivity implements View.OnClickList
                         break;
                 }
                 if(!error.equals(CallError.ERROR_NONE)){
-                    Log.e("EMCall","error:" + error.toString());
+                    Log.e(TAG,"error:" + error.toString());
                 }
             }
         };
@@ -1266,7 +1266,9 @@ public class Control128Activity extends CallActivity implements View.OnClickList
         } else {
             audioManager.setMicrophoneMute(controlMute);
         }
-        mDialog.setCancelable(true);
+        if (mDialog != null) {
+            mDialog.setCancelable(true);
+        }
         EMChatManager.getInstance().resumeVoiceTransfer();
     }
 
@@ -1307,6 +1309,11 @@ public class Control128Activity extends CallActivity implements View.OnClickList
     protected void onDestroy() {
         HXSDKHelper.getInstance().isVideoCalling = false;
 
+        if (progress != null) {
+            progress.dismiss();
+            progress = null;
+        }
+
         if (time != null) {
             time.cancel();
         }
@@ -1321,6 +1328,7 @@ public class Control128Activity extends CallActivity implements View.OnClickList
         }
         Utils.unRegisterReceiver(mRNameBR, this);
         Utils.unRegisterReceiver(neterror, this);
+        audioManager.setMicrophoneMute(false);
         //	unregisterReceiver(headsetPlugReceiver);
         super.onDestroy();
 
@@ -1331,6 +1339,7 @@ public class Control128Activity extends CallActivity implements View.OnClickList
         EMChatManager.getInstance().endCall();
         saveCallRecord(1);
         cameraHelper.stopCapture(oppositeSurfaceHolder);
+        audioManager.setMicrophoneMute(false);
         super.onPause();
     }
 
@@ -1340,8 +1349,6 @@ public class Control128Activity extends CallActivity implements View.OnClickList
             ToastUtil.showtomain(this, getString(R.string.hang_up_video_first));
             return;
         }
-        cameraHelper.stopCapture(oppositeSurfaceHolder);
-        audioManager.setMicrophoneMute(true);
         super.onBackPressed();
     }
 

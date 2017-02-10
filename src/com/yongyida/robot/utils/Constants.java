@@ -31,9 +31,9 @@ public class Constants {
 	public static String port_us = "8002";
 
 	// 下载地址
-//	public static String download_address_cn = "http://resource.yydrobot.com/app/yyd/cn/app.version";
-//    public static String download_address_test = "http://120.24.242.163/app/yyd/cn/app.version";
-//    public static String download_address_test1 = "http://120.24.213.239/app/yyd/cn/app.version";
+	public static String download_address_cn = "http://resource.yydrobot.com/app/yyd/cn/app.version";
+    public static String download_address_test = "http://120.24.242.163/app/yyd/cn/app.version";
+    public static String download_address_test1 = "http://120.24.213.239/app/yyd/cn/app.version";
 
 //	public static String download_address_cn = "http://resource.yydrobot.com/app/youjiaoxiaotong/cn/app.youjiaoxiaotong.version";
 // 	public static String download_address_test = "http://120.24.242.163/app/youjiaoxiaotong/cn/app.youjiaoxiaotong.version";
@@ -47,9 +47,9 @@ public class Constants {
 //	public static String download_address_test = "http://120.24.242.163/app/liuchaokeji/cn/app.liuchaokeji.version";
 //	public static String download_address_test1 = "http://120.24.213.239/app/liuchaokeji/cn/app.liuchaokeji.version";
 
-	public static String download_address_cn= "http://resource.yydrobot.com/app/cmcc/cn/app.cmcc.version";
-	public static String download_address_test = "http://120.24.242.163/app/cmcc/cn/app.cmcc.version";
-	public static String download_address_test1 = "http://120.24.213.239/app/cmcc/cn/app.cmcc.version";
+//	public static String download_address_cn= "http://resource.yydrobot.com/app/cmcc/cn/app.cmcc.version";
+//	public static String download_address_test = "http://120.24.242.163/app/cmcc/cn/app.cmcc.version";
+//	public static String download_address_test1 = "http://120.24.213.239/app/cmcc/cn/app.cmcc.version";
 
 //	public static String download_address_cn= "http://resource.yydrobot.com/app/caihongwoniu/cn/app.caihongwoniu.version";
 //	public static String download_address_test = "http://120.24.242.163/app/caihongwoniu/cn/app.caihongwoniu.version";

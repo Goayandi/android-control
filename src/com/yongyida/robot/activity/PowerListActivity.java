@@ -9,6 +9,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
@@ -70,7 +71,17 @@ public class PowerListActivity extends BaseActivity implements OnClickListener {
 		power_task.setOnClickListener(this);
 		power_task.setOnTouchListener(ontouch);
 		mBattery = ((TextView) findViewById(R.id.tv_battery));
+		String robotName = getSharedPreferences("Receipt", MODE_PRIVATE).getString("username", null);
+		if (!TextUtils.isEmpty(robotName) && Utils.isSeries(robotName, "20")) {
+			if (Utils.isSeries(robotName, "20A")) {
+				findViewById(R.id.iv_robot).setBackground(getResources().getDrawable(R.drawable.robot20a));
+			} else {
+				findViewById(R.id.iv_robot).setBackground(getResources().getDrawable(R.drawable.robot20b));
+			}
 
+		} else {
+			findViewById(R.id.iv_robot).setBackground(getResources().getDrawable(R.drawable.robot1));
+		}
 
         int battery = getIntent().getExtras().getInt("battery");
 		mVersion = getIntent().getExtras().getString("version");

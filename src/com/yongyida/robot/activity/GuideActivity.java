@@ -55,7 +55,7 @@ public class GuideActivity extends OriginalActivity {
 				ImageView img1 = new ImageView(GuideActivity.this);
 				setparams(img1);
 				/*img1.setImageResource(R.drawable.img1);*/
-				img1.setImageResource(R.drawable.img5);
+				img1.setImageResource(R.drawable.img1);
 				container.addView(img1);
 				ImageView img2 = new ImageView(GuideActivity.this);
 				img2.setImageResource(R.drawable.img2);

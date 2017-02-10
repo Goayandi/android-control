@@ -8,6 +8,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceView;
@@ -16,6 +17,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.TableLayout;
 import android.widget.TextView;
 
 import com.yongyida.robot.R;
@@ -55,6 +57,7 @@ public class AgoraMonitoringActivity extends BaseEngineEventHandlerActivity impl
     private long mLastClickTime = 0;
     private String mBindRobotID;
     private String mAccount;
+    private String mRobotName;
     /**
      * 设置通话状态监听
      */
@@ -67,6 +70,8 @@ public class AgoraMonitoringActivity extends BaseEngineEventHandlerActivity impl
 
         };
     };
+    private TableLayout mMoveTL;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -116,6 +121,7 @@ public class AgoraMonitoringActivity extends BaseEngineEventHandlerActivity impl
     private void initData() {
         mBindRobotID = getSharedPreferences("Receipt", MODE_PRIVATE).getString(
                 "robotid", null);
+        mRobotName = getSharedPreferences("Receipt", MODE_PRIVATE).getString("username", null);
     }
 
     private void initVideo() {
@@ -193,6 +199,12 @@ public class AgoraMonitoringActivity extends BaseEngineEventHandlerActivity impl
         mSurfaceViewContainer = (FrameLayout) findViewById(R.id.fl);
         setSpeakToggleVisiableState(false);
         mProgressDialog = new ProgressDialog(this);
+        mMoveTL = (TableLayout) findViewById(R.id.tl_move);
+        if (!TextUtils.isEmpty(mRobotName) && Utils.isSeries(mRobotName, "20C")) {
+            mMoveTL.setVisibility(View.GONE);
+        } else {
+            mMoveTL.setVisibility(View.VISIBLE);
+        }
     }
 
     private void setSpeakToggleVisiableState(boolean show) {
@@ -215,7 +227,7 @@ public class AgoraMonitoringActivity extends BaseEngineEventHandlerActivity impl
                 mSurfaceViewContainer.removeAllViews();
             }
         });
-        if (mUpIV.getVisibility() == View.GONE) {
+        if (mMoveTL.getVisibility() == View.GONE) {
             toggle();
         }
     }
@@ -345,7 +357,7 @@ public class AgoraMonitoringActivity extends BaseEngineEventHandlerActivity impl
                     @Override
                     public void onClick(View v) {
                         if (isconnected) {
-                            if (mUpIV.getVisibility() == View.GONE) {
+                            if (mMoveTL.getVisibility() == View.GONE) {
                                 toggle();
                             } else {
                                 if (mPlayBT.getVisibility() != View.GONE)
@@ -486,22 +498,18 @@ public class AgoraMonitoringActivity extends BaseEngineEventHandlerActivity impl
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if (mUpIV.getVisibility() == View.VISIBLE) {
-                    mUpIV.setVisibility(View.GONE);
-                    mDownIV.setVisibility(View.GONE);
-                    mLeftIV.setVisibility(View.GONE);
-                    mRightIV.setVisibility(View.GONE);
+                if (mMoveTL.getVisibility() == View.VISIBLE) {
+                    mMoveTL.setVisibility(View.GONE);
                     //    mSpeakIV.setVisibility(View.GONE);
                     mPlayBT.setVisibility(View.GONE);
-                    mMoveTv.setVisibility(View.GONE);
                 } else {
-                    mUpIV.setVisibility(View.VISIBLE);
-                    mDownIV.setVisibility(View.VISIBLE);
-                    mLeftIV.setVisibility(View.VISIBLE);
-                    mRightIV.setVisibility(View.VISIBLE);
+                    if (!TextUtils.isEmpty(mRobotName) && Utils.isSeries(mRobotName, "20C")) {
+                        mMoveTL.setVisibility(View.GONE);
+                    } else {
+                        mMoveTL.setVisibility(View.VISIBLE);
+                    }
                     //    mSpeakIV.setVisibility(View.VISIBLE);
                     mPlayBT.setVisibility(View.VISIBLE);
-                    mMoveTv.setVisibility(View.VISIBLE);
                 }
             }
         });

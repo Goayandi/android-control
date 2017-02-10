@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.os.Message;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
+import android.text.TextUtils;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Menu;
@@ -335,15 +336,16 @@ public class ConnectActivity extends BaseActivity implements
                         params.putInt("battery", mBattery);
                         params.putString("id", id);
 //                        StartUtil.startintent(ConnectActivity.this, PowerlistAllActivity.class, "no", params);
-//                        if (!TextUtils.isEmpty(id) && Utils.isSeries(id, "20")) {
+                        if (!TextUtils.isEmpty(id) && Utils.isSeries(id, "20")) {
 //                            StartUtil.startintent(ConnectActivity.this, MeetingFunctionListActivity.class, "no", params);
-//                        } else if (!TextUtils.isEmpty(id) && Utils.isSeries(id, "128")) {
-//                            StartUtil.startintent(ConnectActivity.this, Powerlist128Activity.class, "no", params);
-//                        } else if (!TextUtils.isEmpty(id) && Utils.isSeries(id, "150")) {
+                            StartUtil.startintent(ConnectActivity.this, PowerListActivity.class, "no", params);
+                        } else if (!TextUtils.isEmpty(id) && Utils.isSeries(id, "128")) {
+                            StartUtil.startintent(ConnectActivity.this, Powerlist128Activity.class, "no", params);
+                        } else if (!TextUtils.isEmpty(id) && Utils.isSeries(id, "150")) {
                             StartUtil.startintent(ConnectActivity.this, PowerlistYidongActivity.class, "no", params);
-//                        } else {
-//                            StartUtil.startintent(ConnectActivity.this, PowerListActivity.class, "no", params);
-//                        }
+                        } else {
+                            StartUtil.startintent(ConnectActivity.this, PowerListActivity.class, "no", params);
+                        }
                         break;
                     case -1:
                         handler.sendEmptyMessage(4);

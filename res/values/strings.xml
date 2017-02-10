@@ -5,12 +5,12 @@
     <string name="time_placeholder" translatable="false">--</string>
     <string name="time_separator" translatable="false">:</string>
     <string name="radial_numbers_typeface" translatable="false">sans-serif</string>
-    <!--<string name="app_name">小勇机器人</string>-->
+    <string name="app_name">小勇机器人</string>
     <!--<string name="app_name">小雨机器人</string>-->
     <!--<string name="app_name">小通机器人</string>-->
     <!--<string name="app_name">小思机器人</string>-->
     <!--<string name="app_name">六朝科技</string>-->
-    <string name="app_name">小和机器人</string>
+    <!--<string name="app_name">小和机器人</string>-->
     <!--<string name="app_name">高君科技</string>-->
     <string name="version_url">http://resource.yydrobot.com/app/app.version</string>
     <string name="action_settings">Settings</string>

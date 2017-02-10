@@ -32,7 +32,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 public class UpdateService extends Service {
-    private final static int IMAGE_RESOURCE = R.drawable.app_icon4;
+    private final static int IMAGE_RESOURCE = R.drawable.app_icon;
 	private NotificationManager mNotificationManager = null;
 	private Notification mNotification = null;
 	private File newapk = null;

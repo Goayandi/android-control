@@ -423,7 +423,7 @@ public class ControlYidongActivity extends CallActivity implements OnClickListen
 
 		@Override
 		public void onError(int arg0, String arg1) {
-			Log.e("ControlActivity","error:" + arg1);
+			Log.e(TAG,"error:" + arg1);
 			enHandler.post(new Runnable() {
 
 				@Override
@@ -1056,7 +1056,7 @@ public class ControlYidongActivity extends CallActivity implements OnClickListen
 					break;
 				}
 				if(!error.equals(CallError.ERROR_NONE)){
-					Log.e("EMCall","error:" + error.toString());
+					Log.e(TAG,"error:" + error.toString());
 				}
 			}
 		};
@@ -1464,7 +1464,9 @@ public class ControlYidongActivity extends CallActivity implements OnClickListen
 		} else {
 			audioManager.setMicrophoneMute(controlMute);
 		}
-		mDialog.setCancelable(true);
+        if (mDialog != null) {
+            mDialog.setCancelable(true);
+        }
 		EMChatManager.getInstance().resumeVoiceTransfer();
 	}
 
@@ -1504,7 +1506,10 @@ public class ControlYidongActivity extends CallActivity implements OnClickListen
 	@Override
 	protected void onDestroy() {
 		HXSDKHelper.getInstance().isVideoCalling = false;
-
+        if (progress != null) {
+            progress.dismiss();
+            progress = null;
+        }
 		if (time != null) {
 			time.cancel();
 		}
@@ -1522,6 +1527,7 @@ public class ControlYidongActivity extends CallActivity implements OnClickListen
         Utils.unRegisterReceiver(mRNameBR, this);
         Utils.unRegisterReceiver(neterror, this);
         Utils.unRegisterReceiver(mNavigationNotifyBR, this);
+		audioManager.setMicrophoneMute(false);
         //	unregisterReceiver(headsetPlugReceiver);
 		super.onDestroy();
 
@@ -1532,6 +1538,7 @@ public class ControlYidongActivity extends CallActivity implements OnClickListen
 		EMChatManager.getInstance().endCall();
 		saveCallRecord(1);
 		cameraHelper.stopCapture(oppositeSurfaceHolder);
+		audioManager.setMicrophoneMute(false);
 		super.onPause();
 	}
 
@@ -1541,8 +1548,6 @@ public class ControlYidongActivity extends CallActivity implements OnClickListen
 			ToastUtil.showtomain(this, getString(R.string.hang_up_video_first));
 			return;
 		}
-		cameraHelper.stopCapture(oppositeSurfaceHolder);
-		audioManager.setMicrophoneMute(true);
 		super.onBackPressed();
 	}
 
