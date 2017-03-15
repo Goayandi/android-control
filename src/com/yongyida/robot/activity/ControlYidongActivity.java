@@ -1510,6 +1510,11 @@ public class ControlYidongActivity extends CallActivity implements OnClickListen
             progress.dismiss();
             progress = null;
         }
+		if (mDialog != null) {
+			mDialog.dismiss();
+			mDialog = null;
+		}
+
 		if (time != null) {
 			time.cancel();
 		}
@@ -1535,11 +1540,12 @@ public class ControlYidongActivity extends CallActivity implements OnClickListen
 
 	@Override
 	protected void onPause() {
-		EMChatManager.getInstance().endCall();
-		saveCallRecord(1);
-		cameraHelper.stopCapture(oppositeSurfaceHolder);
-		audioManager.setMicrophoneMute(false);
+//		EMChatManager.getInstance().endCall();
+//		saveCallRecord(1);
+//		cameraHelper.stopCapture(oppositeSurfaceHolder);
+//		audioManager.setMicrophoneMute(false);
 		super.onPause();
+		finish();
 	}
 
 	@Override

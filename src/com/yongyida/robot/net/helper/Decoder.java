@@ -1,9 +1,6 @@
 package com.yongyida.robot.net.helper;
 
-import java.nio.ByteOrder;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.List;
+import android.util.Log;
 
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
@@ -11,14 +8,12 @@ import org.jboss.netty.buffer.DynamicChannelBuffer;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.handler.codec.frame.FrameDecoder;
-import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.yongyida.robot.huanxin.DemoApplication;
-import com.yongyida.robot.utils.Constants;
-
-import android.content.Intent;
-import android.util.Log;
+import java.nio.ByteOrder;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
 
 @SuppressWarnings("unused")
 public class Decoder extends FrameDecoder {

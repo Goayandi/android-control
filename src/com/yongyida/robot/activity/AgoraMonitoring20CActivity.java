@@ -8,7 +8,6 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceView;
@@ -16,9 +15,6 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
-import android.widget.TableLayout;
-import android.widget.TextView;
 
 import com.yongyida.robot.R;
 import com.yongyida.robot.utils.BroadcastReceiverRegister;
@@ -38,18 +34,13 @@ import io.agora.rtc.video.VideoCanvas;
 /**
  * Created by Administrator on 2016/9/8 0008.
  */
-public class AgoraMonitoringActivity extends BaseEngineEventHandlerActivity implements MeetingListener, View.OnTouchListener {
-    private static final String TAG = "AgoraMonitoringActivity";
+public class AgoraMonitoring20CActivity extends BaseEngineEventHandlerActivity implements MeetingListener, View.OnTouchListener {
+    private static final String TAG = "AgoraMonitoring20C";
     private FrameLayout mSurfaceViewContainer;
     private Button mPlayBT;
     //  private ImageView mSpeakIV;
     private Button mBackBT;
 
-    private ImageView mUpIV;
-    private ImageView mLeftIV;
-    private ImageView mDownIV;
-    private ImageView mRightIV;
-    private TextView mMoveTv;
     private ProgressDialog mProgressDialog;
     private Button mSpeakToggle;
     private static Timer mTimer = null;
@@ -70,12 +61,11 @@ public class AgoraMonitoringActivity extends BaseEngineEventHandlerActivity impl
 
         };
     };
-    private TableLayout mMoveTL;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_agora_monitoring);
+        setContentView(R.layout.activity_agora_monitoring_20c);
         init();
     }
 
@@ -158,7 +148,7 @@ public class AgoraMonitoringActivity extends BaseEngineEventHandlerActivity impl
                 long currentTimeMillis = System.currentTimeMillis();
                 if (currentTimeMillis - mLastClickTime < 1000) {
                     mLastClickTime = currentTimeMillis;
-                    ToastUtil.showtomain(AgoraMonitoringActivity.this, getString(R.string.dont_so_fast2));
+                    ToastUtil.showtomain(AgoraMonitoring20CActivity.this, getString(R.string.dont_so_fast2));
                     return;
                 }
                 mLastClickTime = currentTimeMillis;
@@ -179,15 +169,6 @@ public class AgoraMonitoringActivity extends BaseEngineEventHandlerActivity impl
             }
         });
 
-        mUpIV = (ImageView) findViewById(R.id.up);
-        mUpIV.setOnTouchListener(this);
-        mLeftIV = (ImageView) findViewById(R.id.left);
-        mLeftIV.setOnTouchListener(this);
-        mDownIV = (ImageView) findViewById(R.id.down);
-        mDownIV.setOnTouchListener(this);
-        mRightIV = (ImageView) findViewById(R.id.right);
-        mRightIV.setOnTouchListener(this);
-        mMoveTv = (TextView) findViewById(R.id.move);
 
         mSpeakToggle = (Button) findViewById(R.id.mictoggole);
         mSpeakToggle.setOnClickListener(new View.OnClickListener() {
@@ -199,10 +180,6 @@ public class AgoraMonitoringActivity extends BaseEngineEventHandlerActivity impl
         mSurfaceViewContainer = (FrameLayout) findViewById(R.id.fl);
         setSpeakToggleVisiableState(false);
         mProgressDialog = new ProgressDialog(this);
-        mMoveTL = (TableLayout) findViewById(R.id.tl_move);
-        if (!TextUtils.isEmpty(mRobotName)) {
-            mMoveTL.setVisibility(View.VISIBLE);
-        }
     }
 
     private void setSpeakToggleVisiableState(boolean show) {
@@ -225,7 +202,7 @@ public class AgoraMonitoringActivity extends BaseEngineEventHandlerActivity impl
                 mSurfaceViewContainer.removeAllViews();
             }
         });
-        if (mMoveTL.getVisibility() == View.GONE) {
+        if (mPlayBT.getVisibility() == View.GONE) {
             toggle();
         }
     }
@@ -261,7 +238,7 @@ public class AgoraMonitoringActivity extends BaseEngineEventHandlerActivity impl
         boolean wificheck = getSharedPreferences("setting",
                 MODE_PRIVATE).getBoolean("wificheck", true);
         if (wificheck && !checknetwork()) {
-            ToastUtil.showtomain(AgoraMonitoringActivity.this, getString(R.string.not_wifi));
+            ToastUtil.showtomain(AgoraMonitoring20CActivity.this, getString(R.string.not_wifi));
             return;
         }
         if (mProgressDialog != null) {
@@ -322,7 +299,7 @@ public class AgoraMonitoringActivity extends BaseEngineEventHandlerActivity impl
                     if (info.getState() == NetworkInfo.State.CONNECTED
                             && !info.isAvailable()) {
                         //TODO
-                        StartUtil.startintent(AgoraMonitoringActivity.this,
+                        StartUtil.startintent(AgoraMonitoring20CActivity.this,
                                 ConnectActivity.class, "finish");
                     }
 
@@ -355,14 +332,7 @@ public class AgoraMonitoringActivity extends BaseEngineEventHandlerActivity impl
                     @Override
                     public void onClick(View v) {
                         if (isconnected) {
-                            if (mMoveTL.getVisibility() == View.GONE) {
-                                toggle();
-                            } else {
-                                if (mPlayBT.getVisibility() != View.GONE)
-                                    mPlayBT.setVisibility(View.GONE);
-                                else
-                                    mPlayBT.setVisibility(View.VISIBLE);
-                            }
+                            toggle();
                         }
                     }
                 });
@@ -496,12 +466,10 @@ public class AgoraMonitoringActivity extends BaseEngineEventHandlerActivity impl
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if (mMoveTL.getVisibility() == View.VISIBLE) {
-                    mMoveTL.setVisibility(View.GONE);
+                if (mPlayBT.getVisibility() == View.VISIBLE) {
                     //    mSpeakIV.setVisibility(View.GONE);
                     mPlayBT.setVisibility(View.GONE);
                 } else {
-                    mMoveTL.setVisibility(View.VISIBLE);
                     //    mSpeakIV.setVisibility(View.VISIBLE);
                     mPlayBT.setVisibility(View.VISIBLE);
                 }

@@ -65,6 +65,8 @@ public class VideoMeetingActivity extends BaseEngineEventHandlerActivity impleme
     private int mTimeCount;
     private String mHostChannelID;
     private long mLastClickTime = 0;
+    private Timer mFinishTimer;
+    private boolean isConnected = false;
     private Handler mHandler = new Handler(){
         @Override
         public void handleMessage(Message msg) {
@@ -106,6 +108,7 @@ public class VideoMeetingActivity extends BaseEngineEventHandlerActivity impleme
                 mHandler.sendEmptyMessage(DISMISS_DIALOG);
                 onBackPressed();
             } else if (reply == 1) {
+                isConnected = true;
                 ToastUtil.showtomain(VideoMeetingActivity.this, id + "接受邀请");
             }
         }
@@ -226,6 +229,21 @@ public class VideoMeetingActivity extends BaseEngineEventHandlerActivity impleme
         intent.putExtra(Constants.AGORA_TYPE, "Robot"); //String
         intent.putExtra(Constants.AGORA_MODE, "meeting"); //String
         sendBroadcast(intent);
+        mFinishTimer = new Timer();
+        mFinishTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                if (!isConnected) {
+                    mHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            ToastUtil.showtomain(VideoMeetingActivity.this, getString(R.string.no_response));
+                            finish();
+                        }
+                    });
+                }
+            }
+        }, 23000);
     }
 
     private void inviteCancel(){
@@ -381,6 +399,10 @@ public class VideoMeetingActivity extends BaseEngineEventHandlerActivity impleme
         if (mProgressDialog != null) {
             mProgressDialog.dismiss();
             mProgressDialog = null;
+        }
+        if (mFinishTimer != null) {
+            mFinishTimer.cancel();
+            mFinishTimer = null;
         }
         mVideoEngine.setEngineEventHandlerMeetingListener(null);
         super.onDestroy();

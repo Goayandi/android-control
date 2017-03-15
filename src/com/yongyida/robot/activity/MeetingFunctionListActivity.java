@@ -131,7 +131,7 @@ public class MeetingFunctionListActivity extends OriginalActivity implements Vie
                 StartUtil.startintent(MeetingFunctionListActivity.this, VideoMeetingActivity.class, "no");
                 break;
             case R.id.prl2:
-                StartUtil.startintent(MeetingFunctionListActivity.this, AgoraMonitoringActivity.class, "no");
+                StartUtil.startintent(MeetingFunctionListActivity.this, AgoraMonitoring20CActivity.class, "no");
                 break;
             case R.id.prl3:
                 StartUtil.startintent(MeetingFunctionListActivity.this, TaskRemindActivity.class, "no");

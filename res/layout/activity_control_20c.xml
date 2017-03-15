@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black_deep"
+    android:animateLayoutChanges="true"
+    >
+
+    <SurfaceView
+        android:id="@+id/opposite_surface"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:visibility="gone"/>
+
+    <SurfaceView
+        android:id="@+id/local_surface"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_gravity="right|top" />
+
+    <Button
+        android:id="@+id/back"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:background="@android:color/transparent"
+        android:drawableLeft="@drawable/back"
+        android:text="@string/return1"
+        android:textColor="@color/white" />
+
+    <Button
+        android:id="@+id/mictoggole"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_gravity="right"
+        android:visibility="gone"
+        android:background="@drawable/icon_mute_on"
+        android:layout_marginTop="110dp"
+        />
+
+    <Button
+        android:id="@+id/play"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_gravity="center"
+        android:background="@drawable/bofang"
+        android:textColor="@color/white" />
+
+    <ImageView
+        android:id="@+id/speak"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal|bottom"
+        android:layout_marginBottom="10dp"
+        android:src="@drawable/speech" />
+
+</FrameLayout>

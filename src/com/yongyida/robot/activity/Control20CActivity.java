@@ -5,8 +5,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.media.AudioRecord;
-import android.media.MediaPlayer;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -17,17 +15,18 @@ import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.View.OnTouchListener;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
-import android.widget.TableLayout;
 
 import com.easemob.EMCallBack;
 import com.easemob.chat.CmdMessageBody;
 import com.easemob.chat.EMCallStateChangeListener;
 import com.easemob.chat.EMChatManager;
 import com.easemob.chat.EMMessage;
+import com.easemob.chat.EMMessage.Type;
 import com.easemob.chat.EMVideoCallHelper;
 import com.easemob.exceptions.EMNetworkUnconnectedException;
 import com.easemob.exceptions.EMNoActiveCallException;
@@ -46,36 +45,30 @@ import com.yongyida.robot.huanxin.CallActivity;
 import com.yongyida.robot.huanxin.CameraHelper;
 import com.yongyida.robot.huanxin.HXSDKHelper;
 import com.yongyida.robot.service.HeadsetPlugReceiver;
-import com.yongyida.robot.utils.AudioRecoder;
 import com.yongyida.robot.utils.BroadcastReceiverRegister;
 import com.yongyida.robot.utils.Constants;
-import com.yongyida.robot.utils.FileWriter;
 import com.yongyida.robot.utils.HandlerUtil;
-import com.yongyida.robot.utils.Pcm2Wav;
 import com.yongyida.robot.utils.StartUtil;
 import com.yongyida.robot.utils.ToastUtil;
 import com.yongyida.robot.utils.Utils;
 
-import net.surina.soundtouch.AudioConfig;
-import net.surina.soundtouch.SoundTouch;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.File;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
 
-/**
- * Created by Administrator on 2016/11/29 0029.
- */
+import static com.yongyida.robot.R.id.head_down;
+import static com.yongyida.robot.R.id.head_left;
+import static com.yongyida.robot.R.id.head_right;
+import static com.yongyida.robot.R.id.head_up;
 
-public class Control128Activity extends CallActivity implements View.OnClickListener,
-        View.OnTouchListener {
+public class Control20CActivity extends CallActivity implements OnClickListener,
+        OnTouchListener {
 
-    private static final String TAG = "Control128Activity";
+    private static final String TAG = "Control20CActivity";
     private SurfaceView localSurface;
     private SurfaceHolder localSurfaceHolder;
     private static SurfaceView oppositeSurface;
@@ -89,15 +82,6 @@ public class Control128Activity extends CallActivity implements View.OnClickList
     private ImageView speak;
     private Button back;
 
-    private ImageView up;
-    private ImageView left;
-    private ImageView down;
-    private ImageView right;
-
-    private ImageView head_left;
-    private ImageView head_up;
-    private ImageView head_down;
-    private ImageView head_right;
     private RecognizerDialog mDialog;
     private int key;
     private Timer hide_timer;
@@ -113,16 +97,15 @@ public class Control128Activity extends CallActivity implements View.OnClickList
     };
     private boolean isComingCall;
     private String mRobotName;
-    private TableLayout mHeadTableLayout;
-    private TableLayout mMoveTableLayout;
-    private ImageView talk;
-    private RelativeLayout speakRL;
+    private Timer time = null;
 
-    private AudioRecoder mAudioRecorder;
-    private FileWriter mFileStorager;
-    private boolean mRecording;
+    private long starttime;
+    private boolean flag = true;
+
+    private int action = 0;
+
+    private int move = 0;
     private Button mMuteBtn;
-
 
     @SuppressWarnings("deprecation")
     @Override
@@ -132,7 +115,7 @@ public class Control128Activity extends CallActivity implements View.OnClickList
             finish();
             return;
         }
-        setContentView(R.layout.activity_control3);
+        setContentView(R.layout.activity_control_20c);
         getWindow().addFlags(
                 WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
                         | WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD
@@ -141,34 +124,12 @@ public class Control128Activity extends CallActivity implements View.OnClickList
         initData();
         initView();
         initVideo();
-        initRecorder();
         initBR();
+
     }
 
     private void initBR() {
-        BroadcastReceiverRegister.reg(Control128Activity.this, new String[]{Constants.BATTERY}, mRNameBR);
-        BroadcastReceiverRegister.reg(this,
-                new String[] { ConnectivityManager.CONNECTIVITY_ACTION },
-                neterror);
-    }
-
-    private void initView() {
-        initpower();
-        initcontrol();
-        progress = new ProgressDialog(this);
-        progress.setCanceledOnTouchOutside(false);
-    }
-
-    private void initData() {
-        HXSDKHelper.getInstance().isVideoCalling = true;
-        isComingCall = getIntent().getBooleanExtra("isComingCall", false);
-        if (!isComingCall) {
-            username = getSharedPreferences("Receipt", MODE_PRIVATE).getString(
-                    "username", null);
-            username = username.toLowerCase();
-        } else {
-            username = getIntent().getStringExtra("username");
-        }
+        BroadcastReceiverRegister.reg(Control20CActivity.this, new String[]{Constants.BATTERY}, mRNameBR);
     }
 
     private void initVideo() {
@@ -194,20 +155,11 @@ public class Control128Activity extends CallActivity implements View.OnClickList
         // 设置通话监听
         addCallStateListener();
         // 判断视频模式
-        runningMode = getIntent().getExtras().getString("mode");
         if (runningMode.equals("control")) {
             localSurface.setVisibility(View.INVISIBLE);
-        } else {
-            talk.setVisibility(View.GONE);
         }
-        audioManager.setMicrophoneMute(true);
-        //	registerHeadsetPlugReceiver();
-        if (audioManager.isWiredHeadsetOn()) {
-            closeSpeakerOn() ;
-        } else {
-            // 打开扬声器
-            openSpeakerOn();
-        }
+
+        initSound();
 
         if(isComingCall) {
             if (EMChatManager.getInstance().isConnected()) {
@@ -215,7 +167,7 @@ public class Control128Activity extends CallActivity implements View.OnClickList
                     oppositeSurface.setVisibility(View.VISIBLE);
                     play.setBackgroundResource(R.drawable.zanting);
                     if (!runningMode.equals("control")) {
-                        speakRL.setVisibility(View.GONE);
+                        speak.setVisibility(View.GONE);
                     }
                     mMuteBtn.setVisibility(View.VISIBLE);
                     audioManager.setMicrophoneMute(true);
@@ -234,23 +186,48 @@ public class Control128Activity extends CallActivity implements View.OnClickList
         }
     }
 
-    private void initRecorder() {
-        mAudioRecorder = new AudioRecoder();
-        mAudioRecorder.setRecordListener(mRecordCallBacker);
-        mFileStorager = new FileWriter();
-        mFileStorager.setFileName(Constants.LOCAL_ADDRESS + Constants.RECORD_PCM);
-        findViewById(R.id.btn_record).setOnClickListener(this);
+    private void initSound() {
+        audioManager.setMicrophoneMute(true);
+        //	registerHeadsetPlugReceiver();
+        if (audioManager.isWiredHeadsetOn()) {
+//			Intent headsetPluggedIntent = new Intent(Intent.ACTION_HEADSET_PLUG);
+//			headsetPluggedIntent.putExtra("state", 1);
+//			headsetPluggedIntent.putExtra("microphone", 1);
+//			headsetPluggedIntent.putExtra("name", "");
+            //TODO
+            closeSpeakerOn() ;
+        } else {
+//			Intent headsetUnpluggedIntent = new Intent(
+//					Intent.ACTION_HEADSET_PLUG);
+//			headsetUnpluggedIntent.putExtra("state", 0);
+//			headsetUnpluggedIntent.putExtra("microphone", 0);
+//			headsetUnpluggedIntent.putExtra("name", "");
+            // 打开扬声器
+            openSpeakerOn();
+        }
+
     }
 
-    private AudioRecoder.RecordListener mRecordCallBacker = new AudioRecoder.RecordListener() {
-        public void onRecord(byte[] sample, int offset, int length) {
-            Log.d(TAG, "onRecord");
+    private void initData() {
+        HXSDKHelper.getInstance().isVideoCalling = true;
+        // 判断视频模式
+        runningMode = getIntent().getExtras().getString("mode");
 
-            if (mFileStorager != null && mFileStorager.isOpened()) {
-                mFileStorager.write(sample, offset, length);
-            }
+        isComingCall = getIntent().getBooleanExtra("isComingCall", false);
+        if (!isComingCall) {
+            username = getSharedPreferences("Receipt", MODE_PRIVATE).getString(
+                    "username", null);
+            username = username.toLowerCase();
+        } else {
+            username = getIntent().getStringExtra("username");
         }
-    };
+    }
+
+    private void initView(){
+        initpower();
+        progress = new ProgressDialog(this);
+        progress.setCanceledOnTouchOutside(false);
+    }
 
     private void registerHeadsetPlugReceiver() {
         headsetPlugReceiver = new HeadsetPlugReceiver();
@@ -277,7 +254,7 @@ public class Control128Activity extends CallActivity implements View.OnClickList
                         if (progress != null) {
                             progress.dismiss();
                         }
-                        ToastUtil.showtomain(Control128Activity.this, getString(R.string.dont_so_fast2));
+                        ToastUtil.showtomain(Control20CActivity.this, getString(R.string.dont_so_fast2));
                         return;
                     }
                     boolean wificheck = getSharedPreferences("setting",
@@ -286,7 +263,7 @@ public class Control128Activity extends CallActivity implements View.OnClickList
                         if (progress != null) {
                             progress.dismiss();
                         }
-                        ToastUtil.showtomain(Control128Activity.this, getString(R.string.not_wifi));
+                        ToastUtil.showtomain(Control20CActivity.this, getString(R.string.not_wifi));
                         return;
                     }
                     try {
@@ -295,7 +272,7 @@ public class Control128Activity extends CallActivity implements View.OnClickList
                             EMChatManager.getInstance().makeVideoCall(username);
                             play.setBackgroundResource(R.drawable.zanting);
                             if (!runningMode.equals("control")) {
-                                speakRL.setVisibility(View.GONE);
+                                speak.setVisibility(View.GONE);
                             }
                             mMuteBtn.setVisibility(View.VISIBLE);
                             cameraHelper.setStartFlag(true);
@@ -319,19 +296,19 @@ public class Control128Activity extends CallActivity implements View.OnClickList
 
         @Override
         public void onError(int arg0, String arg1) {
-            Log.e(TAG,"error:" + arg1);
+            Log.e("Control20CActivity","error:" + arg1);
             enHandler.post(new Runnable() {
 
                 @Override
                 public void run() {
-                    ToastUtil.showtomain(Control128Activity.this, getString(R.string.initialize_fail));
+                    ToastUtil.showtomain(Control20CActivity.this, getString(R.string.initialize_fail));
                 }
             });
         }
     };
 
     public void sendmsg(String mode, String touser) {
-        EMMessage msg = EMMessage.createSendMessage(EMMessage.Type.CMD);
+        EMMessage msg = EMMessage.createSendMessage(Type.CMD);
         msg.setReceipt(touser);
         if ("control".equals(mode)){
             msg.setAttribute("mode", "controll");
@@ -346,7 +323,7 @@ public class Control128Activity extends CallActivity implements View.OnClickList
             if (progress != null) {
                 progress.dismiss();
             }
-            ToastUtil.showtomain(Control128Activity.this, getString(R.string.initialize_fail));
+            ToastUtil.showtomain(Control20CActivity.this, getString(R.string.initialize_fail));
             if (!TextUtils.isEmpty(getSharedPreferences("huanxin", MODE_PRIVATE)
                     .getString("username", null)) && !TextUtils.isEmpty(getSharedPreferences("huanxin", MODE_PRIVATE)
                     .getString("password", null))) {
@@ -374,7 +351,7 @@ public class Control128Activity extends CallActivity implements View.OnClickList
     }
 
     private void sendmsg() {
-        EMMessage msg = EMMessage.createSendMessage(EMMessage.Type.CMD);
+        EMMessage msg = EMMessage.createSendMessage(Type.CMD);
         msg.setReceipt(username);
         CmdMessageBody cmd = new CmdMessageBody("yongyida.robot.video.rotate");
         msg.setAttribute("angle", 0);
@@ -391,7 +368,7 @@ public class Control128Activity extends CallActivity implements View.OnClickList
      * @param mute
      */
     private void sendMuteMsg(boolean mute){
-        EMMessage msg = EMMessage.createSendMessage(EMMessage.Type.CMD);
+        EMMessage msg = EMMessage.createSendMessage(Type.CMD);
         msg.setReceipt(username);
         CmdMessageBody cmd = new CmdMessageBody("yongyida.robot.video.mute");
         msg.setAttribute("mute", mute);
@@ -403,15 +380,14 @@ public class Control128Activity extends CallActivity implements View.OnClickList
         }
     }
 
+    @Override
+    protected void onStart() {
+        BroadcastReceiverRegister.reg(this,
+                new String[] { ConnectivityManager.CONNECTIVITY_ACTION },
+                neterror);
+        super.onStart();
+    }
 
-    static Timer time = null;
-
-    long starttime;
-    boolean flag = true;
-
-    int action = 0;
-
-    int move = 0;
 
     @Override
     public boolean onTouch(final View v, MotionEvent event) {
@@ -430,7 +406,7 @@ public class Control128Activity extends CallActivity implements View.OnClickList
                 public void run() {
                     sendcmd("start", v);
                 }
-            }, 500, 500);
+            }, 1000, 1000);
         } else if (event.getAction() == MotionEvent.ACTION_MOVE) {
         } else if (event.getAction() == MotionEvent.ACTION_UP) {
             speak.setEnabled(true);
@@ -473,21 +449,21 @@ public class Control128Activity extends CallActivity implements View.OnClickList
                     execute("turn_right");
                     HandlerUtil.sendmsg(enHandler, "right", 0);
                     break;
-                case R.id.head_left:
-                    execute("head_left");
-                    HandlerUtil.sendmsg(enHandler, "head_left", 0);
-                    break;
-                case R.id.head_right:
-                    execute("head_right");
-                    HandlerUtil.sendmsg(enHandler, "head_right", 0);
-                    break;
-                case R.id.head_up:
+                case head_up:
                     execute("head_up");
                     HandlerUtil.sendmsg(enHandler, "head_up", 0);
                     break;
-                case R.id.head_down:
+                case head_left:
+                    execute("head_left");
+                    HandlerUtil.sendmsg(enHandler, "head_left", 0);
+                    break;
+                case head_down:
                     execute("head_down");
                     HandlerUtil.sendmsg(enHandler, "head_down", 0);
+                    break;
+                case head_right:
+                    execute("head_right");
+                    HandlerUtil.sendmsg(enHandler, "head_right", 0);
                     break;
                 default:
                     break;
@@ -507,18 +483,6 @@ public class Control128Activity extends CallActivity implements View.OnClickList
                 case R.id.right:
                     execute("stop");
                     break;
-                case R.id.head_left:
-                    execute("head_stop");
-                    break;
-                case R.id.head_right:
-                    execute("head_stop");
-                    break;
-                case R.id.head_up:
-                    execute("head_stop");
-                    break;
-                case R.id.head_down:
-                    execute("head_stop");
-                    break;
                 default:
                     break;
             }
@@ -535,7 +499,7 @@ public class Control128Activity extends CallActivity implements View.OnClickList
         public void dispatchMessage(android.os.Message msg) {
             if (msg.what == 0) {
             } else if (msg.what == 2) {
-                ToastUtil.showtomain(Control128Activity.this, getString(R.string.request_timeout));
+                ToastUtil.showtomain(Control20CActivity.this, getString(R.string.request_timeout));
             } else if (msg.what == 3) {
                 play.setEnabled(true);
             } else if (msg.what == 4) {
@@ -544,7 +508,7 @@ public class Control128Activity extends CallActivity implements View.OnClickList
                 }
                 play.setBackgroundResource(R.drawable.bofang);
                 if (!runningMode.equals("control")) {
-                    speakRL.setVisibility(View.VISIBLE);
+                    speak.setVisibility(View.VISIBLE);
                 }
                 mMuteBtn.setVisibility(View.GONE);
             } else if (msg.what == 5) {
@@ -559,51 +523,21 @@ public class Control128Activity extends CallActivity implements View.OnClickList
         };
     };
 
-    private final static float MIN_SPEED = 0.10f;
-    private final static float MAX_SPEED = 0.40f;
-
     private void initpower() {
         msgid = UUID.randomUUID().toString();
         play = (Button) findViewById(R.id.play);
         play.setOnClickListener(this);
         speak = (ImageView) findViewById(R.id.speak);
         speak.setOnClickListener(this);
-        talk = (ImageView) findViewById(R.id.talk);
-        talk.setOnClickListener(this);
         back = (Button) findViewById(R.id.back);
         back.setOnClickListener(this);
-        speakRL = (RelativeLayout) findViewById(R.id.rl_speak);
         mMuteBtn = (Button) findViewById(R.id.mictoggole);
-        mMuteBtn.setOnClickListener(new View.OnClickListener() {
+        mMuteBtn.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 toggle_speak(v);
             }
         });
-    }
-
-    private void initcontrol() {
-        up = (ImageView) findViewById(R.id.up);
-        up.setOnTouchListener(this);
-        left = (ImageView) findViewById(R.id.left);
-        left.setOnTouchListener(this);
-        down = (ImageView) findViewById(R.id.down);
-        down.setOnTouchListener(this);
-        right = (ImageView) findViewById(R.id.right);
-        right.setOnTouchListener(this);
-        head_left = (ImageView) findViewById(R.id.head_left);
-        head_left.setOnTouchListener(this);
-        head_right = (ImageView) findViewById(R.id.head_right);
-        head_right.setOnTouchListener(this);
-        head_up = (ImageView) findViewById(R.id.head_up);
-        head_up.setOnTouchListener(this);
-        head_down = (ImageView) findViewById(R.id.head_down);
-        head_down.setOnTouchListener(this);
-        mHeadTableLayout = (TableLayout) findViewById(R.id.tl_head);
-        mMoveTableLayout = (TableLayout) findViewById(R.id.tl_move);
-        mRobotName = getSharedPreferences("Receipt", MODE_PRIVATE).getString("username", null);
-        mHeadTableLayout.setVisibility(View.VISIBLE);
-        findViewById(R.id.head).setOnClickListener(this);
     }
 
     InitListener init = new InitListener() {
@@ -672,7 +606,7 @@ public class Control128Activity extends CallActivity implements View.OnClickList
                             EMChatManager.getInstance().endCall();
                             saveCallRecord(1);
                         }
-                        StartUtil.startintent(Control128Activity.this,
+                        StartUtil.startintent(Control20CActivity.this,
                                 ConnectActivity.class, "finish");
                     }
 
@@ -762,15 +696,15 @@ public class Control128Activity extends CallActivity implements View.OnClickList
                                         if (EMVideoCallHelper.getInstance().getVideoHeight() == 320
                                                 && EMVideoCallHelper.getInstance().getVideoWidth() == 240) {
                                             Log.e(TAG, "320*240");
-                                            ToastUtil.showtomain(Control128Activity.this, EMVideoCallHelper.getInstance().getVideoHeight() + ":" + EMVideoCallHelper.getInstance().getVideoWidth() );
+                                            ToastUtil.showtomain(Control20CActivity.this, EMVideoCallHelper.getInstance().getVideoHeight() + ":" + EMVideoCallHelper.getInstance().getVideoWidth() );
                                             EMChatManager.getInstance().endCall();
                                             saveCallRecord(1);
-                                            ToastUtil.showtomain(Control128Activity.this, getString(R.string.connect_error_retry));
+                                            ToastUtil.showtomain(Control20CActivity.this, getString(R.string.connect_error_retry));
                                             cameraHelper.stopCapture(oppositeSurfaceHolder);
                                             toggle();
                                             play.setBackgroundResource(R.drawable.bofang);
                                             if (!runningMode.equals("control")) {
-                                                speakRL.setVisibility(View.VISIBLE);
+                                                speak.setVisibility(View.VISIBLE);
                                             }
                                             mMuteBtn.setVisibility(View.GONE);
                                         }
@@ -813,7 +747,7 @@ public class Control128Activity extends CallActivity implements View.OnClickList
                                     callingState = CallingState.NORESPONSE;
                                 } else if (fError == CallError.ERROR_INAVAILABLE) {
                                     saveCallRecord(1);
-                                    ToastUtil.showtomain(Control128Activity.this,
+                                    ToastUtil.showtomain(Control20CActivity.this,
                                             getString(R.string.connect_error_restart_robot));
                                     EMChatManager.getInstance().endCall();
                                     callingState = CallingState.OFFLINE;
@@ -855,7 +789,7 @@ public class Control128Activity extends CallActivity implements View.OnClickList
                         break;
                 }
                 if(!error.equals(CallError.ERROR_NONE)){
-                    Log.e(TAG,"error:" + error.toString());
+                    Log.e("EMCall","error:" + error.toString());
                 }
             }
         };
@@ -915,7 +849,7 @@ public class Control128Activity extends CallActivity implements View.OnClickList
                                         localSurface.setVisibility(View.INVISIBLE);
                                     }
                                     EMChatManager.getInstance().endCall();
-                                    ToastUtil.showtomain(Control128Activity.this, getString(R.string.connect_fail));
+                                    ToastUtil.showtomain(Control20CActivity.this, getString(R.string.connect_fail));
                                 }
                             });
                         }
@@ -930,14 +864,14 @@ public class Control128Activity extends CallActivity implements View.OnClickList
                     progress.show();
                     play.setBackgroundResource(R.drawable.bofang);
                     if (!runningMode.equals("control")) {
-                        speakRL.setVisibility(View.VISIBLE);
+                        speak.setVisibility(View.VISIBLE);
                     }
                     mMuteBtn.setVisibility(View.GONE);
                     localSurface.setVisibility(View.INVISIBLE);
                     oppositeSurface.setVisibility(View.GONE);
                     EMChatManager.getInstance().endCall();
 
-                    EMMessage msg = EMMessage.createSendMessage(EMMessage.Type.CMD);
+                    EMMessage msg = EMMessage.createSendMessage(Type.CMD);
                     msg.setReceipt(username);
                     CmdMessageBody cmd = new CmdMessageBody(
                             "yongyida.robot.video.closevideo");
@@ -962,7 +896,6 @@ public class Control128Activity extends CallActivity implements View.OnClickList
 
                                 }
                             }, new Date(), 1000);
-
                         }
 
                         @Override
@@ -986,9 +919,9 @@ public class Control128Activity extends CallActivity implements View.OnClickList
                         + getString(R.string.app_id));
                 EMChatManager.getInstance().pauseVoiceTransfer();
                 if (mDialog == null) {
-                    mDialog = new RecognizerDialog(Control128Activity.this, init);
+                    mDialog = new RecognizerDialog(Control20CActivity.this, init);
 
-                    Utils.SystemLanguage language = Utils.getLanguage(Control128Activity.this);
+                    Utils.SystemLanguage language = Utils.getLanguage(Control20CActivity.this);
                     if (Utils.SystemLanguage.CHINA.equals(language)) {
                         mDialog.setParameter(SpeechConstant.LANGUAGE, "zh_cn");
                     } else if (Utils.SystemLanguage.ENGLISH.equals(language)) {
@@ -999,7 +932,8 @@ public class Control128Activity extends CallActivity implements View.OnClickList
                     mDialog.setParameter("nlp_version", "2.0");
                     mDialog.setParameter("dot", "0");
                 }
-                new Timer().schedule(new TimerTask() {
+                Timer timer = new Timer();
+                timer.schedule(new TimerTask() {
 
                     @Override
                     public void run() {
@@ -1013,7 +947,7 @@ public class Control128Activity extends CallActivity implements View.OnClickList
 
                     @Override
                     public void onResult(RecognizerResult result, boolean arg1) {
-                        Log.i("Result", "result:" + result.getResultString());
+                        Log.d("Result", "result:" + result.getResultString());
                         try {
                             JSONObject jo = new JSONObject(result.getResultString());
                             String text = jo.getString("text");
@@ -1029,19 +963,20 @@ public class Control128Activity extends CallActivity implements View.OnClickList
 
                     @Override
                     public void onError(SpeechError error) {
-                        Log.i("errorXF", "errorXF:" + error.getErrorDescription());
+                        Log.d("errorXF", "errorXF:" + error.getErrorDescription());
                         enHandler.sendEmptyMessage(5);
                     }
                 });
                 mDialog.show();
                 mDialog.setCancelable(false);
+                speak.setImageResource(R.drawable.dianjishi);
                 break;
             case R.id.back:
                 this.onBackPressed();
                 break;
             case R.id.opposite_surface:
                 if (isconnected) {
-                    if (mMoveTableLayout.getVisibility() == View.GONE) {
+                    if (play.getVisibility() == View.GONE) {
                         toggle();
                     } else {
                         if (play.getVisibility() != View.GONE)
@@ -1052,165 +987,8 @@ public class Control128Activity extends CallActivity implements View.OnClickList
                 }
 
                 break;
-            case R.id.talk:
-                getAndSendTalkText();
-                break;
-            case R.id.head:
-                execute("head_middle");
-                break;
-            case R.id.btn_record:
-                record();
-                break;
         }
 
-    }
-
-
-    private void record() {
-        if (audioManager.isMicrophoneMute()) {
-            audioManager.setMicrophoneMute(false);
-        }
-        audioManager.setSpeakerphoneOn(true);
-        mRecording = !mRecording;
-        if (mRecording) {
-            startRecord();
-            ((Button) findViewById(R.id.btn_record)).setText("停止录音");
-        }
-        else {
-            stopRecord();
-            ((Button) findViewById(R.id.btn_record)).setText("开始录音");
-        }
-    }
-
-    private void startRecord() {
-        Log.d(TAG, "startRecord()");
-        mFileStorager.open();
-        mAudioRecorder.open();
-    }
-
-    private void stopRecord() {
-        Log.d(TAG, "stopRecord()");
-        mAudioRecorder.close();
-        mFileStorager.close();
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                changeVoicePlay(1, 10, 1);
-            }
-        }).start();
-    }
-
-    private void changeVoicePlay(float tempo, float pitch, float rate) {
-        Log.d(TAG, "changeVoicePlay()");
-
-        pcm2wav(Constants.LOCAL_ADDRESS + Constants.RECORD_PCM, Constants.LOCAL_ADDRESS + Constants.RECORD_WAV);
-        changeVoice(Constants.LOCAL_ADDRESS + Constants.RECORD_WAV, Constants.LOCAL_ADDRESS + Constants.CHANGED_WAV, tempo, pitch, rate);
-        sendFile();
-        //  playFile(Constants.LOCAL_ADDRESS + "/changed.wav");
-    }
-
-    private void playFile(String path) {
-        Log.d(TAG, "playFile(), path: " + path);
-
-        if (!new File(path).exists()) {
-            Log.e(TAG, "File not exists: " + path);
-            return;
-        }
-
-        MediaPlayer mediaPlayer = new MediaPlayer();
-        try {
-            mediaPlayer.setDataSource(path);
-            mediaPlayer.prepare();
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-            Log.e(TAG, "playFile exception: " + e);
-        }
-        mediaPlayer.start();
-    }
-
-    private void sendFile() {
-        sendBroadcast(new Intent(Constants.SEND_VOICE));
-    }
-
-    private void pcm2wav(String infile, String outfile) {
-        Log.d(TAG, "pcm2wav()");
-
-        int audioBufferSize = AudioRecord.getMinBufferSize(AudioConfig.SAMPLE_RATE, AudioConfig.RECORDER_CHANNEL_CONFIG,
-                AudioConfig.AUDIO_FORMAT);
-
-        Pcm2Wav.writeWaveFile(infile, outfile, AudioConfig.SAMPLE_RATE, AudioConfig.CHANNEL_COUNT, audioBufferSize);
-    }
-
-    private void changeVoice(String infile, String outfile, float tempo, float pitch, float rate) {
-        Log.d(TAG, "changeVoice(), tempo: " + tempo + ", pitch: " + pitch + ", rate: " + rate);
-
-        SoundTouch soundTouch = new SoundTouch();
-        soundTouch.setTempo(tempo);
-        soundTouch.setPitchSemiTones(pitch);
-        soundTouch.setSpeed(rate);
-        soundTouch.changeVoiceFile(infile, outfile);
-    }
-
-    private void getAndSendTalkText() {
-        if (audioManager.isMicrophoneMute()) {
-            audioManager.setMicrophoneMute(false);
-        }
-        talk.setEnabled(false);
-        audioManager.setSpeakerphoneOn(false);
-        SpeechUtility.createUtility(this, "appid="
-                + getString(R.string.app_id));
-        EMChatManager.getInstance().pauseVoiceTransfer();
-        if (mDialog == null) {
-            mDialog = new RecognizerDialog(Control128Activity.this, init);
-
-            Utils.SystemLanguage language = Utils.getLanguage(Control128Activity.this);
-            if (Utils.SystemLanguage.CHINA.equals(language)) {
-                mDialog.setParameter(SpeechConstant.LANGUAGE, "zh_cn");
-            } else if (Utils.SystemLanguage.ENGLISH.equals(language)) {
-                mDialog.setParameter(SpeechConstant.LANGUAGE, "en_us");
-            }
-            //	mDialog.setParameter(SpeechConstant.ACCENT, "vinn");
-            mDialog.setParameter("asr_sch", "1");
-            mDialog.setParameter("nlp_version", "2.0");
-            mDialog.setParameter("dot", "0");
-        }
-        new Timer().schedule(new TimerTask() {
-
-            @Override
-            public void run() {
-                if (mDialog != null && mDialog.isShowing()) {
-                    enHandler.sendEmptyMessage(5);
-                    mDialog.dismiss();
-                }
-            }
-        }, 15000);
-        mDialog.setListener(new RecognizerDialogListener() {
-
-            @Override
-            public void onResult(RecognizerResult result, boolean arg1) {
-                Log.i("Result", "result:" + result.getResultString());
-                try {
-                    JSONObject jo = new JSONObject(result.getResultString());
-                    String text = jo.getString("text");
-                    Constants.text = text;
-                    Intent intent = new Intent();
-                    intent.setAction(Constants.Talk);
-                    sendBroadcast(intent);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                enHandler.sendEmptyMessage(5);
-            }
-
-            @Override
-            public void onError(SpeechError error) {
-                Log.i("errorXF", "errorXF:" + error.getErrorDescription());
-                enHandler.sendEmptyMessage(5);
-            }
-        });
-        mDialog.show();
-        mDialog.setCancelable(false);
     }
 
     private void huanxinLogin() {
@@ -1223,7 +1001,7 @@ public class Control128Activity extends CallActivity implements View.OnClickList
 
                     @Override
                     public void onSuccess() {
-                        ToastUtil.showtomain(Control128Activity.this, getString(R.string.connect_error));
+                        ToastUtil.showtomain(Control20CActivity.this, getString(R.string.connect_error));
                         finish();
                     }
 
@@ -1233,24 +1011,22 @@ public class Control128Activity extends CallActivity implements View.OnClickList
 
                     @Override
                     public void onError(int arg0, String arg1) {
-                        ToastUtil.showtomain(Control128Activity.this, getString(R.string.connect_error));
+                        ToastUtil.showtomain(Control20CActivity.this, getString(R.string.connect_error));
                         finish();
                     }
                 });
     }
 
     private void toggle() {
-        if (mMoveTableLayout.getVisibility() == View.VISIBLE) {
-            mHeadTableLayout.setVisibility(View.GONE);
-            mMoveTableLayout.setVisibility(View.GONE);
-            speakRL.setVisibility(View.GONE);
+        if (play.getVisibility() == View.VISIBLE) {
+            speak.setVisibility(View.GONE);
             mMuteBtn.setVisibility(View.GONE);
             play.setVisibility(View.GONE);
         } else {
-            mHeadTableLayout.setVisibility(View.VISIBLE);
-            mMoveTableLayout.setVisibility(View.VISIBLE);
             if (runningMode.equals("control")) {
-                speakRL.setVisibility(View.VISIBLE);
+                speak.setVisibility(View.VISIBLE);
+                speak.setVisibility(View.GONE);
+                speak.setVisibility(View.VISIBLE);
             }
             mMuteBtn.setVisibility(View.VISIBLE);
             play.setVisibility(View.VISIBLE);
@@ -1259,7 +1035,7 @@ public class Control128Activity extends CallActivity implements View.OnClickList
 
     public void resume() {
         speak.setEnabled(true);
-        talk.setEnabled(true);
+        speak.setImageResource(R.drawable.speech);
         audioManager.setSpeakerphoneOn(true);
         if (getIntent().getExtras().getString("mode").equals("control")) {
             audioManager.setMicrophoneMute(true);
@@ -1308,7 +1084,6 @@ public class Control128Activity extends CallActivity implements View.OnClickList
     @Override
     protected void onDestroy() {
         HXSDKHelper.getInstance().isVideoCalling = false;
-
         if (progress != null) {
             progress.dismiss();
             progress = null;
@@ -1331,8 +1106,8 @@ public class Control128Activity extends CallActivity implements View.OnClickList
             saveCallRecord(1);
         } catch (Exception e) {
         }
-        Utils.unRegisterReceiver(mRNameBR, this);
-        Utils.unRegisterReceiver(neterror, this);
+        Utils.unRegisterReceiver(neterror,this);
+        Utils.unRegisterReceiver(mRNameBR,this);
         audioManager.setMicrophoneMute(false);
         //	unregisterReceiver(headsetPlugReceiver);
         super.onDestroy();
@@ -1340,11 +1115,12 @@ public class Control128Activity extends CallActivity implements View.OnClickList
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
+    @Override
     protected void onPause() {
-//        EMChatManager.getInstance().endCall();
-//        saveCallRecord(1);
-//        cameraHelper.stopCapture(oppositeSurfaceHolder);
-//        audioManager.setMicrophoneMute(false);
         super.onPause();
         finish();
     }

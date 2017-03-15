@@ -74,6 +74,8 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
 
+import static com.yongyida.robot.R.id.opposite_surface;
+
 public class ControlActivity extends CallActivity implements OnClickListener,
 		OnTouchListener {
 
@@ -156,14 +158,14 @@ public class ControlActivity extends CallActivity implements OnClickListener,
 		// 显示本地图像的surfaceview
 		localSurface = (SurfaceView) findViewById(R.id.local_surface);
 		localSurface.setZOrderMediaOverlay(true);
-		localSurface.setZOrderOnTop(true);
+	//	localSurface.setZOrderOnTop(true);
 		localSurfaceHolder = localSurface.getHolder();
 		// 获取callHelper,cameraHelper
 		callHelper = EMVideoCallHelper.getInstance();
 		cameraHelper = new CameraHelper(callHelper, localSurfaceHolder);
 
 		// 显示对方图像的surfaceview
-		oppositeSurface = (SurfaceView) findViewById(R.id.opposite_surface);
+		oppositeSurface = (SurfaceView) findViewById(opposite_surface);
 		oppositeSurface.setOnClickListener(this);
 		oppositeSurfaceHolder = oppositeSurface.getHolder();
 		// 设置显示对方图像的surfaceview
@@ -249,6 +251,7 @@ public class ControlActivity extends CallActivity implements OnClickListener,
 		progress = new ProgressDialog(this);
 		progress.setCanceledOnTouchOutside(false);
 	}
+
 
 	private void registerHeadsetPlugReceiver() {
 		headsetPlugReceiver = new HeadsetPlugReceiver();
@@ -582,11 +585,7 @@ public class ControlActivity extends CallActivity implements OnClickListener,
         mMoveTableLayout = (TableLayout) findViewById(R.id.tl_move);
         mRobotName = getSharedPreferences("Receipt", MODE_PRIVATE).getString("username", null);
         if (!TextUtils.isEmpty(mRobotName) && Utils.isSeries(mRobotName, "20")) {
-            if (Utils.isSeries(mRobotName, "20C")) {
-                mMoveTableLayout.setVisibility(View.GONE);
-            } else {
-                mMoveTableLayout.setVisibility(View.VISIBLE);
-            }
+			mMoveTableLayout.setVisibility(View.VISIBLE);
 			mHeadTableLayout.setVisibility(View.GONE);
 		} else {
 			mHeadTableLayout.setVisibility(View.VISIBLE);
@@ -1027,7 +1026,7 @@ public class ControlActivity extends CallActivity implements OnClickListener,
 		case R.id.back:
 			this.onBackPressed();
 			break;
-		case R.id.opposite_surface:
+		case opposite_surface:
 			if (isconnected) {
 				if (mMoveTableLayout.getVisibility() == View.GONE) {
 					toggle();
@@ -1079,11 +1078,7 @@ public class ControlActivity extends CallActivity implements OnClickListener,
 			play.setVisibility(View.GONE);
 		} else {
             if (!TextUtils.isEmpty(mRobotName) && Utils.isSeries(mRobotName, "20")) {
-                if (Utils.isSeries(mRobotName, "20C")) {
-                    mMoveTableLayout.setVisibility(View.GONE);
-                } else {
-                    mMoveTableLayout.setVisibility(View.VISIBLE);
-                }
+				mMoveTableLayout.setVisibility(View.VISIBLE);
 				mHeadTableLayout.setVisibility(View.GONE);
 			} else {
 				mHeadTableLayout.setVisibility(View.VISIBLE);
@@ -1154,6 +1149,11 @@ public class ControlActivity extends CallActivity implements OnClickListener,
             progress.dismiss();
             progress = null;
         }
+
+		if (mDialog != null) {
+			mDialog.dismiss();
+			mDialog = null;
+		}
 
 		if (time != null) {
 			time.cancel();

@@ -399,7 +399,7 @@
     <string name="start_question">启动问卷调查</string>
     <string name="creating_wait">会议创建中，请稍后</string>
     <string name="hanguping">挂断中,请稍后</string>
-    <string name="calling">拨打中,请稍后</string>
+    <string name="calling">正在连接视频,请稍后</string>
     <string name="kick_off_relogin">账号在其他设备登陆,请重新登陆</string>
     <string name="connecting_wait">连接中,请稍后</string>
     <string name="inviting_wait">邀请中,请稍后</string>
@@ -424,4 +424,6 @@
     <string name="step_forward">向前</string>
     <string name="rotate_90">旋转90度</string>
     <string name="rotate_360">旋转360度</string>
+    <string name="no_response">对方无应答</string>
+    <string name="filterStr">只能输入数字、英文、中文</string>
 </resources>

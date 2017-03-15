@@ -337,14 +337,21 @@ public class ConnectActivity extends BaseActivity implements
                         params.putString("id", id);
 //                        StartUtil.startintent(ConnectActivity.this, PowerlistAllActivity.class, "no", params);
                         if (!TextUtils.isEmpty(id) && Utils.isSeries(id, "20")) {
-//                            StartUtil.startintent(ConnectActivity.this, MeetingFunctionListActivity.class, "no", params);
-                            StartUtil.startintent(ConnectActivity.this, PowerListActivity.class, "no", params);
+                            if (Utils.isSeries(id, "20C")) {
+                                StartUtil.startintent(ConnectActivity.this, MeetingFunctionListActivity.class, "no", params);
+                            } else {
+                                StartUtil.startintent(ConnectActivity.this, PowerListActivity.class, "no", params);
+                            }
                         } else if (!TextUtils.isEmpty(id) && Utils.isSeries(id, "128")) {
                             StartUtil.startintent(ConnectActivity.this, Powerlist128Activity.class, "no", params);
                         } else if (!TextUtils.isEmpty(id) && Utils.isSeries(id, "150")) {
                             StartUtil.startintent(ConnectActivity.this, PowerlistYidongActivity.class, "no", params);
                         } else {
-                            StartUtil.startintent(ConnectActivity.this, PowerListActivity.class, "no", params);
+                            if (Utils.isSeries(id, "50D")) {
+                                StartUtil.startintent(ConnectActivity.this, MeetingFunctionListActivity.class, "no", params);
+                            } else {
+                                StartUtil.startintent(ConnectActivity.this, PowerListActivity.class, "no", params);
+                            }
                         }
                         break;
                     case -1:

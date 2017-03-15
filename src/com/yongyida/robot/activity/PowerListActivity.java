@@ -48,7 +48,6 @@ public class PowerListActivity extends BaseActivity implements OnClickListener {
 		Constants.USER_BACE = false;   //防止在powlist界面按一次返回 2次进入connect界面的一个标志位
 	}
 
-
 	private void initBase() {
 		more = (RelativeLayout) findViewById(R.id.more);
 		more.setOnClickListener(this);
@@ -203,7 +202,7 @@ public class PowerListActivity extends BaseActivity implements OnClickListener {
 	@Override
 	public void onClick(View v) {
 		Bundle params = new Bundle();
-
+		String mRobotName = getSharedPreferences("Receipt", MODE_PRIVATE).getString("username", null);
 		switch (v.getId()) {
 		case R.id.more:
 //			startActivity(new Intent(PowerListActivity.this, InteractActivity.class));
@@ -227,13 +226,21 @@ public class PowerListActivity extends BaseActivity implements OnClickListener {
 			mMode = "chat";
 			Bundle bundle1 = new Bundle();
 			bundle1.putString("mode", mMode);
-			StartUtil.startintent(PowerListActivity.this, ControlActivity.class, "no", bundle1);
+			if (!TextUtils.isEmpty(mRobotName) && Utils.isSeries(mRobotName, "20C")) {
+				StartUtil.startintent(PowerListActivity.this, Control20CActivity.class, "no", bundle1);
+			} else {
+				StartUtil.startintent(PowerListActivity.this, ControlActivity.class, "no", bundle1);
+			}
 			break;
 		case R.id.video_monitor:
 			mMode = "control";
 			Bundle bundle2 = new Bundle();
 			bundle2.putString("mode", mMode);
-			StartUtil.startintent(PowerListActivity.this, ControlActivity.class, "no", bundle2);
+			if (!TextUtils.isEmpty(mRobotName) && Utils.isSeries(mRobotName, "20C")) {
+				StartUtil.startintent(PowerListActivity.this, Control20CActivity.class, "no", bundle2);
+			} else {
+				StartUtil.startintent(PowerListActivity.this, ControlActivity.class, "no", bundle2);
+			}
 			break;
 		case R.id.power_photo:
 		 	StartUtil.startintent(this, PhotoActivity.class, "no");

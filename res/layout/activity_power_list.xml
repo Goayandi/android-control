@@ -90,12 +90,12 @@
         app:layout_marginLeftPercent="2%"
         style="@style/style_rl_control" >
 
-        <Button
+        <ImageView
             android:id="@+id/video_chat_img"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             style="@style/style_bt_control"
-            android:background="@drawable/videochat1"
+            android:src="@drawable/videochat1"
             />
 
         <TextView
@@ -115,12 +115,12 @@
         android:layout_toRightOf="@id/video_chat"
         style="@style/style_rl_control">
 
-        <Button
+        <ImageView
             android:id="@+id/power_photo_img"
             android:layout_width="0dp"
             android:layout_height="0dp"
             style="@style/style_bt_control"
-            android:background="@drawable/photo1"
+            android:src="@drawable/photo1"
             />
 
         <TextView
@@ -139,11 +139,11 @@
         android:layout_below="@id/rl"
         style="@style/style_rl_control" >
 
-        <Button
+        <ImageView
             android:id="@+id/video_monitor_img"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:background="@drawable/monitor_plus1"
+            android:src="@drawable/monitor_plus1"
             style="@style/style_bt_control" />
 
         <TextView
@@ -163,17 +163,19 @@
         app:layout_marginLeftPercent="2%"
         style="@style/style_rl_control" >
 
-        <Button
+        <ImageView
             android:id="@+id/power_task_img"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:background="@drawable/taskremind_plus1"
-            style="@style/style_bt_control" />
+            android:src="@drawable/taskremind_plus1"
+            style="@style/style_bt_control"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="0dp"
-            android:layout_below="@id/power_task_img"
+            android:layout_below="@+id/power_task_img"
             android:text="@string/remind"
             style="@style/style_tv_control" />
     </com.layout.utils.PercentRelativeLayout>
@@ -190,11 +192,11 @@
             android:layout_width="3dp"
             android:layout_height="3dp"
             android:visibility="gone"/>
-        <Button
+        <ImageView
             android:id="@+id/power_setting_img"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:background="@drawable/setting1"
+            android:src="@drawable/setting1"
             style="@style/style_bt_control" />
 
         <TextView
@@ -214,11 +216,11 @@
         android:layout_below="@id/video_monitor"
         style="@style/style_rl_control" >
 
-        <Button
+        <ImageView
             android:id="@+id/bt_more"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:background="@drawable/more1"
+            android:src="@drawable/more1"
             style="@style/style_bt_control" />
 
         <TextView

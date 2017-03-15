@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import com.yongyida.robot.R;
 import com.yongyida.robot.utils.ToastUtil;
+import com.yongyida.robot.utils.Utils;
 
 /**
  * Created by Administrator on 2016/6/27 0027.
@@ -43,6 +44,11 @@ public class ModifyRobotNameDialog extends Dialog {
                     ToastUtil.showtomain(mContext, mContext.getString(R.string.name_cant_null));
                     return;
                 }
+                if (Utils.filterStr(name)) {
+                    ToastUtil.showtomain(mContext, mContext.getString(R.string.filterStr));
+                    return;
+                }
+                
                 listener.save(name);
             }
         });

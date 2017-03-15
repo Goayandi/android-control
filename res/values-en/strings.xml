@@ -408,4 +408,6 @@
     <string name="step_forward">step forward</string>
     <string name="rotate_90">rotate 90</string>
     <string name="rotate_360">rotate 360</string>
+    <string name="no_response">no response</string>
+    <string name="filterStr">only chars and figure</string>
 </resources>

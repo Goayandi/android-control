@@ -623,4 +623,21 @@ public class Utils {
             }
         }
     }
+
+    /**
+     * 过滤符号
+     * @param str
+     * @return
+     */
+    public static boolean filterStr(String str){
+        Pattern pattern = Pattern.compile("^[a-zA-Z0-9\u4E00-\u9FA5]+$");
+        char c[] = str.toCharArray();
+        for (int i = 0; i < c.length; i++) {
+            Matcher matcher = pattern.matcher(String.valueOf(c[i]));
+            if (!matcher.matches()) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

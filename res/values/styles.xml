@@ -214,16 +214,16 @@
     </style>
     <style name="style_rl_control">
         <item name="android:background">@color/vifrification</item>
-        <item name="com.yongyida.robot:layout_heightPercent">15%</item>
-        <item name="com.yongyida.robot:layout_marginTopPercent">5%</item>
-        <item name="com.yongyida.robot:layout_widthPercent">32%</item>
+        <item name="layout_heightPercent">15%</item>
+        <item name="layout_marginTopPercent">5%</item>
+        <item name="layout_widthPercent">32%</item>
     </style>
     <style name="style_bt_control">
         <item name="android:layout_centerHorizontal">true</item>
         <item name="android:clickable">false</item>
-        <item name="com.yongyida.robot:layout_heightPercent">50%</item>
-        <item name="com.yongyida.robot:layout_marginTopPercent">0%</item>
-        <item name="com.yongyida.robot:layout_widthPercent">40%</item>
+        <item name="layout_heightPercent">50%</item>
+        <item name="layout_marginTopPercent">0%</item>
+        <item name="layout_widthPercent">40%</item>
     </style>
     <style name="style_tv_control">
         <item name="android:layout_centerHorizontal">true</item>
@@ -231,26 +231,26 @@
         <item name="android:singleLine">true</item>
         <item name="android:gravity">center</item>
         <item name="android:textColor">@color/light_blue</item>
-        <item name="com.yongyida.robot:layout_heightPercent">40%</item>
-        <item name="com.yongyida.robot:layout_marginTopPercent">10%</item>
-        <item name="com.yongyida.robot:layout_widthPercent">100%</item>
+        <item name="layout_heightPercent">40%</item>
+        <item name="layout_marginTopPercent">10%</item>
+        <item name="layout_widthPercent">100%</item>
     </style>
     <style name="rb">
-        <item name="com.yongyida.robot:layout_marginTopPercent">1%</item>
-        <item name="com.yongyida.robot:layout_marginBottomPercent">1%</item>
+        <item name="layout_marginTopPercent">1%</item>
+        <item name="layout_marginBottomPercent">1%</item>
         <item name="android:gravity">center</item>
     </style>
     <style name="style_bt_meeting_control">
-        <item name="com.yongyida.robot:layout_heightPercent">10%</item>
-        <item name="com.yongyida.robot:layout_widthPercent">15%</item>
-        <item name="com.yongyida.robot:layout_marginLeftPercent">3%</item>
-        <item name="com.yongyida.robot:layout_marginTopPercent">2%</item>
-        <item name="com.yongyida.robot:layout_textSizePercent">3.5%</item>
+        <item name="layout_heightPercent">10%</item>
+        <item name="layout_widthPercent">15%</item>
+        <item name="layout_marginLeftPercent">3%</item>
+        <item name="layout_marginTopPercent">2%</item>
+        <item name="layout_textSizePercent">3.5%</item>
     </style>
     <style name="style_bt_meeting_control2">
-        <item name="com.yongyida.robot:layout_heightPercent">14%</item>
-        <item name="com.yongyida.robot:layout_widthPercent">80%</item>
-        <item name="com.yongyida.robot:layout_marginTopPercent">7%</item>
+        <item name="layout_heightPercent">14%</item>
+        <item name="layout_widthPercent">80%</item>
+        <item name="layout_marginTopPercent">7%</item>
         <item name="android:layout_centerHorizontal">true</item>
     </style>
     <style name="Dialog" parent="android:style/Theme.Dialog">
