@@ -18,6 +18,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.media.AudioManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -1129,6 +1130,7 @@ public class ControlActivity extends CallActivity implements OnClickListener,
 		} else {
 			if (controlMute) {
 				audioManager.setMicrophoneMute(false);
+				audioManager.setStreamVolume(AudioManager.STREAM_VOICE_CALL, 3, AudioManager.STREAM_VOICE_CALL);
 				sendMuteMsg(false);
 				view.setBackgroundResource(R.drawable.icon_mute_normal);
 			} else {
