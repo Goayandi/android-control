@@ -5,7 +5,9 @@
     <string name="time_placeholder" translatable="false">--</string>
     <string name="time_separator" translatable="false">:</string>
     <string name="radial_numbers_typeface" translatable="false">sans-serif</string>
-    <string name="app_name">小勇机器人</string>
+    <!--<string name="app_name">小勇机器人</string>-->
+    <string name="app_name">机器人</string>
+    <!-- <string name="app_name">走你</string>-->
     <!--<string name="app_name">小雨机器人</string>-->
     <!--<string name="app_name">小通机器人</string>-->
     <!--<string name="app_name">小思机器人</string>-->
@@ -339,8 +341,9 @@
     <string name="everyday">每天</string>
     <string name="save">保存</string>
     <string name="yongyida_robot">勇艺达机器人</string>
+    <string name="contact_number">400-0378-665</string>    <!-- 走你机器人 -->
     <!--<string name="contact_number">400-1003628</string>-->   <!--小雨机器人-->
-    <string name="contact_number">400-9696488</string>  <!--小勇机器人-->
+    <!--<string name="contact_number">400-9696488</string>-->  <!--小勇机器人-->
     <!--<string name="contact_number">400-9028738</string>-->  <!--优教小通-->
     <!--<string name="contact_number">400-025-8505</string>-->      <!--六朝科技-->
     <!--<string name="contact_number">020-28142331</string>-->       <!--高君科技-->

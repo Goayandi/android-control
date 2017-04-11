@@ -31,9 +31,18 @@ public class Constants {
 	public static String port_us = "8002";
 
 	// 下载地址
-	public static String download_address_cn = "http://resource.yydrobot.com/app/yyd/cn/app.version";
-    public static String download_address_test = "http://120.24.242.163/app/yyd/cn/app.version";
-    public static String download_address_test1 = "http://120.24.213.239/app/yyd/cn/app.version";
+//	public static String download_address_cn = "http://resource.yydrobot.com/app/yyd/cn/app.version";
+//    public static String download_address_test = "http://120.24.242.163/app/yyd/cn/app.version";
+//    public static String download_address_test1 = "http://120.24.213.239/app/yyd/cn/app.version";
+
+//	public static String download_address_cn = "http://resource.yydrobot.com/app/zouni/cn/zouni.version";
+// 	public static String download_address_test = "http://120.24.242.163/app/zouni/cn/zouni.version";
+// 	public static String download_address_test1 = "http://120.24.213.239/app/zouni/cn/zouni.version";
+
+
+	public static String download_address_cn = "http://resource.yydrobot.com/app/xiaoyongGeneral/cn/xiaoyongGeneral.version";
+ 	public static String download_address_test = "http://120.24.242.163/app/xiaoyongGeneral/cn/xiaoyongGeneral.version";
+ 	public static String download_address_test1 = "http://120.24.213.239/app/xiaoyongGeneral/cn/xiaoyongGeneral.version";
 
 //	public static String download_address_cn = "http://resource.yydrobot.com/app/youjiaoxiaotong/cn/app.youjiaoxiaotong.version";
 // 	public static String download_address_test = "http://120.24.242.163/app/youjiaoxiaotong/cn/app.youjiaoxiaotong.version";

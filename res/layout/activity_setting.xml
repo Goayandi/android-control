@@ -195,6 +195,7 @@
             android:layout_width="wrap_content"
             android:layout_height="50dip"
             android:orientation="horizontal"
+            android:visibility="gone"
             android:paddingLeft="15dip">
 
             <TextView
@@ -244,6 +245,7 @@
         <RelativeLayout
             android:id="@+id/contact"
             android:layout_width="wrap_content"
+            android:visibility="gone"
             android:layout_height="50dip"
             android:paddingLeft="15dip" >
 

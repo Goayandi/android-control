@@ -29,25 +29,25 @@
         app:layout_widthPercent="96%" >
 
 
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:background="@drawable/surround1" />
+        <!--<ImageView-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_centerInParent="true"-->
+            <!--android:background="@drawable/surround1" />-->
 
-        <ImageView
-            android:id="@+id/iv_ball"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:background="@drawable/ball1" />
-        
+        <!--<ImageView-->
+            <!--android:id="@+id/iv_ball"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_centerInParent="true"-->
+            <!--android:background="@drawable/ball1" />-->
+        <!---->
         <ImageView
             android:id="@+id/iv_robot"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:background="@drawable/robot1" />
+            android:layout_centerInParent="true" />
+           <!-- android:background="@drawable/robot10" />-->
 
     </com.layout.utils.PercentRelativeLayout>
 

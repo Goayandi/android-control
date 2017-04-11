@@ -79,7 +79,7 @@ public class PowerListActivity extends BaseActivity implements OnClickListener {
 			}
 
 		} else {
-			findViewById(R.id.iv_robot).setBackground(getResources().getDrawable(R.drawable.robot1));
+		//	findViewById(R.id.iv_robot).setBackground(getResources().getDrawable(R.drawable.robot10));
 		}
 
         int battery = getIntent().getExtras().getInt("battery");
